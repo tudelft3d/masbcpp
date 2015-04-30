@@ -1,6 +1,7 @@
 // #include<cstdlib>
 #include <iostream>
 #include <vector>
+// #include <new>
 // #include<map>
 // #include<string>
 
@@ -20,7 +21,6 @@ typedef Geometry::Point<Scalar,3> Point; // Type for 3D points
 typedef Geometry::Vector<Scalar,3> Vector; // Type for 3D vectors
 
 // globals
-Geometry::ArrayKdTree<Point> kd_tree;
 const Scalar initial_radius = 1000;
 const Scalar delta_convergance = 1E-5;
 const uint iteration_limit = 30;
@@ -33,7 +33,7 @@ inline Scalar compute_radius(Point &p, Vector &n, Point &q)
     return d/(2*cos_theta);
 }
 
-Point sb_point(Point &p, Vector &n)
+Point sb_point(Point &p, Vector &n, Geometry::ArrayKdTree<Point>* kd_tree)
 {
 
     uint j=0;
@@ -55,22 +55,21 @@ Point sb_point(Point &p, Vector &n)
         std::cout << "c = (" << c[0] << "," << c[1] << "," << c[2] << ")\n";
 
         close_points.clear();
-        kd_tree.findClosestPoints(c, close_points);
+        kd_tree->findClosestPoints(c, close_points);
         q = close_points.getPoint(0);
 
         std::cout << "q = (" << q[0] << "," << q[1] << "," << q[2] << ")\n";
 
         if (q == p)
+        {
             if (r_previous == initial_radius)
             {
                 r = initial_radius;
                 break;
-            }
-            else
-            {
+            } else {
                 q = close_points.getPoint(1);
             }
-
+        }
         r = compute_radius(p,n,q);
 
         std::cout << "r = " << r << "\n";
@@ -103,18 +102,21 @@ int main()
     
     std::cout << arr.word_size << "; (" << arr.shape[0] << "," << arr.shape[1] << ")\n";
 
-    std::vector<Point> pts(arr.shape[0]);
+    // std::vector<Point> pts(arr.shape[0]);
+    Point* pts = new Point[arr.shape[0]];
+    // std::vector<Point>* pts_ptr = &pts;
 
     for ( int i=0; i<arr.shape[0]; i++)
         // for ( int j=0; j<arr.shape[1]; j++)
         {
-            pts[i] = Point(&loaded_data[i*3]);
+            pts[i] = Point(loaded_data[i*3+0], loaded_data[i*3+1], loaded_data[i*3+2]);
             // std::cout << " (" << loaded_data[i*3+0] << "," << loaded_data[i*3+1] << "," << loaded_data[i*3+2] << ")\n";
             // std::cout << " (" << pts[i][0] << "," << pts[i][1] << "," << pts[i][2] << ")\n";
         }
+    delete[] loaded_data;
     
 
-    kd_tree = Geometry::ArrayKdTree<Point> (arr.shape[0], &pts[0]);
+    Geometry::ArrayKdTree<Point> kd_tree(arr.shape[0], pts);
 
 
     // Scalar x, y, z;
@@ -127,14 +129,19 @@ int main()
         
     // }
     
+
     Vector n(0,1,0);
     Point p(20,100,1);
-    Point c = sb_point(p, n);
+    // Point c(20,100,1);
+    Point c = sb_point(p, n, &kd_tree);
+
+    // delete[] pts;
+
     std::cout << " (" << c[0] << "," << c[1] << "," << c[2] << ")\n";
 
 
     // cnpy::npy_save("arr_out.npy", loaded_data, &arr.shape[0], 2, "w");
 
-    // delete[] loaded_data;
+    
     
 }
