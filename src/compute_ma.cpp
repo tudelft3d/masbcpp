@@ -23,7 +23,7 @@
 
 // kdtree2
 #include <boost/multi_array.hpp>
-#include <kdtree2.hpp>
+#include "../kdtree2/kdtree2.hpp"
 
 // typedefs
 typedef float Scalar; // Scalar type for 3D points
@@ -50,21 +50,30 @@ inline Scalar compute_radius(Point &p, Vector &n, Point &q)
     return d/(2*cos_theta);
 }
 
+inline Scalar cos_angle(Vector p, Vector q)
+{
+    // Calculate the cosine of angle between vector p and q, see http://en.wikipedia.org/wiki/Law_of_cosines#Vector_formulation
+    Scalar result = p*q / ( Geometry::mag(p) * Geometry::mag(q) );
+    if (result > 1) return 1;
+    else if (result < -1) return -1;
+    return result;
+}
+
 int nnn_counter =0;
 double nnn_total_time =0;
+double denoise_preserve = (3.1415/180) * 20;
+double denoise_planar = (3.1415/180) * 74;
 Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree, std::vector<Point> &ma_coords)
 {
     uint j=0;
-    Point q, c;
     Scalar r, r_previous = 0;
+    Point q, c_next;
+    Point c = p - n * r_previous;
     // Geometry::ClosePointSet<Point> close_points(2);
 
     while (1) 
     {
         // std::cout << "\nloop iteration: " << j << ", p = (" << p[0] << "," << p[1] << "," << p[2] << ") \n";
-        
-        // compute ball center c
-        c = p - n * r_previous;
 
         // std::cout << "c = (" << c[0] << "," << c[1] << "," << c[2] << ")\n";
 
@@ -118,6 +127,28 @@ Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree, std::vector<Point
             break;
         }
 
+        // Deonoising
+        // compute ball center c
+        c_next = p - n * r;
+        if (denoise_preserve or denoise_planar)
+        {
+            Scalar a = cos_angle(p-c_next, q-c_next);
+            Scalar separation_angle = Math::acos(a);
+            // std::cout << separation_angle << " " << denoise_preserve << " " << denoise_planar << ".\n";
+            if ( separation_angle < denoise_preserve and j>0 and r > Geometry::mag(q-p) )
+            {
+                // keep previous radius:
+                r=r_previous;
+                break;
+            }
+            // if ( separation_angle < denoise_planar and j<2 )
+            if ( Math::acos( cos_angle(q-p, -n) ) > denoise_planar and j<2 )
+
+            {
+                r= initial_radius;
+                break;
+            }
+        }
         // stop iteration if r has converged
         if (Math::abs(r_previous-r) < delta_convergance)
             break;
@@ -127,6 +158,7 @@ Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree, std::vector<Point
             break;
 
         r_previous = r;
+        c = c_next;
         j++;
         
     }
@@ -154,7 +186,7 @@ std::vector<Point> sb_points(array &point_array, array &normal_array, uint num_p
 
 int main()
 {
-    cnpy::NpyArray coords_npy = cnpy::npy_load("/Users/ravi/Documents/masb/lidar/rdam_blokken_npy_lfsk10/coords.npy");
+    cnpy::NpyArray coords_npy = cnpy::npy_load("/Users/ravi/git/masb/lidar/rdam_blokken_npy_lfsk10/coords.npy");
     float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
 
     uint num_points = coords_npy.shape[0];
@@ -171,7 +203,7 @@ int main()
     // coords_npy.destruct();
     // delete[] coords_carray;
 
-    cnpy::NpyArray normals_npy = cnpy::npy_load("/Users/ravi/Documents/masb/lidar/rdam_blokken_npy_lfsk10/normals.npy");
+    cnpy::NpyArray normals_npy = cnpy::npy_load("/Users/ravi/git/masb/lidar/rdam_blokken_npy_lfsk10/normals.npy");
     float* normals_carray = reinterpret_cast<float*>(normals_npy.data);
     // Vector* normals = new Vector[normals_npy.shape[0]];
     // for ( int i=0; i<num_points; i++) normals[i] = Vector(&normals_carray[i*3]);
@@ -209,7 +241,7 @@ int main()
 
     const unsigned int c_size = ma_coords.size();
     const unsigned int shape[] = {c_size,3};
-    cnpy::npy_save("ma_coords.npy", ma_coords_carray, shape, 2, "w");
+    cnpy::npy_save("rdam_blokken_npy_lfsk10/ma_coords_out.npy", ma_coords_carray, shape, 2, "w");
 
     // return 0;
 }
