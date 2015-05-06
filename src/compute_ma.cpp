@@ -62,7 +62,7 @@ inline Scalar cos_angle(Vector p, Vector q)
 int nnn_counter =0;
 double nnn_total_time =0;
 double denoise_preserve = (3.1415/180) * 20;
-double denoise_planar = (3.1415/180) * 74;
+double denoise_planar = (3.1415/180) * 5;
 Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree, std::vector<Point> &ma_coords)
 {
     uint j=0;
@@ -132,19 +132,23 @@ Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree, std::vector<Point
         c_next = p - n * r;
         if (denoise_preserve or denoise_planar)
         {
-            Scalar a = cos_angle(p-c_next, q-c_next);
+            Scalar a = cos_angle(p-c_next, c_next);
             Scalar separation_angle = Math::acos(a);
-            // std::cout << separation_angle << " " << denoise_preserve << " " << denoise_planar << ".\n";
+            
+            std::cout << j << "\n";
+            std::cout << separation_angle << " | " << denoise_preserve << " | " << denoise_planar << ".\n";
+
             if ( separation_angle < denoise_preserve and j>0 and r > Geometry::mag(q-p) )
             {
+                std::cout << "denoise.\n";
                 // keep previous radius:
                 r=r_previous;
                 break;
             }
             // if ( separation_angle < denoise_planar and j<2 )
-            if ( Math::acos( cos_angle(q-p, -n) ) > denoise_planar and j<2 )
-
+            if ( separation_angle < denoise_planar and j==0 )
             {
+                std::cout << "planar.\n";
                 r= initial_radius;
                 break;
             }
@@ -186,7 +190,7 @@ std::vector<Point> sb_points(array &point_array, array &normal_array, uint num_p
 
 int main()
 {
-    cnpy::NpyArray coords_npy = cnpy::npy_load("/Users/ravi/git/masb/lidar/rdam_blokken_npy_lfsk10/coords.npy");
+    cnpy::NpyArray coords_npy = cnpy::npy_load("rdam_blokken_npy/coords.npy");
     float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
 
     uint num_points = coords_npy.shape[0];
@@ -203,7 +207,7 @@ int main()
     // coords_npy.destruct();
     // delete[] coords_carray;
 
-    cnpy::NpyArray normals_npy = cnpy::npy_load("/Users/ravi/git/masb/lidar/rdam_blokken_npy_lfsk10/normals.npy");
+    cnpy::NpyArray normals_npy = cnpy::npy_load("rdam_blokken_npy/normals.npy");
     float* normals_carray = reinterpret_cast<float*>(normals_npy.data);
     // Vector* normals = new Vector[normals_npy.shape[0]];
     // for ( int i=0; i<num_points; i++) normals[i] = Vector(&normals_carray[i*3]);
@@ -241,7 +245,7 @@ int main()
 
     const unsigned int c_size = ma_coords.size();
     const unsigned int shape[] = {c_size,3};
-    cnpy::npy_save("rdam_blokken_npy_lfsk10/ma_coords_out.npy", ma_coords_carray, shape, 2, "w");
+    cnpy::npy_save("rdam_blokken_npy/ma_coords_out.npy", ma_coords_carray, shape, 2, "w");
 
     // return 0;
 }
