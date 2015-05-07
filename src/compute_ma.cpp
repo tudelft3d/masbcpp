@@ -25,6 +25,8 @@
 #include <boost/multi_array.hpp>
 #include "../kdtree2/kdtree2.hpp"
 
+// #define DEBUG 1;
+
 // typedefs
 typedef float Scalar; // Scalar type for 3D points
 typedef Geometry::Point<Scalar,3> Point; // Type for 3D points
@@ -62,20 +64,22 @@ inline Scalar cos_angle(Vector p, Vector q)
 int nnn_counter =0;
 double nnn_total_time =0;
 double denoise_preserve = (3.1415/180) * 20;
-double denoise_planar = (3.1415/180) * 5;
+double denoise_planar = (3.1415/180) * 32;
 Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree, std::vector<Point> &ma_coords)
 {
     uint j=0;
     Scalar r, r_previous = 0;
     Point q, c_next;
-    Point c = p - n * r_previous;
+    Point c = p - n * initial_radius;
     // Geometry::ClosePointSet<Point> close_points(2);
 
     while (1) 
     {
-        // std::cout << "\nloop iteration: " << j << ", p = (" << p[0] << "," << p[1] << "," << p[2] << ") \n";
+        #ifdef DEBUG
+            std::cout << "\nloop iteration: " << j << ", p = (" << p[0] << "," << p[1] << "," << p[2] << ", n = (" << n[0] << "," << n[1] << "," << n[2] << ") \n";
 
-        // std::cout << "c = (" << c[0] << "," << c[1] << "," << c[2] << ")\n";
+            std::cout << "c = (" << c[0] << "," << c[1] << "," << c[2] << ")\n";
+        #endif
 
         // find closest point to c
         Misc::Timer t1;
@@ -94,7 +98,9 @@ Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree, std::vector<Point
         nnn_total_time += t1.getTime()*1000.0;
         // std::cout<<"NN time: "<<t1.getTime()*1000.0<<" ms"<<std::endl;
 
-        // std::cout << "q = (" << q[0] << "," << q[1] << "," << q[2] << ")\n";
+        #ifdef DEBUG
+        std::cout << "q = (" << q[0] << "," << q[1] << "," << q[2] << ")\n";
+        #endif
 
         // handle case when q==p
         if (q == p)
@@ -115,7 +121,9 @@ Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree, std::vector<Point
         // compute radius
         r = compute_radius(p,n,q);
 
-        // std::cout << "r = " << r << "\n";
+        #ifdef DEBUG
+        std::cout << "r = " << r << "\n";
+        #endif
 
         // if r < 0 closest point was on the wrong side of plane with normal n => start over with SuperRadius on the right side of that plane
         if (r < 0)
@@ -132,15 +140,16 @@ Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree, std::vector<Point
         c_next = p - n * r;
         if (denoise_preserve or denoise_planar)
         {
-            Scalar a = cos_angle(p-c_next, c_next);
+            Scalar a = cos_angle(p-c_next, q-c_next);
             Scalar separation_angle = Math::acos(a);
             
-            std::cout << j << "\n";
-            std::cout << separation_angle << " | " << denoise_preserve << " | " << denoise_planar << ".\n";
+            
+            // std::cout << j << "\n";
+            // std::cout << separation_angle << " | " << denoise_preserve << " | " << denoise_planar << ".\n";
 
             if ( separation_angle < denoise_preserve and j>0 and r > Geometry::mag(q-p) )
             {
-                std::cout << "denoise.\n";
+                // std::cout << "denoise.\n";
                 // keep previous radius:
                 r=r_previous;
                 break;
@@ -148,7 +157,7 @@ Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree, std::vector<Point
             // if ( separation_angle < denoise_planar and j<2 )
             if ( separation_angle < denoise_planar and j==0 )
             {
-                std::cout << "planar.\n";
+                // std::cout << "planar.\n";
                 r= initial_radius;
                 break;
             }
