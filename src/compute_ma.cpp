@@ -15,8 +15,6 @@
 
 // #include <Geometry/ClosePointSet.h>
 #include <Geometry/ComponentArray.h>
-#include <Geometry/Vector.h>
-#include <Geometry/Point.h>
 
 #include <Math/Math.h>
 #include <Misc/Timer.h>
@@ -25,12 +23,12 @@
 #include <boost/multi_array.hpp>
 #include "../kdtree2/kdtree2.hpp"
 
+#include "types.h"
+
 // #define VERBOSEPRINT 1;
 
 // typedefs
-typedef float Scalar; // Scalar type for 3D points
-typedef Geometry::Point<Scalar,3> Point; // Type for 3D points
-typedef Geometry::Vector<Scalar,3> Vector; // Type for 3D vectors
+
 // typedef Geometry::PointTwoNTree<Point> SpatialIndex;
 // typedef Geometry::ArrayKdTree<Point> SpatialIndex;
 // typedef Geometry::PointKdTree<Scalar,3,Point> SpatialIndex;
