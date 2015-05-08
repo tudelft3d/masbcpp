@@ -42,7 +42,7 @@ inline Scalar cos_angle(Vector p, Vector q)
 
 double denoise_preserve = (3.1415/180) * 20;
 double denoise_planar = (3.1415/180) * 32;
-inline Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
+Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
 {
     uint j=0;
     Scalar r, r_previous = 0;
