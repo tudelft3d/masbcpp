@@ -37,8 +37,6 @@ inline Scalar cos_angle(Vector p, Vector q)
     return result;
 }
 
-int nnn_counter =0;
-double nnn_total_time =0;
 double denoise_preserve = (3.1415/180) * 20;
 double denoise_planar = (3.1415/180) * 32;
 Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
@@ -57,14 +55,9 @@ Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
         #endif
 
         // find closest point to c
-        Misc::Timer t1;
         kdtree2::KDTreeResultVector result;
         kd_tree->n_nearest(c,2,result);
-        nnn_counter++;
         q = kd_tree->the_data[ result[0].idx ];
-        t1.elapse();
-        nnn_total_time += t1.getTime()*1000.0;
-        // std::cout<<"NN time: "<<t1.getTime()*1000.0<<" ms"<<std::endl;
 
         #ifdef VERBOSEPRINT
         std::cout << "q = (" << q[0] << "," << q[1] << "," << q[2] << ")\n";
@@ -83,7 +76,6 @@ Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
                 q = kd_tree->the_data[ result[1].idx ];
             }
         }
-        // close_points.clear();
 
         // compute radius
         r = compute_radius(p,n,q);
@@ -142,7 +134,6 @@ Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
         
     }
 
-    // std::cout << j << ": (" << c[0] << "," << c[1] << "," << c[2] << ")\n";
     return c;
 }
 
@@ -153,15 +144,13 @@ PointList sb_points(PointList &points, VectorList &normals, kdtree2::KDTree* kd_
     Vector n;
     for (uint i=0; i<points.size(); i++)
     {
-            p = Point(points[i][0], points[i][1], points[i][2]);
-            if (inner)
-                n = Vector(normals[i][0], normals[i][1], normals[i][2]);
-            else
-                n = -Vector(normals[i][0], normals[i][1], normals[i][2]);
-        // std::cout << i << ": (" << p[0] << "," << p[1] << "," << p[2] << ")\n";
+        p = points[i];
+        if (inner)
+            n = normals[i];
+        else
+            n = -normals[i];
         ma_coords[i] = sb_point(p, n, kd_tree);
     }
-    // std::cout << ": (#" << nnn_counter << ", " << nnn_total_time << "ms)\n";
     return ma_coords;
 }
 
@@ -174,49 +163,51 @@ int main()
     uint dim = coords_npy.shape[1];
     PointList coords(num_points);
     for ( int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
-
-    // coords_npy.destruct();
-    // delete[] coords_carray;
+    coords_npy.destruct();
 
     cnpy::NpyArray normals_npy = cnpy::npy_load("rdam_blokken_npy/normals.npy");
     float* normals_carray = reinterpret_cast<float*>(normals_npy.data);
     VectorList normals(normals_npy.shape[0]);
     for ( int i=0; i<num_points; i++) normals[i] = Vector(&normals_carray[i*3]);
-
-    // normals_npy.destruct();
-    // delete[] normals_carray;
+    normals_npy.destruct();
     
     kdtree2::KDTree* kd_tree;
     kd_tree = new kdtree2::KDTree(coords,true);
     kd_tree->sort_results = true;
 
-    Scalar* ma_coords_in_carray = new Scalar[num_points*3];
-    Misc::Timer t1;
-    PointList ma_coords_in = sb_points(coords, normals, kd_tree, 1);
-    t1.elapse();
-    std::cout<<"NN time in: "<<t1.getTime()*1000.0<<" ms"<<std::endl;
-
+    {
+        Scalar* ma_coords_in_carray = new Scalar[num_points*3];
+        Misc::Timer t1;
+        PointList ma_coords_in = sb_points(coords, normals, kd_tree, 1);
+        t1.elapse();
+        std::cout<<"NN time in: "<<t1.getTime()*1000.0<<" ms"<<std::endl;
     
-    for (int i=0; i<ma_coords_in.size(); i++)
-        for (int j=0; j<3; j++)
-            ma_coords_in_carray[i*3+j] = ma_coords_in[i][j];
-
-    const unsigned int c_size = ma_coords_in.size();
-    const unsigned int shape[] = {c_size,3};
-    cnpy::npy_save("rdam_blokken_npy/ma_coords_in.npy", ma_coords_in_carray, shape, 2, "w");
-
-    Scalar* ma_coords_out_carray = new Scalar[num_points*3];
-    Misc::Timer t2;
-    PointList ma_coords_out = sb_points(coords, normals, kd_tree, 0);
-    t2.elapse();
-    std::cout<<"NN time out: "<<t2.getTime()*1000.0<<" ms"<<std::endl;
-
+        
+        for (int i=0; i<ma_coords_in.size(); i++)
+            for (int j=0; j<3; j++)
+                ma_coords_in_carray[i*3+j] = ma_coords_in[i][j];
     
-    for (int i=0; i<ma_coords_out.size(); i++)
-        for (int j=0; j<3; j++)
-            ma_coords_out_carray[i*3+j] = ma_coords_out[i][j];
+        const unsigned int c_size = ma_coords_in.size();
+        const unsigned int shape[] = {c_size,3};
+        cnpy::npy_save("rdam_blokken_npy/ma_coords_in.npy", ma_coords_in_carray, shape, 2, "w");
+    }
 
-    cnpy::npy_save("rdam_blokken_npy/ma_coords_out.npy", ma_coords_out_carray, shape, 2, "w");
+    {
+        Scalar* ma_coords_out_carray = new Scalar[num_points*3];
+        Misc::Timer t2;
+        PointList ma_coords_out = sb_points(coords, normals, kd_tree, 0);
+        t2.elapse();
+        std::cout<<"NN time out: "<<t2.getTime()*1000.0<<" ms"<<std::endl;
+
+        
+        for (int i=0; i<ma_coords_out.size(); i++)
+            for (int j=0; j<3; j++)
+                ma_coords_out_carray[i*3+j] = ma_coords_out[i][j];
+
+        const unsigned int c_size = ma_coords_out.size();
+        const unsigned int shape[] = {c_size,3};
+        cnpy::npy_save("rdam_blokken_npy/ma_coords_out.npy", ma_coords_out_carray, shape, 2, "w");
+    }
 
     // return 1;
 }
