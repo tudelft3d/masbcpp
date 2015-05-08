@@ -1,7 +1,12 @@
+// #define VERBOSEPRINT 1;
+#define WITH_OPENMP 1;
+
 #include <iostream>
 
 // OpenMP
+#ifdef WITH_OPENMP
 #include <libiomp/omp.h>
+#endif
 
 // Vrui
 #include "../thirdparty/vrui/Geometry/ComponentArray.h"
@@ -16,7 +21,6 @@
 // typedefs
 #include "types.h"
 
-// #define VERBOSEPRINT 1;
 
 // globals
 const Scalar initial_radius = 100;
