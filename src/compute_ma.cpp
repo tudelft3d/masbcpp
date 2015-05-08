@@ -1,41 +1,19 @@
-// #include<cstdlib>
 #include <iostream>
-#include <vector>
-// #include <new>
-// #include <map>
-// #include <string>
-
-// cnpy
-#include <cnpy.h>
 
 // Vrui
-// #include <Geometry/ArrayKdTree.h>
-// #include <Geometry/PointKdTree.h>
-// #include <Geometry/PointTwoNTree.h>
-
-// #include <Geometry/ClosePointSet.h>
 #include <Geometry/ComponentArray.h>
-
 #include <Math/Math.h>
 #include <Misc/Timer.h>
 
 // kdtree2
-#include <boost/multi_array.hpp>
-#include "../kdtree2/kdtree2.hpp"
+#include "../thirdparty/kdtree2/kdtree2.hpp"
+// cnpy
+#include "../thirdparty/cnpy/cnpy.h"
 
+// typedefs
 #include "types.h"
 
 // #define VERBOSEPRINT 1;
-
-// typedefs
-
-// typedef Geometry::PointTwoNTree<Point> SpatialIndex;
-// typedef Geometry::ArrayKdTree<Point> SpatialIndex;
-// typedef Geometry::PointKdTree<Scalar,3,Point> SpatialIndex;
-
-typedef boost::multi_array<float,2> array;
-// typedef array::index_gen idx;
-// typedef array::array_view<1>::type vec;
 
 // globals
 const Scalar initial_radius = 100;
@@ -63,7 +41,7 @@ int nnn_counter =0;
 double nnn_total_time =0;
 double denoise_preserve = (3.1415/180) * 20;
 double denoise_planar = (3.1415/180) * 32;
-Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree, std::vector<Point> &ma_coords)
+Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
 {
     uint j=0;
     Scalar r, r_previous = 0;
@@ -81,16 +59,9 @@ Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree, std::vector<Point
         // find closest point to c
         Misc::Timer t1;
         kdtree2::KDTreeResultVector result;
-        std::vector<Scalar> c_vec;
-        for (int i=0; i<3; i++)
-            c_vec.push_back(c[i]);
-        // std::vector<Scalar> c_vec = {c[0], c[1], c[2]};
-        kd_tree->n_nearest(c_vec,2,result);
-        // kd_tree->findClosestPoints(c, close_points);
+        kd_tree->n_nearest(c,2,result);
         nnn_counter++;
-        // q = close_points.getPoint(0);
-        for (int i=0; i<3; i++)
-            q[i] = kd_tree->the_data[ result[0].idx ][i];
+        q = kd_tree->the_data[ result[0].idx ];
         t1.elapse();
         nnn_total_time += t1.getTime()*1000.0;
         // std::cout<<"NN time: "<<t1.getTime()*1000.0<<" ms"<<std::endl;
@@ -109,8 +80,7 @@ Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree, std::vector<Point
                 break;
             // 2) otherwise just pick the second closest point
             } else {
-                for (int i=0; i<3; i++)
-                    q[i] = kd_tree->the_data[ result[1].idx ][i];
+                q = kd_tree->the_data[ result[1].idx ];
             }
         }
         // close_points.clear();
@@ -140,7 +110,6 @@ Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree, std::vector<Point
             Scalar a = cos_angle(p-c_next, q-c_next);
             Scalar separation_angle = Math::acos(a);
             
-
             // std::cout << j << "\n";
             // std::cout << separation_angle << " | " << denoise_preserve << " | " << denoise_planar << ".\n";
 
@@ -177,21 +146,20 @@ Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree, std::vector<Point
     return c;
 }
 
-std::vector<Point> sb_points(array &point_array, array &normal_array, uint num_points, kdtree2::KDTree* kd_tree, bool inner=1)
+PointList sb_points(PointList &points, VectorList &normals, kdtree2::KDTree* kd_tree, bool inner=1)
 {
-    std::vector<Point> ma_coords;
+    PointList ma_coords(points.size());
     Point p;
     Vector n;
-    for (uint i=0; i<num_points; i++)
+    for (uint i=0; i<points.size(); i++)
     {
-            p = Point(point_array[i][0], point_array[i][1], point_array[i][2]);
+            p = Point(points[i][0], points[i][1], points[i][2]);
             if (inner)
-                n = Vector(normal_array[i][0], normal_array[i][1], normal_array[i][2]);
+                n = Vector(normals[i][0], normals[i][1], normals[i][2]);
             else
-                n = -Vector(normal_array[i][0], normal_array[i][1], normal_array[i][2]);
+                n = -Vector(normals[i][0], normals[i][1], normals[i][2]);
         // std::cout << i << ": (" << p[0] << "," << p[1] << "," << p[2] << ")\n";
-        ma_coords.push_back(sb_point(p, n, kd_tree, ma_coords));
-        // ma_coords[i] = sb_point(point_array[i], normal_array[i], kd_tree);
+        ma_coords[i] = sb_point(p, n, kd_tree);
     }
     // std::cout << ": (#" << nnn_counter << ", " << nnn_total_time << "ms)\n";
     return ma_coords;
@@ -204,48 +172,29 @@ int main()
 
     uint num_points = coords_npy.shape[0];
     uint dim = coords_npy.shape[1];
-    // Point* coords = new Point[num_points];
-    // for ( int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
-    array coords; 
+    PointList coords(num_points);
+    for ( int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
 
-    coords.resize(boost::extents[num_points][dim]);
-    for (int i=0; i<num_points; i++) {
-        for (int j=0; j<dim; j++) 
-            coords[i][j] = coords_carray[i*dim+j];
-    }
     // coords_npy.destruct();
     // delete[] coords_carray;
 
     cnpy::NpyArray normals_npy = cnpy::npy_load("rdam_blokken_npy/normals.npy");
     float* normals_carray = reinterpret_cast<float*>(normals_npy.data);
-    // Vector* normals = new Vector[normals_npy.shape[0]];
-    // for ( int i=0; i<num_points; i++) normals[i] = Vector(&normals_carray[i*3]);
-    array normals;
-    normals.resize(boost::extents[num_points][dim]);
-    for (int i=0; i<num_points; i++) {
-        for (int j=0; j<dim; j++) 
-            normals[i][j] = normals_carray[i*dim+j];
-    }
+    VectorList normals(normals_npy.shape[0]);
+    for ( int i=0; i<num_points; i++) normals[i] = Vector(&normals_carray[i*3]);
+
     // normals_npy.destruct();
     // delete[] normals_carray;
     
-
-    // SpatialIndex kd_tree(num_points, coords);
     kdtree2::KDTree* kd_tree;
     kd_tree = new kdtree2::KDTree(coords,true);
     kd_tree->sort_results = true;
 
-    // Vector n(0,1,0);
-    // Point p(20,100,1);
-    // Point* ma_coords = new Point[num_points];
-    // Point c(20,100,1);
-    // Point c = sb_point(p, n, &kd_tree);
     Scalar* ma_coords_in_carray = new Scalar[num_points*3];
     Misc::Timer t1;
-    std::vector<Point> ma_coords_in = sb_points(coords, normals, num_points, kd_tree, 1);
+    PointList ma_coords_in = sb_points(coords, normals, kd_tree, 1);
     t1.elapse();
     std::cout<<"NN time in: "<<t1.getTime()*1000.0<<" ms"<<std::endl;
-    // delete[] coords;
 
     
     for (int i=0; i<ma_coords_in.size(); i++)
@@ -258,10 +207,9 @@ int main()
 
     Scalar* ma_coords_out_carray = new Scalar[num_points*3];
     Misc::Timer t2;
-    std::vector<Point> ma_coords_out = sb_points(coords, normals, num_points, kd_tree, 0);
+    PointList ma_coords_out = sb_points(coords, normals, kd_tree, 0);
     t2.elapse();
     std::cout<<"NN time out: "<<t2.getTime()*1000.0<<" ms"<<std::endl;
-    // delete[] coords;
 
     
     for (int i=0; i<ma_coords_out.size(); i++)
@@ -270,5 +218,5 @@ int main()
 
     cnpy::npy_save("rdam_blokken_npy/ma_coords_out.npy", ma_coords_out_carray, shape, 2, "w");
 
-    // return 0;
+    // return 1;
 }

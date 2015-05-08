@@ -3,6 +3,9 @@
 //
 // Licensed under the Academic Free License version 1.1 found in file LICENSE
 // with additional provisions in that same file.
+//
+// Adapted by Ravi Peters for better integration with masbcpp
+//
 
 
 #include "kdtree2.hpp"
@@ -92,7 +95,7 @@ namespace kdtree2 {
             // if we have a rearranged tree.
             // allocate the memory for it.
             printf("rearranging\n");
-            rearranged_data = new Vector[N];
+            rearranged_data.reserve(N);
             
             // permute the data for it.
             for (int i=0; i<N; i++) {
