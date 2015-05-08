@@ -1,5 +1,8 @@
 #include <iostream>
 
+// OpenMP
+#include <libiomp/omp.h>
+
 // Vrui
 #include "../thirdparty/vrui/Geometry/ComponentArray.h"
 #include "../thirdparty/vrui/Math/Math.h"
@@ -39,7 +42,7 @@ inline Scalar cos_angle(Vector p, Vector q)
 
 double denoise_preserve = (3.1415/180) * 20;
 double denoise_planar = (3.1415/180) * 32;
-Point  sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
+inline Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
 {
     uint j=0;
     Scalar r, r_previous = 0;
@@ -142,6 +145,8 @@ PointList sb_points(PointList &points, VectorList &normals, kdtree2::KDTree* kd_
     PointList ma_coords(points.size());
     Point p;
     Vector n;
+
+    #pragma omp parallel for private(p, n)
     for (uint i=0; i<points.size(); i++)
     {
         p = points[i];
@@ -174,6 +179,8 @@ int main()
     kdtree2::KDTree* kd_tree;
     kd_tree = new kdtree2::KDTree(coords,true);
     kd_tree->sort_results = true;
+
+    // omp_set_num_threads(4);
 
     {
         Scalar* ma_coords_in_carray = new Scalar[num_points*3];
