@@ -1,1 +1,1 @@
-g++ -o compute_ma src/*.cpp thirdparty/cnpy/*.cpp thirdparty/kdtree2/*.cpp -O3 -funroll-loops -ffast-math -I/usr/local/include/vrui  -L/usr/local/lib/vrui  -lGeometry.g++-3 -lIO.g++-3 -lMath.g++-3 -lMisc.g++-3 -lThreads.g++-3  -lz
+g++ -o compute_ma src/*.cpp thirdparty/vrui/Geometry/*.cpp thirdparty/vrui/Misc/*.cpp thirdparty/cnpy/*.cpp thirdparty/kdtree2/*.cpp -O3 -funroll-loops -ffast-math -Ithirdparty/vrui

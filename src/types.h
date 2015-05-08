@@ -1,5 +1,5 @@
-#include <Geometry/Vector.h>
-#include <Geometry/Point.h>
+#include "../thirdparty/vrui/Geometry/Vector.h"
+#include "../thirdparty/vrui/Geometry/Point.h"
 
 typedef float Scalar; // Scalar type for 3D points
 typedef Geometry::Point<Scalar,3> Point; // Type for 3D points

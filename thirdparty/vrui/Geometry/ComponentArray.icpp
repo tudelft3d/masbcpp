@@ -1,0 +1,159 @@
+/***********************************************************************
+ComponentArray - Foundation class for Euclidean vectors, affine points
+and homogenuous vectors.
+Copyright (c) 2001-2010 Oliver Kreylos
+
+This file is part of the Templatized Geometry Library (TGL).
+
+The Templatized Geometry Library is free software; you can redistribute
+it and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the
+License, or (at your option) any later version.
+
+The Templatized Geometry Library is distributed in the hope that it will
+be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with the Templatized Geometry Library; if not, write to the Free
+Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+02111-1307 USA
+***********************************************************************/
+
+#define GEOMETRY_COMPONENTARRAY_IMPLEMENTATION
+
+#include <Geometry/ComponentArray.h>
+
+namespace Geometry {
+
+/***************************************
+Static elements of class ComponentArray:
+***************************************/
+
+template <class ScalarParam,int dimensionParam>
+const int ComponentArray<ScalarParam,dimensionParam>::dimension;
+template <class ScalarParam>
+const int ComponentArray<ScalarParam,2>::dimension;
+template <class ScalarParam>
+const int ComponentArray<ScalarParam,3>::dimension;
+template <class ScalarParam>
+const int ComponentArray<ScalarParam,4>::dimension;
+
+/*******************************
+Methods of class ComponentArray:
+*******************************/
+
+template <class ScalarParam,int dimensionParam>
+template <class SourceScalarParam,int sourceDimensionParam>
+inline
+ComponentArray<ScalarParam,dimensionParam>::ComponentArray(const ComponentArray<SourceScalarParam,sourceDimensionParam>& source)
+	{
+	/* Copy and typecast the common prefix of the component array: */
+	int commonMax=dimension;
+	if(commonMax>sourceDimensionParam)
+		commonMax=sourceDimensionParam;
+	int i;
+	for(i=0;i<commonMax;++i)
+		components[i]=Scalar(source[i]);
+	
+	/* Fill the rest of the component array with zeros: */
+	for(;i<dimension;++i)
+		components[i]=Scalar(0);
+	}
+
+template <class ScalarParam,int dimensionParam>
+template <class SourceScalarParam>
+inline
+ComponentArray<ScalarParam,dimensionParam>::ComponentArray(const ComponentArray<SourceScalarParam,dimensionParam>& source)
+	{
+	/* Copy and typecast the source component array: */
+	for(int i=0;i<dimension;++i)
+		components[i]=Scalar(source[i]);
+	}
+
+template <class ScalarParam>
+template <class SourceScalarParam,int sourceDimensionParam>
+inline
+ComponentArray<ScalarParam,2>::ComponentArray(const ComponentArray<SourceScalarParam,sourceDimensionParam>& source)
+	{
+	/* Copy and typecast the common prefix of the component array: */
+	int commonMax=2;
+	if(commonMax>sourceDimensionParam)
+		commonMax=sourceDimensionParam;
+	int i;
+	for(i=0;i<commonMax;++i)
+		components[i]=Scalar(source[i]);
+	
+	/* Fill the rest of the component array with zeros: */
+	for(;i<2;++i)
+		components[i]=Scalar(0);
+	}
+
+template <class ScalarParam>
+template <class SourceScalarParam>
+inline
+ComponentArray<ScalarParam,2>::ComponentArray(const ComponentArray<SourceScalarParam,2>& source)
+	{
+	/* Copy and typecast the source component array: */
+	for(int i=0;i<2;++i)
+		components[i]=Scalar(source[i]);
+	}
+
+template <class ScalarParam>
+template <class SourceScalarParam,int sourceDimensionParam>
+inline
+ComponentArray<ScalarParam,3>::ComponentArray(const ComponentArray<SourceScalarParam,sourceDimensionParam>& source)
+	{
+	/* Copy and typecast the common prefix of the component array: */
+	int commonMax=3;
+	if(commonMax>sourceDimensionParam)
+		commonMax=sourceDimensionParam;
+	int i;
+	for(i=0;i<commonMax;++i)
+		components[i]=Scalar(source[i]);
+	
+	/* Fill the rest of the component array with zeros: */
+	for(;i<3;++i)
+		components[i]=Scalar(0);
+	}
+
+template <class ScalarParam>
+template <class SourceScalarParam>
+inline
+ComponentArray<ScalarParam,3>::ComponentArray(const ComponentArray<SourceScalarParam,3>& source)
+	{
+	/* Copy and typecast the source component array: */
+	for(int i=0;i<3;++i)
+		components[i]=Scalar(source[i]);
+	}
+
+template <class ScalarParam>
+template <class SourceScalarParam,int sourceDimensionParam>
+inline
+ComponentArray<ScalarParam,4>::ComponentArray(const ComponentArray<SourceScalarParam,sourceDimensionParam>& source)
+	{
+	/* Copy and typecast the common prefix of the component array: */
+	int commonMax=4;
+	if(commonMax>sourceDimensionParam)
+		commonMax=sourceDimensionParam;
+	int i;
+	for(i=0;i<commonMax;++i)
+		components[i]=Scalar(source[i]);
+	
+	/* Fill the rest of the component array with zeros: */
+	for(;i<4;++i)
+		components[i]=Scalar(0);
+	}
+
+template <class ScalarParam>
+template <class SourceScalarParam>
+inline
+ComponentArray<ScalarParam,4>::ComponentArray(const ComponentArray<SourceScalarParam,4>& source)
+	{
+	/* Copy and typecast the source component array: */
+	for(int i=0;i<4;++i)
+		components[i]=Scalar(source[i]);
+	}
+
+}

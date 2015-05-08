@@ -1,9 +1,9 @@
 #include <iostream>
 
 // Vrui
-#include <Geometry/ComponentArray.h>
-#include <Math/Math.h>
-#include <Misc/Timer.h>
+#include "../thirdparty/vrui/Geometry/ComponentArray.h"
+#include "../thirdparty/vrui/Math/Math.h"
+#include "../thirdparty/vrui/Misc/Timer.h"
 
 // kdtree2
 #include "../thirdparty/kdtree2/kdtree2.hpp"
