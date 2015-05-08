@@ -20,7 +20,7 @@ FILE(GLOB_RECURSE THIRDPARTY thirdparty/*.cpp)
 add_executable(compute_ma src/compute_ma.cpp ${THIRDPARTY})
 
 set_target_properties(compute_ma PROPERTIES LINKER_LANGUAGE CXX)
-target_include_directories(compute_ma PRIVATE "${CMAKE_SOURCE_DIR}/thirdparty/vrui")
+target_include_directories(compute_ma PRIVATE ${CMAKE_SOURCE_DIR}/thirdparty ${CMAKE_SOURCE_DIR}/thirdparty/vrui)
 target_link_libraries(compute_ma ${LINK_LIBS})
 target_compile_options(compute_ma PRIVATE "${COMPILE_OPTIONS}")
 

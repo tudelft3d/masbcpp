@@ -2,6 +2,8 @@
 // #define WITH_OPENMP 1;
 
 #include <iostream>
+#include <fstream>
+#include <string>
 
 // OpenMP
 #ifdef WITH_OPENMP
@@ -9,21 +11,24 @@
 #endif
 
 // Vrui
-#include "../thirdparty/vrui/Geometry/ComponentArray.h"
-#include "../thirdparty/vrui/Math/Math.h"
-#include "../thirdparty/vrui/Misc/Timer.h"
-
+#include <vrui/Geometry/ComponentArray.h>
+#include <vrui/Math/Math.h>
+#include <vrui/Misc/Timer.h>
 // kdtree2
-#include "../thirdparty/kdtree2/kdtree2.hpp"
+#include <kdtree2/kdtree2.hpp>
 // cnpy
-#include "../thirdparty/cnpy/cnpy.h"
+#include <cnpy/cnpy.h>
+// tclap
+#include <tclap/CmdLine.h>
 
 // typedefs
 #include "types.h"
 
 
 // globals
-const Scalar initial_radius = 100;
+Scalar initial_radius;
+double denoise_preserve;
+double denoise_planar;
 const Scalar delta_convergance = 1E-5;
 const uint iteration_limit = 30;
 
@@ -44,8 +49,6 @@ inline Scalar cos_angle(Vector p, Vector q)
     return result;
 }
 
-double denoise_preserve = (3.1415/180) * 20;
-double denoise_planar = (3.1415/180) * 32;
 Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
 {
     uint j=0;
@@ -163,62 +166,105 @@ PointList sb_points(PointList &points, VectorList &normals, kdtree2::KDTree* kd_
     return ma_coords;
 }
 
-int main()
+
+int main(int argc, char **argv)
 {
-    cnpy::NpyArray coords_npy = cnpy::npy_load("rdam_blokken_npy/coords.npy");
-    float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
+    // parse command line arguments
+    try {
+        TCLAP::CmdLine cmd("Computes a MAT point approximation", ' ', "0.1");
 
-    uint num_points = coords_npy.shape[0];
-    uint dim = coords_npy.shape[1];
-    PointList coords(num_points);
-    for ( int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
-    coords_npy.destruct();
+        TCLAP::UnlabeledValueArg<std::string> inputArg( "input", "path to npy dir", true, "rdam_blokken_npy", "input dir", cmd);
+        TCLAP::UnlabeledValueArg<std::string> outputArg( "ouput", "path to npy dir", true, "rdam_blokken_npy", "output dir", cmd);
 
-    cnpy::NpyArray normals_npy = cnpy::npy_load("rdam_blokken_npy/normals.npy");
-    float* normals_carray = reinterpret_cast<float*>(normals_npy.data);
-    VectorList normals(normals_npy.shape[0]);
-    for ( int i=0; i<num_points; i++) normals[i] = Vector(&normals_carray[i*3]);
-    normals_npy.destruct();
-    
-    kdtree2::KDTree* kd_tree;
-    kd_tree = new kdtree2::KDTree(coords,true);
-    kd_tree->sort_results = true;
+        TCLAP::ValueArg<double> denoise_preserveArg("d","preserve","denoise preserve threshold",false,20,"double", cmd);
+        TCLAP::ValueArg<double> denoise_planarArg("p","planar","denoise planar threshold",false,32,"double", cmd);
+        TCLAP::ValueArg<double> initial_radiusArg("r","radius","initial ball radius",false,200,"double", cmd);
 
-    // omp_set_num_threads(4);
-
-    {
-        Scalar* ma_coords_in_carray = new Scalar[num_points*3];
-        Misc::Timer t1;
-        PointList ma_coords_in = sb_points(coords, normals, kd_tree, 1);
-        t1.elapse();
-        std::cout<<"NN time in: "<<t1.getTime()*1000.0<<" ms"<<std::endl;
-    
+        cmd.parse(argc,argv);
         
-        for (int i=0; i<ma_coords_in.size(); i++)
-            for (int j=0; j<3; j++)
-                ma_coords_in_carray[i*3+j] = ma_coords_in[i][j];
-    
-        const unsigned int c_size = ma_coords_in.size();
-        const unsigned int shape[] = {c_size,3};
-        cnpy::npy_save("rdam_blokken_npy/ma_coords_in.npy", ma_coords_in_carray, shape, 2, "w");
-    }
+        initial_radius = initial_radiusArg.getValue();
+        denoise_preserve = (3.1415/180) * denoise_preserveArg.getValue();
+        denoise_planar = (3.1415/180) * denoise_planarArg.getValue();
 
-    {
-        Scalar* ma_coords_out_carray = new Scalar[num_points*3];
-        Misc::Timer t2;
-        PointList ma_coords_out = sb_points(coords, normals, kd_tree, 0);
-        t2.elapse();
-        std::cout<<"NN time out: "<<t2.getTime()*1000.0<<" ms"<<std::endl;
+        std::string input_coords_path = inputArg.getValue()+"/coords.npy";
+        std::string input_normals_path = inputArg.getValue()+"/normals.npy";
 
+        // check for proper in-output arguments
+        {
+            std::ifstream infile(input_coords_path);
+            if(!infile)
+                throw TCLAP::ArgParseException("invalid filepath", inputArg.getValue());
+        }
+        {
+            std::ifstream infile(input_normals_path);
+            if(!infile)
+                throw TCLAP::ArgParseException("invalid filepath", inputArg.getValue());
+        }
+        {
+            std::string output_path = outputArg.getValue()+"/ma_coords.npy";
+            std::ofstream outfile(output_path);    
+            if(!outfile)
+                throw TCLAP::ArgParseException("invalid filepath", outputArg.getValue());
+        }
         
-        for (int i=0; i<ma_coords_out.size(); i++)
-            for (int j=0; j<3; j++)
-                ma_coords_out_carray[i*3+j] = ma_coords_out[i][j];
+        // std::cout << "Parameters: denoise_preserve="<<denoise_preserve<<", denoise_planar="<<denoise_planar<<", initial_radius="<<initial_radius<<"\n";
 
-        const unsigned int c_size = ma_coords_out.size();
-        const unsigned int shape[] = {c_size,3};
-        cnpy::npy_save("rdam_blokken_npy/ma_coords_out.npy", ma_coords_out_carray, shape, 2, "w");
-    }
+        cnpy::NpyArray coords_npy = cnpy::npy_load( input_coords_path.c_str() );
+        float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
 
-    // return 1;
+        uint num_points = coords_npy.shape[0];
+        uint dim = coords_npy.shape[1];
+        PointList coords(num_points);
+        for ( int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
+        coords_npy.destruct();
+
+        cnpy::NpyArray normals_npy = cnpy::npy_load( input_normals_path.c_str() );
+        float* normals_carray = reinterpret_cast<float*>(normals_npy.data);
+        VectorList normals(normals_npy.shape[0]);
+        for ( int i=0; i<num_points; i++) normals[i] = Vector(&normals_carray[i*3]);
+        normals_npy.destruct();
+        
+        kdtree2::KDTree* kd_tree;
+        kd_tree = new kdtree2::KDTree(coords,true);
+        kd_tree->sort_results = true;
+
+        // omp_set_num_threads(4);
+
+        {
+            Scalar* ma_coords_in_carray = new Scalar[num_points*3];
+            Misc::Timer t1;
+            PointList ma_coords_in = sb_points(coords, normals, kd_tree, 1);
+            t1.elapse();
+            std::cout<<"NN time in: "<<t1.getTime()*1000.0<<" ms"<<std::endl;
+        
+            
+            for (int i=0; i<ma_coords_in.size(); i++)
+                for (int j=0; j<3; j++)
+                    ma_coords_in_carray[i*3+j] = ma_coords_in[i][j];
+        
+            const unsigned int c_size = ma_coords_in.size();
+            const unsigned int shape[] = {c_size,3};
+            cnpy::npy_save((outputArg.getValue()+"/ma_coords_in.npy").c_str(), ma_coords_in_carray, shape, 2, "w");
+        }
+
+        {
+            Scalar* ma_coords_out_carray = new Scalar[num_points*3];
+            Misc::Timer t2;
+            PointList ma_coords_out = sb_points(coords, normals, kd_tree, 0);
+            t2.elapse();
+            std::cout<<"NN time out: "<<t2.getTime()*1000.0<<" ms"<<std::endl;
+
+            
+            for (int i=0; i<ma_coords_out.size(); i++)
+                for (int j=0; j<3; j++)
+                    ma_coords_out_carray[i*3+j] = ma_coords_out[i][j];
+
+            const unsigned int c_size = ma_coords_out.size();
+            const unsigned int shape[] = {c_size,3};
+            cnpy::npy_save((outputArg.getValue()+"/ma_coords_out.npy").c_str(), ma_coords_out_carray, shape, 2, "w");
+        }
+
+    } catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
+
+    return 0;
 }
