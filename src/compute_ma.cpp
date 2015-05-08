@@ -1,5 +1,5 @@
 // #define VERBOSEPRINT 1;
-#define WITH_OPENMP 1;
+// #define WITH_OPENMP 1;
 
 #include <iostream>
 
