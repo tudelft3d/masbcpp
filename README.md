@@ -7,13 +7,11 @@ masbcpp is a c++ implementation of the shrinking ball algorithm to approximate t
 ```
 $ git clone https://github.com/tudelft3d/masbcpp.git
 $ cd masbcpp
-$ mkdir build
-$ cd build
-$ cmake ..
-$ make install
+$ cmake .
+$ make
 ```
 
-##Build with OpenMP support (multithreading)
+###Build with OpenMP support (multithreading)
 This is currently only tested on OS X 10.10. To make it work on OS X, do
 ```
 brew install clang-omp
@@ -21,8 +19,9 @@ brew install clang-omp
 prior to building masbcpp.
 
 ## Usage
+See
 ```
-./compute_ma input_npy/ output_npy/
+$ ./compute_ma
 ```
 
 ## Limitations
@@ -43,9 +42,8 @@ The shinking ball algorithm was originally introduced by [ma12]
   publisher={Springer}
 }
 ```
-see http://gclab.kaist.ac.kr/publications/VC2011.pdf
 
-masbcpp ships with some external libraries:
+masbcpp ships with (parts of) the following external libraries:
 
 * [cnpy](https://github.com/rogersce/cnpy)
 * [tclap](http://tclap.sourceforge.net)
