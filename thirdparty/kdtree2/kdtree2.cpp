@@ -658,7 +658,7 @@ namespace kdtree2 {
         const bool debug = false;
         
         if (debug) {
-            printf("Processing terminal node %d, %d\n",l,u);
+            // printf("Processing terminal node %d, %d\n",l,u);
             std::cout << "Query vector = [";
             for (int i=0; i<dim; i++) std::cout << sr.qv[i] << ','; 
             std::cout << "]\n";
