@@ -25,7 +25,11 @@
 
 // OpenMP
 #ifdef WITH_OPENMP
-#include <libiomp/omp.h>
+    #ifdef CLANG_OMP
+        #include <libiomp/omp.h>
+    #else
+        #include <omp.h>
+    #endif
 #endif
 
 // Vrui

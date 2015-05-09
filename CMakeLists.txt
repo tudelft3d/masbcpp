@@ -7,9 +7,17 @@ set(CMAKE_BUILD_TYPE Release)
 set(LINK_LIBS )
 set(COMPILE_OPTIONS "-funroll-loops -ffast-math")
 
+find_package(OPENMP)
+
+if(OPENMP_FOUND)
+	add_definitions(-DWITH_OPENMP)
+	set(COMPILE_OPTIONS "${COMPILE_OPTIONS} ${OpenMP_CXX_FLAGS}")
+endif()
+
 if(EXISTS "/usr/local/bin/clang-omp++")
 	set(CMAKE_CXX_COMPILER "/usr/local/bin/clang-omp++")
 	add_definitions(-DWITH_OPENMP)
+	add_definitions(-DCLANG_OMP)
 
 	set(LINK_LIBS ${LINK_LIBS} -liomp5)
 	set(COMPILE_OPTIONS "${COMPILE_OPTIONS} -fopenmp")
