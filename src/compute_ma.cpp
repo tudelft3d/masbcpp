@@ -204,18 +204,18 @@ int main(int argc, char **argv)
 
         // check for proper in-output arguments
         {
-            std::ifstream infile(input_coords_path);
+            std::ifstream infile(input_coords_path.c_str());
             if(!infile)
                 throw TCLAP::ArgParseException("invalid filepath", inputArg.getValue());
         }
         {
-            std::ifstream infile(input_normals_path);
+            std::ifstream infile(input_normals_path.c_str());
             if(!infile)
                 throw TCLAP::ArgParseException("invalid filepath", inputArg.getValue());
         }
         {
             std::string output_path = outputArg.getValue()+"/ma_coords_in.npy";
-            std::ofstream outfile(output_path);    
+            std::ofstream outfile(output_path.c_str());    
             if(!outfile)
                 throw TCLAP::ArgParseException("invalid filepath", outputArg.getValue());
         }
