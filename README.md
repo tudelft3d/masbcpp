@@ -14,7 +14,7 @@ $ make
 ###Build with OpenMP support (multithreading)
 The build system should autodetect whether your compiler supports OpenMP and build masbpp with multithreading support accordingly. To enable multithreading on Mac OS X (tested with version 10.10), do
 ```
-brew install clang-omp
+$ brew install clang-omp
 ```
 prior to building masbcpp (assuming you have installed [Homebrew](http://brew.sh)).
 
