@@ -1,14 +1,13 @@
 cmake_minimum_required(VERSION 2.8)
 
 project(masbcpp)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeModules/")
 
 set(CMAKE_BUILD_TYPE Release)
 
 set(LINK_LIBS )
 set(COMPILE_OPTIONS "-funroll-loops -ffast-math")
 
-find_package(OPENMP)
+find_package(OpenMP)
 
 if(OPENMP_FOUND)
 	add_definitions(-DWITH_OPENMP)
