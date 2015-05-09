@@ -23,6 +23,10 @@ See
 ```
 $ ./compute_ma
 ```
+and
+```
+$ ./compute_normals
+```
 Currently only numpy binary arrays are supported as input and output.
 
 

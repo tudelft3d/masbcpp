@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(masbcpp)
 
-# Figure if we can enable OpenMP
+# Figure out if we can enable OpenMP
 set(LINK_LIBS)
 set(COMPILE_OPTIONS "-funroll-loops -ffast-math")
 
@@ -42,4 +42,4 @@ add_executable(compute_normals src/compute_normals.cpp)
 target_link_libraries(compute_ma ${LINK_LIBS})
 target_link_libraries(compute_normals ${LINK_LIBS})
 
-install(TARGETS compute_ma DESTINATION bin)
+install(TARGETS compute_ma compute_normals DESTINATION bin)
