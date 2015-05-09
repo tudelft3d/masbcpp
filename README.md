@@ -1,5 +1,5 @@
 # masbcpp
-masbcpp is a c++ implementation of the shrinking ball algorithm to approximate the Medial Axis Transform (MAT) of an oriented point cloud. It is being developed in support of the [3DSM project](http://3dgeoinfo.bk.tudelft.nl/projects/3dsm/) that aims to explore possible applications of the MAT for GIS point clouds (e.g. from airborne [LiDAR](http://en.wikipedia.org/wiki/Lidar)). To deal with noisy input data a noise-handling mechanism is built-in.
+masbcpp is a C++ implementation of the shrinking ball algorithm to approximate the Medial Axis Transform (MAT) of an oriented point cloud. It is being developed in support of the [3DSM project](http://3dgeoinfo.bk.tudelft.nl/projects/3dsm/) that aims to explore possible applications of the MAT for GIS point clouds (e.g. from airborne [LiDAR](http://en.wikipedia.org/wiki/Lidar)). To deal with noisy input data a noise-handling mechanism is built-in.
 
 [This video](https://vimeo.com/84859998) demonstrates how the shrinking ball algorithm works using an early version of masbpy.
 
@@ -12,7 +12,7 @@ $ make
 ```
 
 ###Build with OpenMP support (multithreading)
-This is currently only tested on Mac OS 10.10. To enable multithreading support Mac OS, do
+This is currently only tested on Mac OS 10.10. To enable multithreading support on Mac OS, do
 ```
 brew install clang-omp
 ```
