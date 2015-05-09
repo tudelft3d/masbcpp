@@ -136,7 +136,7 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
                 r = r_previous;
                 break;
             }
-            if( separation_angle and ( separation_angle < denoise_planar and j==0 ) )
+            if( denoise_planar and ( separation_angle < denoise_planar and j==0 ) )
             {
                 r = initial_radius;
                 break;
