@@ -1,7 +1,7 @@
 # masbcpp
-masbcpp is a C++ implementation of the shrinking ball algorithm to approximate the Medial Axis Transform (MAT) of an oriented point cloud. It is being developed in support of the [3DSM project](http://3dgeoinfo.bk.tudelft.nl/projects/3dsm/) that aims to explore possible applications of the MAT for GIS point clouds (e.g. from airborne [LiDAR](http://en.wikipedia.org/wiki/Lidar)). To deal with noisy input data a noise-handling mechanism is built-in.
+masbcpp is a C++ implementation of the shrinking ball algorithm to approximate the Medial Axis Transform (MAT) of an oriented point cloud. It is being developed in support of the [3DSM project](http://3dgeoinfo.bk.tudelft.nl/projects/3dsm/) that aims to explore possible applications of the MAT for GIS point clouds (e.g. from airborne [LiDAR](http://en.wikipedia.org/wiki/Lidar)). To deal with noisy input data a novel noise-handling mechanism is built-in.
 
-[This video](https://vimeo.com/84859998) demonstrates how the shrinking ball algorithm works using an early version of masbpy.
+[This video](https://vimeo.com/84859998) demonstrates how the shrinking ball algorithm works.
 
 ## Installation
 ```
@@ -12,11 +12,11 @@ $ make
 ```
 
 ###Build with OpenMP support (multithreading)
-This is currently only tested on Mac OS 10.10. To enable multithreading support on Mac OS, do
+The build system should autodetect whether your compiler supports OpenMP and build masbpp with multithreading support accordingly. To enable multithreading on Mac OS X (tested with version 10.10), do
 ```
 brew install clang-omp
 ```
-prior to building masbcpp.
+prior to building masbcpp (assuming you have installed [Homebrew](http://brew.sh)).
 
 ## Usage
 See
@@ -45,7 +45,7 @@ The shinking ball algorithm was originally introduced by [ma12]
 }
 ```
 
-masbcpp ships with (parts of) the following excellent libraries:
+I would like to thank the authors of the following libraries for releasing their code to the general public under permissive licenses, masbcpp ships with (parts of) these excellent libraries:
 
 * [cnpy](https://github.com/rogersce/cnpy)
 * [tclap](http://tclap.sourceforge.net)
