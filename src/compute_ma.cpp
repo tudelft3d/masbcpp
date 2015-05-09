@@ -61,8 +61,8 @@ inline Scalar cos_angle(Vector p, Vector q)
 {
     // Calculate the cosine of angle between vector p and q, see http://en.wikipedia.org/wiki/Law_of_cosines#Vector_formulation
     Scalar result = p*q / ( Geometry::mag(p) * Geometry::mag(q) );
-    if (result > 1) return 1;
-    else if (result < -1) return -1;
+    if( result > 1 ) return 1;
+    else if( result < -1 ) return -1;
     return result;
 }
 
@@ -76,9 +76,9 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
     while (1) 
     {
         #ifdef VERBOSEPRINT
-            std::cout << "\nloop iteration: " << j << ", p = (" << p[0] << "," << p[1] << "," << p[2] << ", n = (" << n[0] << "," << n[1] << "," << n[2] << ") \n";
+        std::cout << "\nloop iteration: " << j << ", p = (" << p[0] << "," << p[1] << "," << p[2] << ", n = (" << n[0] << "," << n[1] << "," << n[2] << ") \n";
 
-            std::cout << "c = (" << c[0] << "," << c[1] << "," << c[2] << ")\n";
+        std::cout << "c = (" << c[0] << "," << c[1] << "," << c[2] << ")\n";
         #endif
 
         // find closest point to c
@@ -91,10 +91,10 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
         #endif
 
         // handle case when q==p
-        if (q == p)
+        if( q == p )
         {
             // 1) if r_previous==SuperR, apparantly no other points on the halfspace spanned by -n => that's an infinite ball
-            if (r_previous == initial_radius)
+            if( r_previous == initial_radius )
             {
                 r = initial_radius;
                 break;
@@ -112,47 +112,43 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
         #endif
 
         // if r < 0 closest point was on the wrong side of plane with normal n => start over with SuperRadius on the right side of that plane
-        if (r < 0)
+        if( r < 0 )
             r = initial_radius;
         // if r > SuperR, stop now because otherwise in case of planar surface point configuration, we end up in an infinite loop
-        else if (r > initial_radius)
+        else if( r > initial_radius )
         {
             r = initial_radius;
             break;
         }
 
-        // Deonoising
-        // compute ball center c
+        // compute next ball center
         c_next = p - n * r;
-        if (denoise_preserve or denoise_planar)
+
+        // denoising
+        if( denoise_preserve or denoise_planar )
         {
             Scalar a = cos_angle(p-c_next, q-c_next);
             Scalar separation_angle = Math::acos(a);
-            
-            // std::cout << j << "\n";
-            // std::cout << separation_angle << " | " << denoise_preserve << " | " << denoise_planar << ".\n";
 
-            if ( separation_angle < denoise_preserve and j>0 and r > Geometry::mag(q-p) )
+            if( denoise_preserve and ( separation_angle < denoise_preserve and j>0 and r > Geometry::mag(q-p) ) )
             {
-                // std::cout << "denoise.\n";
                 // keep previous radius:
-                r=r_previous;
+                r = r_previous;
                 break;
             }
-            // if ( separation_angle < denoise_planar and j<2 )
-            if ( separation_angle < denoise_planar and j==0 )
+            if( separation_angle and ( separation_angle < denoise_planar and j==0 ) )
             {
-                // std::cout << "planar.\n";
-                r= initial_radius;
+                r = initial_radius;
                 break;
             }
         }
+
         // stop iteration if r has converged
-        if (Math::abs(r_previous-r) < delta_convergance)
+        if( Math::abs(r_previous-r) < delta_convergance )
             break;
 
         // stop iteration if this looks like an infinite loop:
-        if (j > iteration_limit)
+        if( j > iteration_limit )
             break;
 
         r_previous = r;
@@ -171,10 +167,10 @@ PointList sb_points(PointList &points, VectorList &normals, kdtree2::KDTree* kd_
     Vector n;
 
     #pragma omp parallel for private(p, n)
-    for (uint i=0; i<points.size(); i++)
+    for( uint i=0; i<points.size(); i++ )
     {
         p = points[i];
-        if (inner)
+        if( inner )
             n = normals[i];
         else
             n = -normals[i];
@@ -190,8 +186,8 @@ int main(int argc, char **argv)
     try {
         TCLAP::CmdLine cmd("Computes a MAT point approximation", ' ', "0.1");
 
-        TCLAP::UnlabeledValueArg<std::string> inputArg( "input", "path to npy dir", true, "rdam_blokken_npy", "input dir", cmd);
-        TCLAP::UnlabeledValueArg<std::string> outputArg( "ouput", "path to npy dir", true, "rdam_blokken_npy", "output dir", cmd);
+        TCLAP::UnlabeledValueArg<std::string> inputArg( "input", "path to directory with inside it a 'coords.npy' and a 'normals.npy' file", true, "", "input dir", cmd);
+        TCLAP::UnlabeledValueArg<std::string> outputArg( "ouput", "path to output directory", true, "", "output dir", cmd);
 
         TCLAP::ValueArg<double> denoise_preserveArg("d","preserve","denoise preserve threshold",false,20,"double", cmd);
         TCLAP::ValueArg<double> denoise_planarArg("p","planar","denoise planar threshold",false,32,"double", cmd);
@@ -218,7 +214,7 @@ int main(int argc, char **argv)
                 throw TCLAP::ArgParseException("invalid filepath", inputArg.getValue());
         }
         {
-            std::string output_path = outputArg.getValue()+"/ma_coords.npy";
+            std::string output_path = outputArg.getValue()+"/ma_coords_in.npy";
             std::ofstream outfile(output_path);    
             if(!outfile)
                 throw TCLAP::ArgParseException("invalid filepath", outputArg.getValue());
@@ -241,9 +237,12 @@ int main(int argc, char **argv)
         for ( int i=0; i<num_points; i++) normals[i] = Vector(&normals_carray[i*3]);
         normals_npy.destruct();
         
+        Misc::Timer t0;
         kdtree2::KDTree* kd_tree;
         kd_tree = new kdtree2::KDTree(coords,true);
         kd_tree->sort_results = true;
+        t0.elapse();
+        std::cout<<"Constructed kd-tree in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
 
         // omp_set_num_threads(4);
 
@@ -252,7 +251,7 @@ int main(int argc, char **argv)
             Misc::Timer t1;
             PointList ma_coords_in = sb_points(coords, normals, kd_tree, 1);
             t1.elapse();
-            std::cout<<"NN time in: "<<t1.getTime()*1000.0<<" ms"<<std::endl;
+            std::cout<<"Done shrinking interior balls, took "<<t1.getTime()*1000.0<<" ms"<<std::endl;
         
             
             for (int i=0; i<ma_coords_in.size(); i++)
@@ -269,8 +268,7 @@ int main(int argc, char **argv)
             Misc::Timer t2;
             PointList ma_coords_out = sb_points(coords, normals, kd_tree, 0);
             t2.elapse();
-            std::cout<<"NN time out: "<<t2.getTime()*1000.0<<" ms"<<std::endl;
-
+            std::cout<<"Done shrinking exterior balls, took "<<t2.getTime()*1000.0<<" ms"<<std::endl;
             
             for (int i=0; i<ma_coords_out.size(); i++)
                 for (int j=0; j<3; j++)

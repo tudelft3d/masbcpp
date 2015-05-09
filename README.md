@@ -12,7 +12,7 @@ $ make
 ```
 
 ###Build with OpenMP support (multithreading)
-This is currently only tested on OS X 10.10. To make it work on OS X, do
+This is currently only tested on Mac OS 10.10. To enable multithreading support Mac OS, do
 ```
 brew install clang-omp
 ```
@@ -23,6 +23,8 @@ See
 ```
 $ ./compute_ma
 ```
+Currently only numpy binary arrays are supported as input and output.
+
 
 ## Limitations
 The current implementation is not infinitely scalable, mainly in terms of memory usage. Processing very large datasets (hundreds of millions of points or more) is therefore not really supported. 
@@ -43,7 +45,7 @@ The shinking ball algorithm was originally introduced by [ma12]
 }
 ```
 
-masbcpp ships with (parts of) the following external libraries:
+masbcpp ships with (parts of) the following excellent libraries:
 
 * [cnpy](https://github.com/rogersce/cnpy)
 * [tclap](http://tclap.sourceforge.net)

@@ -94,7 +94,7 @@ namespace kdtree2 {
         if (rearrange) {
             // if we have a rearranged tree.
             // allocate the memory for it.
-            printf("rearranging\n");
+            // printf("rearranging\n");
             rearranged_data.reserve(N);
             
             // permute the data for it.
