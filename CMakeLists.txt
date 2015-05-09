@@ -21,19 +21,25 @@ else()
 	endif()
 endif()
 
-# set targets
-FILE(GLOB_RECURSE THIRDPARTY thirdparty/*.cpp)
-add_executable(compute_ma src/compute_ma.cpp ${THIRDPARTY})
-add_executable(compute_normals src/compute_normals.cpp ${THIRDPARTY})
-
-# set target configuration
-set_target_properties(compute_ma PROPERTIES LINKER_LANGUAGE CXX)
-set_target_properties(compute_normals PROPERTIES LINKER_LANGUAGE CXX)
-target_include_directories(compute_ma PRIVATE ${CMAKE_SOURCE_DIR}/thirdparty ${CMAKE_SOURCE_DIR}/thirdparty/vrui)
-target_include_directories(compute_normals PRIVATE ${CMAKE_SOURCE_DIR}/thirdparty ${CMAKE_SOURCE_DIR}/thirdparty/vrui)
-target_link_libraries(compute_ma ${LINK_LIBS})
-target_link_libraries(compute_normals ${LINK_LIBS})
+# global
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${COMPILE_OPTIONS}")
 set(CMAKE_BUILD_TYPE Release)
+set_property(GLOBAL PROPERTY LINKER_LANGUAGE CXX)
+
+# include directories
+include_directories(${CMAKE_SOURCE_DIR}/thirdparty ${CMAKE_SOURCE_DIR}/thirdparty/vrui)
+
+# bundle all thirdparty stuff as a static library
+FILE(GLOB_RECURSE THIRDPARTY thirdparty/*.cpp)
+add_library(thirdparty STATIC ${THIRDPARTY})
+set(LINK_LIBS ${LINK_LIBS} thirdparty)
+
+# set targets
+add_executable(compute_ma src/compute_ma.cpp)
+add_executable(compute_normals src/compute_normals.cpp)
+
+# link targets
+target_link_libraries(compute_ma ${LINK_LIBS})
+target_link_libraries(compute_normals ${LINK_LIBS})
 
 install(TARGETS compute_ma DESTINATION bin)
