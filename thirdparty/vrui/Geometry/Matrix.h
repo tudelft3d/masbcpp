@@ -27,7 +27,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <Geometry/ComponentArray.h>
 #include <Geometry/Vector.h>
 #include <Geometry/Point.h>
-#include <Geometry/HVector.h>
+// #include <Geometry/HVector.h>
 
 namespace Geometry {
 
