@@ -228,7 +228,7 @@ int main(int argc, char **argv)
                 throw TCLAP::ArgParseException("invalid filepath", outputArg.getValue());
         }
         
-        std::cout << "Parameters: denoise_preserve="<<denoise_preserve<<", denoise_planar="<<denoise_planar<<", initial_radius="<<initial_radius<<"\n";
+        std::cout << "Parameters: denoise_preserve="<<denoise_preserveArg.getValue()<<", denoise_planar="<<denoise_planarArg.getValue()<<", initial_radius="<<initial_radius<<"\n";
 
         cnpy::NpyArray coords_npy = cnpy::npy_load( input_coords_path.c_str() );
         float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
