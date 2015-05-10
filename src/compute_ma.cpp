@@ -255,13 +255,12 @@ int main(int argc, char **argv)
         // omp_set_num_threads(4);
 
         {
-            Scalar* ma_coords_in_carray = new Scalar[num_points*3];
             Misc::Timer t1;
             PointList ma_coords_in = sb_points(coords, normals, kd_tree, 1);
             t1.elapse();
             std::cout<<"Done shrinking interior balls, took "<<t1.getTime()*1000.0<<" ms"<<std::endl;
         
-            
+            Scalar* ma_coords_in_carray = new Scalar[num_points*3];   
             for (int i=0; i<ma_coords_in.size(); i++)
                 for (int j=0; j<3; j++)
                     ma_coords_in_carray[i*3+j] = ma_coords_in[i][j];
@@ -272,12 +271,12 @@ int main(int argc, char **argv)
         }
 
         {
-            Scalar* ma_coords_out_carray = new Scalar[num_points*3];
             Misc::Timer t2;
             PointList ma_coords_out = sb_points(coords, normals, kd_tree, 0);
             t2.elapse();
             std::cout<<"Done shrinking exterior balls, took "<<t2.getTime()*1000.0<<" ms"<<std::endl;
             
+            Scalar* ma_coords_out_carray = new Scalar[num_points*3];
             for (int i=0; i<ma_coords_out.size(); i++)
                 for (int j=0; j<3; j++)
                     ma_coords_out_carray[i*3+j] = ma_coords_out[i][j];
