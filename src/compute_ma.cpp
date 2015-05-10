@@ -22,6 +22,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <limits>
 
 // OpenMP
 #ifdef WITH_OPENMP
@@ -52,6 +53,7 @@ double denoise_preserve;
 double denoise_planar;
 const Scalar delta_convergance = 1E-5;
 const uint iteration_limit = 30;
+const Point nanPoint( std::numeric_limits<Scalar>::quiet_NaN() );
 
 inline Scalar compute_radius(Point &p, Vector &n, Point &q)
 {
@@ -101,6 +103,7 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
             if( r_previous == initial_radius )
             {
                 r = initial_radius;
+                c = nanPoint;
                 break;
             // 2) otherwise just pick the second closest point
             } else {
@@ -122,6 +125,7 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
         else if( r > initial_radius )
         {
             r = initial_radius;
+            c = nanPoint;
             break;
         }
 
@@ -143,6 +147,7 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
             if( denoise_planar and ( separation_angle < denoise_planar and j==0 ) )
             {
                 r = initial_radius;
+                c = nanPoint;
                 break;
             }
         }
@@ -158,9 +163,8 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
         r_previous = r;
         c = c_next;
         j++;
-        
     }
-
+        
     return c;
 }
 
