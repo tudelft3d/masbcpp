@@ -41,86 +41,86 @@ namespace Math {
 Floating-point number classification functions:
 **********************************************/
 
-template <class ScalarParam>
-inline bool isNan(ScalarParam value)
-	{
-	/* General types don't have NAN: */
-	return false;
-	}
+// template <class ScalarParam>
+// inline bool isNan(ScalarParam value)
+// 	{
+// 	/* General types don't have NAN: */
+// 	return false;
+// 	}
 
-template <>
-inline bool isNan(float value)
-	{
-	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
-	return __isnanf(value);
-	#else
-	return isnan(value);
-	#endif
-	}
+// template <>
+// inline bool isNan(float value)
+// 	{
+// 	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
+// 	return __isnanf(value);
+// 	#else
+// 	return isnan(value);
+// 	#endif
+// 	}
 
-template <>
-inline bool isNan(double value)
-	{
-	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
-	return __isnan(value);
-	#else
-	return isnan(value);
-	#endif
-	}
+// template <>
+// inline bool isNan(double value)
+// 	{
+// 	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
+// 	return __isnan(value);
+// 	#else
+// 	return isnan(value);
+// 	#endif
+// 	}
 
-template <class ScalarParam>
-inline bool isInf(ScalarParam value)
-	{
-	/* General types don't have infinity: */
-	return false;
-	}
+// template <class ScalarParam>
+// inline bool isInf(ScalarParam value)
+// 	{
+// 	/* General types don't have infinity: */
+// 	return false;
+// 	}
 
-template <>
-inline bool isInf(float value)
-	{
-	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
-	return __isinff(value);
-	#else
-	return isinf(value);
-	#endif
-	}
+// template <>
+// inline bool isInf(float value)
+// 	{
+// 	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
+// 	return __isinff(value);
+// 	#else
+// 	return isinf(value);
+// 	#endif
+// 	}
 
-template <>
-inline bool isInf(double value)
-	{
-	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
-	return __isinf(value);
-	#else
-	return isinf(value);
-	#endif
-	}
+// template <>
+// inline bool isInf(double value)
+// 	{
+// 	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
+// 	return __isinf(value);
+// 	#else
+// 	return isinf(value);
+// 	#endif
+// 	}
 
-template <class ScalarParam>
-inline bool isFinite(ScalarParam value)
-	{
-	/* General types are always finite: */
-	return true;
-	}
+// template <class ScalarParam>
+// inline bool isFinite(ScalarParam value)
+// 	{
+// 	/* General types are always finite: */
+// 	return true;
+// 	}
 
-template <>
-inline bool isFinite(float value)
-	{
-	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
-	return __finitef(value);
-	#else
-	return isfinite(value);
-	#endif
-	}
+// template <>
+// inline bool isFinite(float value)
+// 	{
+// 	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
+// 	return __finitef(value);
+// 	#else
+// 	return isfinite(value);
+// 	#endif
+// 	}
 
-template <>
-inline bool isFinite(double value)
-	{
-	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
-	return __finite(value);
-	#else
-	return isfinite(value);
-	#endif
-	}
+// template <>
+// inline bool isFinite(double value)
+// 	{
+// 	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
+// 	return __finite(value);
+// 	#else
+// 	return isfinite(value);
+// 	#endif
+// 	}
 
 /******************************************
 Optimized arithmetic convenience functions:

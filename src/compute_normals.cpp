@@ -35,7 +35,7 @@
 // Vrui
 #include <vrui/Geometry/ComponentArray.h>
 #include <vrui/Math/Math.h>
-#include <vrui/Misc/Timer.h>
+// #include <vrui/Misc/Timer.h>
 #include <vrui/Geometry/PCACalculator.h>
 // kdtree2
 #include <kdtree2/kdtree2.hpp>
@@ -67,7 +67,7 @@ VectorList estimate_normals(PointList &points, kdtree2::KDTree* kd_tree, int k)
     VectorList normals(points.size());
 
     #pragma omp parallel for
-    for( uint i=0; i<points.size(); i++ )
+    for( unsigned int i=0; i<points.size(); i++ )
         normals[i] = estimate_normal( points[i], kd_tree, k );
 
     return normals;
@@ -108,28 +108,28 @@ int main(int argc, char **argv)
         cnpy::NpyArray coords_npy = cnpy::npy_load( input_coords_path.c_str() );
         float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
 
-        uint num_points = coords_npy.shape[0];
-        uint dim = coords_npy.shape[1];
+        unsigned int num_points = coords_npy.shape[0];
+        unsigned int dim = coords_npy.shape[1];
         PointList coords(num_points);
         for ( int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
         coords_npy.destruct();
 
         
-        Misc::Timer t0;
+        // Misc::Timer t0;
         kdtree2::KDTree* kd_tree;
         kd_tree = new kdtree2::KDTree(coords,true);
         kd_tree->sort_results = false;
-        t0.elapse();
-        std::cout<<"Constructed kd-tree in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
+        // t0.elapse();
+        // std::cout<<"Constructed kd-tree in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
 
         // omp_set_num_threads(1);
 
         {
             Scalar* normals_carray = new Scalar[num_points*3];
-            Misc::Timer t1;
+            // Misc::Timer t1;
             VectorList normals = estimate_normals(coords, kd_tree, k);
-            t1.elapse();
-            std::cout<<"Done estimating normals, took "<<t1.getTime()*1000.0<<" ms"<<std::endl;
+            // t1.elapse();
+            // std::cout<<"Done estimating normals, took "<<t1.getTime()*1000.0<<" ms"<<std::endl;
         
             
             for (int i=0; i<normals.size(); i++)
