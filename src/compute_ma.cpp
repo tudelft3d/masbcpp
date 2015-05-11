@@ -207,86 +207,86 @@ int main(int argc, char **argv)
         denoise_preserve = (3.1415/180) * denoise_preserveArg.getValue();
         denoise_planar = (3.1415/180) * denoise_planarArg.getValue();
 
-        std::string input_coords_path = inputArg.getValue()+"/coords.npy";
-        std::string input_normals_path = inputArg.getValue()+"/normals.npy";
-
-        // check for proper in-output arguments
+        // check for proper in-output arguments and set in and output filepath strings
         {
+        	std::string input_coords_path = inputArg.getValue()+"/coords.npy";
             std::ifstream infile(input_coords_path.c_str());
             if(!infile)
                 throw TCLAP::ArgParseException("invalid filepath", inputArg.getValue());
         }
         {
+        	std::string input_normals_path = inputArg.getValue()+"/normals.npy";
             std::ifstream infile(input_normals_path.c_str());
             if(!infile)
                 throw TCLAP::ArgParseException("invalid filepath", inputArg.getValue());
         }
         {
-            std::string output_path = outputArg.getValue()+"/ma_coords_in.npy";
-            std::ofstream outfile(output_path.c_str());    
+            std::string output_path_ma_in = outputArg.getValue()+"/ma_coords_in.npy";
+            std::string output_path_ma_out = outputArg.getValue()+"/ma_coords_out.npy";
+            std::ofstream outfile(output_path_ma_in.c_str());    
             if(!outfile)
                 throw TCLAP::ArgParseException("invalid filepath", outputArg.getValue());
         }
-        
-        std::cout << "Parameters: denoise_preserve="<<denoise_preserveArg.getValue()<<", denoise_planar="<<denoise_planarArg.getValue()<<", initial_radius="<<initial_radius<<"\n";
 
-        cnpy::NpyArray coords_npy = cnpy::npy_load( input_coords_path.c_str() );
-        float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
+	   	std::cout << "Parameters: denoise_preserve="<<denoise_preserveArg.getValue()<<", denoise_planar="<<denoise_planarArg.getValue()<<", initial_radius="<<initial_radius<<"\n";
+	    
+	    cnpy::NpyArray coords_npy = cnpy::npy_load( input_coords_path.c_str() );
+	    float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
 
-        uint num_points = coords_npy.shape[0];
-        uint dim = coords_npy.shape[1];
-        PointList coords(num_points);
-        for ( int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
-        coords_npy.destruct();
+	    uint num_points = coords_npy.shape[0];
+	    uint dim = coords_npy.shape[1];
+	    PointList coords(num_points);
+	    for ( int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
+	    coords_npy.destruct();
 
-        cnpy::NpyArray normals_npy = cnpy::npy_load( input_normals_path.c_str() );
-        float* normals_carray = reinterpret_cast<float*>(normals_npy.data);
-        VectorList normals(normals_npy.shape[0]);
-        for ( int i=0; i<num_points; i++) normals[i] = Vector(&normals_carray[i*3]);
-        normals_npy.destruct();
-        
-        Misc::Timer t0;
-        kdtree2::KDTree* kd_tree;
-        kd_tree = new kdtree2::KDTree(coords,true);
-        kd_tree->sort_results = true;
-        t0.elapse();
-        std::cout<<"Constructed kd-tree in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
+	    cnpy::NpyArray normals_npy = cnpy::npy_load( input_normals_path.c_str() );
+	    float* normals_carray = reinterpret_cast<float*>(normals_npy.data);
+	    VectorList normals(normals_npy.shape[0]);
+	    for ( int i=0; i<num_points; i++) normals[i] = Vector(&normals_carray[i*3]);
+	    normals_npy.destruct();
+	    
+	    Misc::Timer t0;
+	    kdtree2::KDTree* kd_tree;
+	    kd_tree = new kdtree2::KDTree(coords,true);
+	    kd_tree->sort_results = true;
+	    t0.elapse();
+	    std::cout<<"Constructed kd-tree in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
 
-        // omp_set_num_threads(4);
+	    // omp_set_num_threads(4);
 
-        {
-            Misc::Timer t1;
-            PointList ma_coords_in = sb_points(coords, normals, kd_tree, 1);
-            t1.elapse();
-            std::cout<<"Done shrinking interior balls, took "<<t1.getTime()*1000.0<<" ms"<<std::endl;
-        
-            Scalar* ma_coords_in_carray = new Scalar[num_points*3];   
-            for (int i=0; i<ma_coords_in.size(); i++)
-                for (int j=0; j<3; j++)
-                    ma_coords_in_carray[i*3+j] = ma_coords_in[i][j];
-        
-            const unsigned int c_size = ma_coords_in.size();
-            const unsigned int shape[] = {c_size,3};
-            cnpy::npy_save((outputArg.getValue()+"/ma_coords_in.npy").c_str(), ma_coords_in_carray, shape, 2, "w");
-        }
+	    {
+	        Misc::Timer t1;
+	        PointList ma_coords_in = sb_points(coords, normals, kd_tree, 1);
+	        t1.elapse();
+	        std::cout<<"Done shrinking interior balls, took "<<t1.getTime()*1000.0<<" ms"<<std::endl;
+	    
+	        Scalar* ma_coords_in_carray = new Scalar[num_points*3];   
+	        for (int i=0; i<ma_coords_in.size(); i++)
+	            for (int j=0; j<3; j++)
+	                ma_coords_in_carray[i*3+j] = ma_coords_in[i][j];
+	    
+	        const unsigned int c_size = ma_coords_in.size();
+	        const unsigned int shape[] = {c_size,3};
+	        cnpy::npy_save(output_path_ma_in.c_str(), ma_coords_in_carray, shape, 2, "w");
+	    }
 
-        {
-            Misc::Timer t2;
-            PointList ma_coords_out = sb_points(coords, normals, kd_tree, 0);
-            t2.elapse();
-            std::cout<<"Done shrinking exterior balls, took "<<t2.getTime()*1000.0<<" ms"<<std::endl;
-            
-            Scalar* ma_coords_out_carray = new Scalar[num_points*3];
-            for (int i=0; i<ma_coords_out.size(); i++)
-                for (int j=0; j<3; j++)
-                    ma_coords_out_carray[i*3+j] = ma_coords_out[i][j];
+	    {
+	        Misc::Timer t2;
+	        PointList ma_coords_out = sb_points(coords, normals, kd_tree, 0);
+	        t2.elapse();
+	        std::cout<<"Done shrinking exterior balls, took "<<t2.getTime()*1000.0<<" ms"<<std::endl;
+	        
+	        Scalar* ma_coords_out_carray = new Scalar[num_points*3];
+	        for (int i=0; i<ma_coords_out.size(); i++)
+	            for (int j=0; j<3; j++)
+	                ma_coords_out_carray[i*3+j] = ma_coords_out[i][j];
 
-            const unsigned int c_size = ma_coords_out.size();
-            const unsigned int shape[] = {c_size,3};
-            cnpy::npy_save((outputArg.getValue()+"/ma_coords_out.npy").c_str(), ma_coords_out_carray, shape, 2, "w");
-        }
+	        const unsigned int c_size = ma_coords_out.size();
+	        const unsigned int shape[] = {c_size,3};
+	        cnpy::npy_save(output_path_ma_out.c_str(), ma_coords_out_carray, shape, 2, "w");
+	    }
 
-    } catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
+	} catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
 
     return 0;
 }
