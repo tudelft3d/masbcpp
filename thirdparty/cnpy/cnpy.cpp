@@ -99,28 +99,28 @@ void cnpy::parse_npy_header(FILE* fp, unsigned int& word_size, unsigned int*& sh
     word_size = atoi(str_ws.substr(0,loc2).c_str());
 }
 
-// void cnpy::parse_zip_footer(FILE* fp, unsigned short& nrecs, unsigned int& global_header_size, unsigned int& global_header_offset)
-// {
-//     std::vector<char> footer(22);
-//     fseek(fp,-22,SEEK_END);
-//     size_t res = fread(&footer[0],sizeof(char),22,fp);
-//     if(res != 22)
-//         throw std::runtime_error("parse_zip_footer: failed fread");
+void cnpy::parse_zip_footer(FILE* fp, unsigned short& nrecs, unsigned int& global_header_size, unsigned int& global_header_offset)
+{
+    std::vector<char> footer(22);
+    fseek(fp,-22,SEEK_END);
+    size_t res = fread(&footer[0],sizeof(char),22,fp);
+    if(res != 22)
+        throw std::runtime_error("parse_zip_footer: failed fread");
 
-//     unsigned short disk_no, disk_start, nrecs_on_disk, comment_len;
-//     disk_no = *(unsigned short*) &footer[4];
-//     disk_start = *(unsigned short*) &footer[6];
-//     nrecs_on_disk = *(unsigned short*) &footer[8];
-//     nrecs = *(unsigned short*) &footer[10];
-//     global_header_size = *(unsigned int*) &footer[12];
-//     global_header_offset = *(unsigned int*) &footer[16];
-//     comment_len = *(unsigned short*) &footer[20];
+    unsigned short disk_no, disk_start, nrecs_on_disk, comment_len;
+    disk_no = *(unsigned short*) &footer[4];
+    disk_start = *(unsigned short*) &footer[6];
+    nrecs_on_disk = *(unsigned short*) &footer[8];
+    nrecs = *(unsigned short*) &footer[10];
+    global_header_size = *(unsigned int*) &footer[12];
+    global_header_offset = *(unsigned int*) &footer[16];
+    comment_len = *(unsigned short*) &footer[20];
 
-//     assert(disk_no == 0);
-//     assert(disk_start == 0);
-//     assert(nrecs_on_disk == nrecs);
-//     assert(comment_len == 0);
-// }
+    assert(disk_no == 0);
+    assert(disk_start == 0);
+    assert(nrecs_on_disk == nrecs);
+    assert(comment_len == 0);
+}
 
 cnpy::NpyArray load_the_npy_file(FILE* fp) {
     unsigned int* shape;
