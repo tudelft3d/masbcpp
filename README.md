@@ -4,12 +4,14 @@ masbcpp is a C++ implementation of the shrinking ball algorithm to approximate t
 [This video](https://vimeo.com/84859998) demonstrates how the shrinking ball algorithm works.
 
 ## Installation
+For Linux/OS X:
 ```
 $ git clone https://github.com/tudelft3d/masbcpp.git
 $ cd masbcpp
 $ cmake .
 $ make
 ```
+Building on windows is also possible, see the [wiki](https://github.com/tudelft3d/masbcpp/wiki/Building-on-Windows-with-CMake-and-MinGW).
 
 ###Build with OpenMP support (multithreading)
 The build system should autodetect whether your compiler supports OpenMP and build masbpp with multithreading support accordingly. To enable multithreading on Mac OS X (tested with version 10.10), do
