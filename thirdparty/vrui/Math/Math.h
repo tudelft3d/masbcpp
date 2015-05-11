@@ -75,25 +75,25 @@ inline bool isInf(ScalarParam value)
 	return false;
 	}
 
-template <>
-inline bool isInf(float value)
-	{
-	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
-	return __isinff(value);
-	#else
-	return isinf(value);
-	#endif
-	}
+// template <>
+// inline bool isInf(float value)
+// 	{
+// 	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
+// 	return __isinff(value);
+// 	#else
+// 	return isinf(value);
+// 	#endif
+// 	}
 
-template <>
-inline bool isInf(double value)
-	{
-	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
-	return __isinf(value);
-	#else
-	return isinf(value);
-	#endif
-	}
+// template <>
+// inline bool isInf(double value)
+// 	{
+// 	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
+// 	return __isinf(value);
+// 	#else
+// 	return isinf(value);
+// 	#endif
+// 	}
 
 template <class ScalarParam>
 inline bool isFinite(ScalarParam value)
@@ -102,25 +102,25 @@ inline bool isFinite(ScalarParam value)
 	return true;
 	}
 
-template <>
-inline bool isFinite(float value)
-	{
-	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
-	return __finitef(value);
-	#else
-	return isfinite(value);
-	#endif
-	}
+// template <>
+// inline bool isFinite(float value)
+// 	{
+// 	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
+// 	return __finitef(value);
+// 	#else
+// 	return isfinite(value);
+// 	#endif
+// 	}
 
-template <>
-inline bool isFinite(double value)
-	{
-	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
-	return __finite(value);
-	#else
-	return isfinite(value);
-	#endif
-	}
+// template <>
+// inline bool isFinite(double value)
+// 	{
+// 	#ifdef MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
+// 	return __finite(value);
+// 	#else
+// 	return isfinite(value);
+// 	#endif
+// 	}
 
 /******************************************
 Optimized arithmetic convenience functions:

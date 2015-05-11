@@ -36,7 +36,9 @@
 // Vrui
 #include <vrui/Geometry/ComponentArray.h>
 #include <vrui/Math/Math.h>
+#ifndef __MINGW32__
 #include <vrui/Misc/Timer.h>
+#endif
 // kdtree2
 #include <kdtree2/kdtree2.hpp>
 // cnpy
@@ -52,7 +54,7 @@ Scalar initial_radius;
 double denoise_preserve;
 double denoise_planar;
 const Scalar delta_convergance = 1E-5;
-const uint iteration_limit = 30;
+const unsigned int iteration_limit = 30;
 const Point nanPoint( std::numeric_limits<Scalar>::quiet_NaN() );
 
 inline Scalar compute_radius(Point &p, Vector &n, Point &q)
@@ -74,7 +76,7 @@ inline Scalar cos_angle(Vector p, Vector q)
 
 Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
 {
-    uint j=0;
+    unsigned int j=0;
     Scalar r, r_previous = 0;
     Point q, c_next;
     Point c = p - n * initial_radius;
@@ -175,7 +177,7 @@ PointList sb_points(PointList &points, VectorList &normals, kdtree2::KDTree* kd_
     Vector n;
 
     #pragma omp parallel for private(p, n)
-    for( uint i=0; i<points.size(); i++ )
+    for( unsigned int i=0; i<points.size(); i++ )
     {
         p = points[i];
         if( inner )
@@ -208,25 +210,21 @@ int main(int argc, char **argv)
         denoise_planar = (3.1415/180) * denoise_planarArg.getValue();
 
         // check for proper in-output arguments and set in and output filepath strings
-        std::string input_coords_path;
-		std::string input_normals_path;
-		std::string output_path_ma_in;
-		std::string output_path_ma_out;
+        std::string input_coords_path = inputArg.getValue()+"/coords.npy";
+        std::string input_normals_path = inputArg.getValue()+"/normals.npy";
+        std::string output_path_ma_in = outputArg.getValue()+"/ma_coords_in.npy";
+        std::string output_path_ma_out = outputArg.getValue()+"/ma_coords_out.npy";
         {
-        	input_coords_path = inputArg.getValue()+"/coords.npy";
             std::ifstream infile(input_coords_path.c_str());
             if(!infile)
                 throw TCLAP::ArgParseException("invalid filepath", inputArg.getValue());
         }
         {
-        	input_normals_path = inputArg.getValue()+"/normals.npy";
             std::ifstream infile(input_normals_path.c_str());
             if(!infile)
                 throw TCLAP::ArgParseException("invalid filepath", inputArg.getValue());
         }
         {
-            output_path_ma_in = outputArg.getValue()+"/ma_coords_in.npy";
-            output_path_ma_out = outputArg.getValue()+"/ma_coords_out.npy";
             std::ofstream outfile(output_path_ma_in.c_str());    
             if(!outfile)
                 throw TCLAP::ArgParseException("invalid filepath", outputArg.getValue());
@@ -237,8 +235,8 @@ int main(int argc, char **argv)
 	    cnpy::NpyArray coords_npy = cnpy::npy_load( input_coords_path.c_str() );
 	    float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
 
-	    uint num_points = coords_npy.shape[0];
-	    uint dim = coords_npy.shape[1];
+	    unsigned int num_points = coords_npy.shape[0];
+	    unsigned int dim = coords_npy.shape[1];
 	    PointList coords(num_points);
 	    for ( int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
 	    coords_npy.destruct();
@@ -249,20 +247,25 @@ int main(int argc, char **argv)
 	    for ( int i=0; i<num_points; i++) normals[i] = Vector(&normals_carray[i*3]);
 	    normals_npy.destruct();
 	    
+        #ifndef __MINGW32__
 	    Misc::Timer t0;
+        #endif
 	    kdtree2::KDTree* kd_tree;
 	    kd_tree = new kdtree2::KDTree(coords,true);
 	    kd_tree->sort_results = true;
+        #ifndef __MINGW32__
 	    t0.elapse();
 	    std::cout<<"Constructed kd-tree in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
+        #endif
 
 	    // omp_set_num_threads(4);
 
 	    {
-	        Misc::Timer t1;
 	        PointList ma_coords_in = sb_points(coords, normals, kd_tree, 1);
-	        t1.elapse();
-	        std::cout<<"Done shrinking interior balls, took "<<t1.getTime()*1000.0<<" ms"<<std::endl;
+            #ifndef __MINGW32__
+	        t0.elapse();
+	        std::cout<<"Done shrinking interior balls, took "<<t0.getTime()*1000.0<<" ms"<<std::endl;
+            #endif
 	    
 	        Scalar* ma_coords_in_carray = new Scalar[num_points*3];   
 	        for (int i=0; i<ma_coords_in.size(); i++)
@@ -275,11 +278,12 @@ int main(int argc, char **argv)
 	    }
 
 	    {
-	        Misc::Timer t2;
 	        PointList ma_coords_out = sb_points(coords, normals, kd_tree, 0);
-	        t2.elapse();
-	        std::cout<<"Done shrinking exterior balls, took "<<t2.getTime()*1000.0<<" ms"<<std::endl;
-	        
+            #ifndef __MINGW32__
+	        t0.elapse();
+	        std::cout<<"Done shrinking exterior balls, took "<<t0.getTime()*1000.0<<" ms"<<std::endl;
+	        #endif
+            
 	        Scalar* ma_coords_out_carray = new Scalar[num_points*3];
 	        for (int i=0; i<ma_coords_out.size(); i++)
 	            for (int j=0; j<3; j++)
