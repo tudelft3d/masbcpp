@@ -208,21 +208,25 @@ int main(int argc, char **argv)
         denoise_planar = (3.1415/180) * denoise_planarArg.getValue();
 
         // check for proper in-output arguments and set in and output filepath strings
+        std::string input_coords_path;
+		std::string input_normals_path;
+		std::string output_path_ma_in;
+		std::string output_path_ma_out;
         {
-        	std::string input_coords_path = inputArg.getValue()+"/coords.npy";
+        	input_coords_path = inputArg.getValue()+"/coords.npy";
             std::ifstream infile(input_coords_path.c_str());
             if(!infile)
                 throw TCLAP::ArgParseException("invalid filepath", inputArg.getValue());
         }
         {
-        	std::string input_normals_path = inputArg.getValue()+"/normals.npy";
+        	input_normals_path = inputArg.getValue()+"/normals.npy";
             std::ifstream infile(input_normals_path.c_str());
             if(!infile)
                 throw TCLAP::ArgParseException("invalid filepath", inputArg.getValue());
         }
         {
-            std::string output_path_ma_in = outputArg.getValue()+"/ma_coords_in.npy";
-            std::string output_path_ma_out = outputArg.getValue()+"/ma_coords_out.npy";
+            output_path_ma_in = outputArg.getValue()+"/ma_coords_in.npy";
+            output_path_ma_out = outputArg.getValue()+"/ma_coords_out.npy";
             std::ofstream outfile(output_path_ma_in.c_str());    
             if(!outfile)
                 throw TCLAP::ArgParseException("invalid filepath", outputArg.getValue());
