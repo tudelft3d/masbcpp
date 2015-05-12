@@ -202,12 +202,16 @@ int main(int argc, char **argv)
         TCLAP::ValueArg<double> denoise_preserveArg("d","preserve","denoise preserve threshold",false,20,"double", cmd);
         TCLAP::ValueArg<double> denoise_planarArg("p","planar","denoise planar threshold",false,32,"double", cmd);
         TCLAP::ValueArg<double> initial_radiusArg("r","radius","initial ball radius",false,200,"double", cmd);
+        
+        TCLAP::SwitchArg reorder_kdtreeSwitch("N","no-kdtree-reorder","Don't reorder kd-tree points: slower computation but lower memory use", cmd, true);
 
         cmd.parse(argc,argv);
         
         initial_radius = initial_radiusArg.getValue();
         denoise_preserve = (3.1415/180) * denoise_preserveArg.getValue();
         denoise_planar = (3.1415/180) * denoise_planarArg.getValue();
+
+        bool kd_tree_reorder = reorder_kdtreeSwitch.getValue();
 
         // check for proper in-output arguments and set in and output filepath strings
         std::string input_coords_path = inputArg.getValue()+"/coords.npy";
@@ -251,7 +255,7 @@ int main(int argc, char **argv)
 	    Misc::Timer t0;
         #endif
 	    kdtree2::KDTree* kd_tree;
-	    kd_tree = new kdtree2::KDTree(coords,true);
+	    kd_tree = new kdtree2::KDTree(coords,kd_tree_reorder);
 	    kd_tree->sort_results = true;
         #ifndef __MINGW32__
 	    t0.elapse();
