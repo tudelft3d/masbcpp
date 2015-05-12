@@ -194,10 +194,10 @@ int main(int argc, char **argv)
 {
     // parse command line arguments
     try {
-        TCLAP::CmdLine cmd("Computes a MAT point approximation", ' ', "0.1");
+        TCLAP::CmdLine cmd("Computes a MAT point approximation, see also https://github.com/tudelft3d/masbcpp", ' ', "0.1");
 
-        TCLAP::UnlabeledValueArg<std::string> inputArg( "input", "path to directory with inside it a 'coords.npy' and a 'normals.npy' file", true, "", "input dir", cmd);
-        TCLAP::UnlabeledValueArg<std::string> outputArg( "ouput", "path to output directory", true, "", "output dir", cmd);
+        TCLAP::UnlabeledValueArg<std::string> inputArg( "input", "path to directory with inside it a 'coords.npy' and a 'normals.npy' file. Both should be Nx3 float arrays where N is the number of input points.", true, "", "input dir", cmd);
+        TCLAP::UnlabeledValueArg<std::string> outputArg( "ouput", "path to output directory. Estimated MAT points are written to the files 'ma_coords_in.npy' and 'ma_coords_out.npy', for interior and exterior MAT respectively.", true, "", "output dir", cmd);
 
         TCLAP::ValueArg<double> denoise_preserveArg("d","preserve","denoise preserve threshold",false,20,"double", cmd);
         TCLAP::ValueArg<double> denoise_planarArg("p","planar","denoise planar threshold",false,32,"double", cmd);

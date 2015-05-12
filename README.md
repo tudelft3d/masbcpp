@@ -23,14 +23,13 @@ prior to building masbcpp (assuming you have installed [Homebrew](http://brew.sh
 ## Usage
 See
 ```
-$ ./compute_ma
+$ ./compute_ma --help
 ```
 and
 ```
-$ ./compute_normals
+$ ./compute_normals --help
 ```
-Currently only numpy binary arrays are supported as input and output.
-
+Currently only [NumPy](http://www.numpy.org) binary files are supported as input and output. Use Python and the [numpy.save](http://docs.scipy.org/doc/numpy/reference/generated/numpy.save.html) and [numpy.load](http://docs.scipy.org/doc/numpy/reference/generated/numpy.load.html) to conveniently read and write these.
 
 ## Limitations
 The current implementation is not infinitely scalable, mainly in terms of memory usage. Processing very large datasets (hundreds of millions of points or more) is therefore not really supported. 

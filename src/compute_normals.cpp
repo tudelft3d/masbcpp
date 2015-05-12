@@ -80,10 +80,10 @@ int main(int argc, char **argv)
 {
     // parse command line arguments
     try {
-        TCLAP::CmdLine cmd("Estimates normals using PCA", ' ', "0.1");
+        TCLAP::CmdLine cmd("Estimates normals using PCA, see also https://github.com/tudelft3d/masbcpp", ' ', "0.1");
 
-        TCLAP::UnlabeledValueArg<std::string> inputArg( "input", "path to directory with inside it a 'coords.npy' file", true, "", "input dir", cmd);
-        TCLAP::UnlabeledValueArg<std::string> outputArg( "ouput", "path to output directory", true, "", "output dir", cmd);
+        TCLAP::UnlabeledValueArg<std::string> inputArg( "input", "path to directory with inside it a 'coords.npy' file; a Nx3 float array where N is the number of input points.", true, "", "input dir", cmd);
+        TCLAP::UnlabeledValueArg<std::string> outputArg( "ouput", "path to output directory. Estimated normals are written to the file 'normals.npy'.", true, "", "output dir", cmd);
 
         TCLAP::ValueArg<int> kArg("k","kneighbours","number of nearest neighbours to use for PCA",false,10,"int", cmd);
         
