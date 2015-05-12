@@ -82,10 +82,14 @@ int main(int argc, char **argv)
         TCLAP::UnlabeledValueArg<std::string> outputArg( "ouput", "path to output directory. Estimated normals are written to the file 'normals.npy'.", true, "", "output dir", cmd);
 
         TCLAP::ValueArg<int> kArg("k","kneighbours","number of nearest neighbours to use for PCA",false,10,"int", cmd);
+
+        TCLAP::SwitchArg reorder_kdtreeSwitch("N","no-kdtree-reorder","Don't reorder kd-tree points: slower computation but lower memory use", cmd, true);
         
         cmd.parse(argc,argv);
         
         int k = kArg.getValue();
+
+        bool kd_tree_reorder = reorder_kdtreeSwitch.getValue();
 
         std::string input_coords_path = inputArg.getValue()+"/coords.npy";
         std::string output_path = outputArg.getValue()+"/normals.npy";
@@ -116,7 +120,7 @@ int main(int argc, char **argv)
         Misc::Timer t0;
         #endif
         kdtree2::KDTree* kd_tree;
-        kd_tree = new kdtree2::KDTree(coords,true);
+        kd_tree = new kdtree2::KDTree(coords,kd_tree_reorder);
         kd_tree->sort_results = false;
         #ifndef __MINGW32__
         t0.elapse();
