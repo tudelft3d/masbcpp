@@ -29,7 +29,7 @@ and
 ```
 $ ./compute_normals --help
 ```
-Currently only [NumPy](http://www.numpy.org) binary files are supported as input and output. Use Python and the [numpy.save](http://docs.scipy.org/doc/numpy/reference/generated/numpy.save.html) and [numpy.load](http://docs.scipy.org/doc/numpy/reference/generated/numpy.load.html) functions to conveniently read and write these.
+Currently only [NumPy](http://www.numpy.org) binary files (`.npy`) are supported as input and output. Use [lasnpyio](https://github.com/Ylannl/lasnpyio) for reading and writing of `.npy` files and conversion from the ASPRS LAS format. 
 
 ## Limitations
 The current implementation is not infinitely scalable, mainly in terms of memory usage. Processing very large datasets (hundreds of millions of points or more) is therefore not really supported. 
