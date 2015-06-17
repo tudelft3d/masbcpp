@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <set>
 
 namespace kdtree2 {
     // utility
@@ -157,25 +158,52 @@ namespace kdtree2 {
             // That, we recompute ourself.
             //
             int c = -1;
-            float maxspread = 0.0;
-            int m;
-            
-            for (int i=0;i<dim;i++) {
-                if ((parent == NULL) || (parent->cut_dim == i)) {
-                    spread_in_coordinate(i,l,u,node->box[i]);
-                } else {
-                    node->box[i] = parent->box[i];
-                }
-                float spread = node->box[i].upper - node->box[i].lower;
-                if (spread>maxspread) {
-                    maxspread = spread;
-                    c=i;
-                }
-            }
-            
-            //
+#if 1 //fixed by EVH 20110121 to deal with the fact that a dimension that has spread > 0 in the approx bbox can have actual spread 0, failing an implied condition later
+		std::set<std::pair<float, int> > spreadsByDim;
+		for (int i=0;i<dim;i++)
+		{
+			if ((parent == NULL) || (parent->cut_dim == i)) spread_in_coordinate(i,l,u,node->box[i]);
+			else node->box[i] = parent->box[i];
+			const float spread = node->box[i].upper - node->box[i].lower;
+			spreadsByDim.insert(std::make_pair(-spread, i)); //use -spread because default ordering is ascending and we want largest first
+		}
+		/*
+		 * select the highest-approx-spread dim that has nonzero actual spread (a heuristic to try to find an ok dim quickly; TODO can do better?)
+		 */
+		for(std::set<std::pair<float, int> >::const_iterator j = spreadsByDim.begin(); j != spreadsByDim.end(); j++)
+			if((*j).first == 0) //no more spreads > 0
+			{
+				c = -1;
+				break;
+			}
+			else
+			{
+				//compute actual spread
+				spread_in_coordinate((*j).second, l, u, node->box[(*j).second]);
+				static const float EPSILON = 1e-7;
+				if(node->box[(*j).second].upper - node->box[(*j).second].lower > EPSILON) //spread is > 0
+				{
+					c = (*j).second;
+					break;
+				}
+			}
+#else
+		float maxspread = 0.0;
+		for (int i=0;i<dim;i++)
+		{
+			if ((parent == NULL) || (parent->cut_dim == i)) spread_in_coordinate(i,l,u,node->box[i]);
+			else node->box[i] = parent->box[i];
+			const float spread = node->box[i].upper - node->box[i].lower;
+			if (spread>maxspread)
+			{
+				maxspread = spread;
+				c=i;
+			}
+		}
+#endif
             // now, c is the identity of which coordinate has the greatest spread
             //
+		int m;
             
             if (false) {
                 m = (l+u)/2;
