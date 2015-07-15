@@ -101,7 +101,7 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
             if( r_previous == initial_radius )
             {
                 r = initial_radius;
-                c = nanPoint;
+                c = p - n * r;
                 break;
             // 2) otherwise just pick the second closest point
             } else {
@@ -123,7 +123,7 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
         else if( r > initial_radius )
         {
             r = initial_radius;
-            c = nanPoint;
+            c = p - n * r;
             break;
         }
 
@@ -145,7 +145,7 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
             if( denoise_planar and ( separation_angle < denoise_planar and j==0 ) )
             {
                 r = initial_radius;
-                c = nanPoint;
+                c = p - n * r;
                 break;
             }
         }
