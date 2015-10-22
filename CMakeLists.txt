@@ -8,16 +8,21 @@ set(COMPILE_OPTIONS "-funroll-loops -ffast-math")
 
 if(APPLE)
 	if(EXISTS "/usr/local/bin/clang-omp++")
+		message(STATUS "Building with OMP support")
+
 		set(CMAKE_CXX_COMPILER "/usr/local/bin/clang-omp++" )
 		add_definitions(-DWITH_OPENMP)
-		add_definitions(-DCLANG_OMP)
+		#add_definitions(-DCLANG_OMP)
 
 		set(LINK_LIBS ${LINK_LIBS} -liomp5)
 		set(COMPILE_OPTIONS "${COMPILE_OPTIONS} -fopenmp")
+		include_directories(/usr/local/include/libiomp)
+		link_directories(/usr/local/lib)
 	endif()
 else()
 	find_package(OpenMP)
 	if(OPENMP_FOUND)
+	
 		add_definitions(-DWITH_OPENMP)
 		set(COMPILE_OPTIONS "${COMPILE_OPTIONS} ${OpenMP_CXX_FLAGS}")
 	endif()
