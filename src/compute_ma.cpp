@@ -47,6 +47,7 @@
 
 // globals
 Scalar initial_radius;
+bool nan_for_initr;
 double denoise_preserve;
 double denoise_planar;
 const Scalar delta_convergance = 1E-5;
@@ -101,7 +102,7 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
             if( r_previous == initial_radius )
             {
                 r = initial_radius;
-                c = p - n * r;
+                c = nan_for_initr ? nanPoint : p - n * r;
                 break;
             // 2) otherwise just pick the second closest point
             } else {
@@ -123,7 +124,7 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
         else if( r > initial_radius )
         {
             r = initial_radius;
-            c = p - n * r;
+            c = nan_for_initr ? nanPoint : p - n * r;
             break;
         }
 
@@ -145,7 +146,7 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
             if( denoise_planar and ( separation_angle < denoise_planar and j==0 ) )
             {
                 r = initial_radius;
-                c = p - n * r;
+                c = nan_for_initr ? nanPoint : p - n * r;
                 break;
             }
         }
@@ -199,6 +200,7 @@ int main(int argc, char **argv)
         TCLAP::ValueArg<double> denoise_planarArg("p","planar","denoise planar threshold",false,32,"double", cmd);
         TCLAP::ValueArg<double> initial_radiusArg("r","radius","initial ball radius",false,200,"double", cmd);
         
+        TCLAP::SwitchArg nan_for_initrSwitch("a","nan","don't write nan for points with radius equal to initial radius", cmd, true);
         TCLAP::SwitchArg reorder_kdtreeSwitch("N","no-kdtree-reorder","Don't reorder kd-tree points: slower computation but lower memory use", cmd, true);
 
         cmd.parse(argc,argv);
@@ -206,7 +208,8 @@ int main(int argc, char **argv)
         initial_radius = initial_radiusArg.getValue();
         denoise_preserve = (3.1415/180) * denoise_preserveArg.getValue();
         denoise_planar = (3.1415/180) * denoise_planarArg.getValue();
-
+        
+        nan_for_initr = reorder_kdtreeSwitch.getValue();
         bool kd_tree_reorder = reorder_kdtreeSwitch.getValue();
 
         // check for proper in-output arguments and set in and output filepath strings
