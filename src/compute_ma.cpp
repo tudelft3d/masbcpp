@@ -71,11 +71,12 @@ inline Scalar cos_angle(Vector p, Vector q)
     return result;
 }
 
-Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
+ma_result sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
 {
     unsigned int j=0;
     Scalar r, r_previous = 0;
     Point q, c_next;
+    int qidx;
     Point c = p - n * initial_radius;
 
     while (1) 
@@ -89,7 +90,9 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
         // find closest point to c
         kdtree2::KDTreeResultVector result;
         kd_tree->n_nearest(c,2,result);
-        q = kd_tree->the_data[ result[0].idx ];
+        
+        qidx = result[0].idx;
+        q = kd_tree->the_data[ qidx ];
 
         #ifdef VERBOSEPRINT
         std::cout << "q = (" << q[0] << "," << q[1] << "," << q[2] << ")\n";
@@ -106,7 +109,8 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
                 break;
             // 2) otherwise just pick the second closest point
             } else {
-                q = kd_tree->the_data[ result[1].idx ];
+                qidx = result[1].idx;
+                q = kd_tree->the_data[ qidx ];
             }
         }
 
@@ -164,12 +168,11 @@ Point sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
         j++;
     }
         
-    return c;
+    return {c, qidx};
 }
 
-PointList sb_points(PointList &points, VectorList &normals, kdtree2::KDTree* kd_tree, bool inner=1)
+void sb_points(PointList &points, VectorList &normals, kdtree2::KDTree* kd_tree, PointList &ma_coords, int* ma_qidx, bool inner=1)
 {
-    PointList ma_coords(points.size());
     Point p;
     Vector n;
 
@@ -181,9 +184,11 @@ PointList sb_points(PointList &points, VectorList &normals, kdtree2::KDTree* kd_
             n = normals[i];
         else
             n = -normals[i];
-        ma_coords[i] = sb_point(p, n, kd_tree);
+        ma_result r = sb_point(p, n, kd_tree);
+        ma_coords[i] = r.c;
+        ma_qidx[i] = r.qidx;
     }
-    return ma_coords;
+    // return ma_coords;
 }
 
 
@@ -217,6 +222,8 @@ int main(int argc, char **argv)
         std::string input_normals_path = inputArg.getValue()+"/normals.npy";
         std::string output_path_ma_in = outputArg.getValue()+"/ma_coords_in.npy";
         std::string output_path_ma_out = outputArg.getValue()+"/ma_coords_out.npy";
+        std::string output_path_ma_q_in = outputArg.getValue()+"/ma_qidx_in.npy";
+        std::string output_path_ma_q_out = outputArg.getValue()+"/ma_qidx_out.npy";
         {
             std::ifstream infile(input_coords_path.c_str());
             if(!infile)
@@ -264,7 +271,10 @@ int main(int argc, char **argv)
 	    // omp_set_num_threads(4);
 
 	    {
-	        PointList ma_coords_in = sb_points(coords, normals, kd_tree, 1);
+            PointList ma_coords_in(coords.size());
+            int* ma_qidx_in = new int[num_points];
+
+	        sb_points(coords, normals, kd_tree, ma_coords_in, ma_qidx_in, 1);
             #ifndef __MINGW32__
 	        t0.elapse();
 	        std::cout<<"Done shrinking interior balls, took "<<t0.getTime()*1000.0<<" ms"<<std::endl;
@@ -277,11 +287,15 @@ int main(int argc, char **argv)
 	    
 	        const unsigned int c_size = ma_coords_in.size();
 	        const unsigned int shape[] = {c_size,3};
-	        cnpy::npy_save(output_path_ma_in.c_str(), ma_coords_in_carray, shape, 2, "w");
+            cnpy::npy_save(output_path_ma_in.c_str(), ma_coords_in_carray, shape, 2, "w");
+            const unsigned int shape_[] = {c_size};
+	        cnpy::npy_save(output_path_ma_q_in.c_str(), ma_qidx_in, shape_, 1, "w");
 	    }
 
 	    {
-	        PointList ma_coords_out = sb_points(coords, normals, kd_tree, 0);
+            PointList ma_coords_out(coords.size());
+            int* ma_qidx_out = new int[num_points];
+            sb_points(coords, normals, kd_tree, ma_coords_out, ma_qidx_out, 0);
             #ifndef __MINGW32__
 	        t0.elapse();
 	        std::cout<<"Done shrinking exterior balls, took "<<t0.getTime()*1000.0<<" ms"<<std::endl;
@@ -295,6 +309,8 @@ int main(int argc, char **argv)
 	        const unsigned int c_size = ma_coords_out.size();
 	        const unsigned int shape[] = {c_size,3};
 	        cnpy::npy_save(output_path_ma_out.c_str(), ma_coords_out_carray, shape, 2, "w");
+            const unsigned int shape_[] = {c_size};
+            cnpy::npy_save(output_path_ma_q_out.c_str(), ma_qidx_out, shape_, 1, "w");
 	    }
 
 	} catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
