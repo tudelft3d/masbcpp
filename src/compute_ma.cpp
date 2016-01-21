@@ -76,7 +76,7 @@ ma_result sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
     unsigned int j=0;
     Scalar r, r_previous = 0;
     Point q, c_next;
-    int qidx;
+    int qidx = -1, qidx_next;
     Point c = p - n * initial_radius;
 
     while (1) 
@@ -91,8 +91,8 @@ ma_result sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
         kdtree2::KDTreeResultVector result;
         kd_tree->n_nearest(c,2,result);
         
-        qidx = result[0].idx;
-        q = kd_tree->the_data[ qidx ];
+        qidx_next = result[0].idx;
+        q = kd_tree->the_data[ qidx_next ];
 
         #ifdef VERBOSEPRINT
         std::cout << "q = (" << q[0] << "," << q[1] << "," << q[2] << ")\n";
@@ -109,8 +109,8 @@ ma_result sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
                 break;
             // 2) otherwise just pick the second closest point
             } else {
-                qidx = result[1].idx;
-                q = kd_tree->the_data[ qidx ];
+                qidx_next = result[1].idx;
+                q = kd_tree->the_data[ qidx_next ];
             }
         }
 
@@ -165,6 +165,7 @@ ma_result sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
 
         r_previous = r;
         c = c_next;
+        qidx = qidx_next;
         j++;
     }
         
