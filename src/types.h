@@ -35,4 +35,16 @@ struct ma_result {
 	int qidx;
 };
 
+struct ma_data {
+	uint m;
+
+	PointList *coords;
+	VectorList *normals;
+	PointList *ma_coords_in
+	PointList *ma_coords_out
+
+	float *lfs;
+	bool *mask;
+};
+
 #endif

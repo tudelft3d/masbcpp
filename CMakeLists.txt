@@ -44,9 +44,11 @@ set(LINK_LIBS ${LINK_LIBS} thirdparty)
 # set targets
 add_executable(compute_ma src/compute_ma.cpp)
 add_executable(compute_normals src/compute_normals.cpp)
+add_executable(compute_normals src/simplify.cpp)
 
 # link targets
 target_link_libraries(compute_ma ${LINK_LIBS})
 target_link_libraries(compute_normals ${LINK_LIBS})
+target_link_libraries(simplify ${LINK_LIBS})
 
-install(TARGETS compute_ma compute_normals DESTINATION bin)
+install(TARGETS compute_ma compute_normals simplify DESTINATION bin)
