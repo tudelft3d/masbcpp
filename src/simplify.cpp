@@ -65,23 +65,11 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
 
         Vector f1_in = (*madata.coords)[i] - (*madata.ma_coords_in)[i];
         Vector f2_in = (*madata.coords)[ madata.ma_qidx_in[i] ] - (*madata.ma_coords_in)[i];
-        // madata.lfs[i] = f1_in[0];
-        // std::cout << "ma_coords_in: " << (*madata.ma_coords_in)[i][0] << " " << (*madata.ma_coords_in)[i][1] << " " << (*madata.ma_coords_in)[i][2] << std::endl;
-        // std::cout << "coords: " << (*madata.coords)[i][0] << " " << (*madata.coords)[i][1] << " " << (*madata.coords)[i][2] << std::endl;
-        // std::cout << "f2_in: " << f2_in[0] << " " << f2_in[1] << " " << f2_in[2] << std::endl;
-        // std::cout << "ma_qidx_in: " << madata.ma_qidx_in[i] << std::endl;
-
-//        f1_in = f1_in.normalize();
-//        f2_in = f2_in.normalize();
-
+        
         (*madata.ma_bisec_in)[i] = (f1_in+f2_in).normalize();
-        // std::cout << "ma_bisec_in: " << (*madata.ma_bisec_in)[i][0] << " " << (*madata.ma_bisec_in)[i][1] << " " << (*madata.ma_bisec_in)[i][2] << std::endl;
 
         Vector f1_out = (*madata.coords)[i] - (*madata.ma_coords_out)[i];
         Vector f2_out = (*madata.coords)[ madata.ma_qidx_out[i] ] - (*madata.ma_coords_out)[i];
-
-//        f1_out = f1_out.normalize();
-//        f2_out = f2_out.normalize();
 
         (*madata.ma_bisec_out)[i] = (f1_out+f2_out).normalize();
 
@@ -107,9 +95,8 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
             // compute bisector and filter .. rebuild kdtree .. compute lfs
             madata.mask[i] = false;
             // for( int j=1; j<k; j++ ){
-                float bisec_angle = (*madata.ma_bisec_in)[result[1].idx] * (*madata.ma_bisec_in)[i];
-                madata.lfs[i] = acos(bisec_angle);
-                if( bisec_angle > bisec_threshold )
+                float bisec_angle = acos((*madata.ma_bisec_in)[result[1].idx] * (*madata.ma_bisec_in)[i]);
+                if( bisec_angle < bisec_threshold )
                     madata.mask[i] = true;
             // }
             if (madata.mask[i])
@@ -133,6 +120,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
     std::cout<<"Copied cleaned MA points in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
     #endif
 
+    k=1;
     {
         // rebuild kd-tree
         kdtree2::KDTree kd_tree(ma_coords_in_masked,true);
@@ -146,7 +134,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
         kdtree2::KDTreeResultVector result;
         for( unsigned int i=0; i<madata.m; i++ ){
             kd_tree.n_nearest((*madata.coords)[i], k, result);
-            // madata.lfs[i] = sqrt(result[1].dis);
+            madata.lfs[i] = sqrt(result[0].dis);
         }
         #ifndef __MINGW32__
         t0.elapse();
@@ -181,7 +169,7 @@ int main(int argc, char **argv)
         std::string input_coords_path = inputArg.getValue()+"/coords.npy";
         std::string input_path_ma_coords_in = inputArg.getValue()+"/ma_coords_in.npy";
         std::string input_path_ma_coords_out = inputArg.getValue()+"/ma_coords_out.npy";
-        std::string input_path_ma_qidx_in = inputArg.getValue()+"/ma_qidx_out.npy";
+        std::string input_path_ma_qidx_in = inputArg.getValue()+"/ma_qidx_in.npy";
         std::string input_path_ma_qidx_out = inputArg.getValue()+"/ma_qidx_out.npy";
         std::string output_lfs = outputArg.getValue()+"/lfs.npy";
         std::string output_filtermask = outputArg.getValue()+"/decimate_lfs.npy";
@@ -225,9 +213,6 @@ int main(int argc, char **argv)
 
         cnpy::NpyArray ma_qidx_in_npy = cnpy::npy_load( input_path_ma_qidx_in.c_str() );
         madata.ma_qidx_in = reinterpret_cast<int*>(ma_qidx_in_npy.data);
-        for ( int i=0; i<num_points; i++) {
-            std::cout << "ma_qidx_in: " << madata.ma_qidx_in[i] << std::endl;
-        }
         // ma_qidx_in_npy.destruct
 
         cnpy::NpyArray ma_qidx_out_npy = cnpy::npy_load( input_path_ma_qidx_out.c_str() );
@@ -248,7 +233,7 @@ int main(int argc, char **argv)
 
 	    {
             // compute lfs
-            compute_lfs(madata, cos((1.0 / 180.0) * 3.1415));
+            compute_lfs(madata, (1.0 / 180.0) * M_PI);
 
             // create filter ...
 	    
