@@ -106,6 +106,7 @@ ma_result sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
             {
                 r = initial_radius;
                 c = nan_for_initr ? nanPoint : p - n * r;
+                qidx = qidx_next;
                 break;
             // 2) otherwise just pick the second closest point
             } else {
@@ -129,6 +130,7 @@ ma_result sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
         {
             r = initial_radius;
             c = nan_for_initr ? nanPoint : p - n * r;
+            qidx = qidx_next;
             break;
         }
 
@@ -145,12 +147,14 @@ ma_result sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
             {
                 // keep previous radius:
                 r = r_previous;
+                qidx = qidx_next;
                 break;
             }
             if( denoise_planar and ( separation_angle < denoise_planar and j==0 ) )
             {
                 r = initial_radius;
                 c = nan_for_initr ? nanPoint : p - n * r;
+                qidx = qidx_next;
                 break;
             }
         }
