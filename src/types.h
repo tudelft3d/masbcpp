@@ -36,12 +36,16 @@ struct ma_result {
 };
 
 struct ma_data {
-	uint m;
+	int m;
 
 	PointList *coords;
 	VectorList *normals;
-	PointList *ma_coords_in
-	PointList *ma_coords_out
+	PointList *ma_coords_in;
+	PointList *ma_coords_out;
+	int *ma_qidx_in;
+	int *ma_qidx_out;
+	VectorList *ma_bisec_in;
+	VectorList *ma_bisec_out;
 
 	float *lfs;
 	bool *mask;
