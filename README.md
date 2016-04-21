@@ -30,13 +30,17 @@ and
 ```
 $ ./compute_normals --help
 ```
+and
+```
+$ ./simplify --help
+```
 Currently only [NumPy](http://www.numpy.org) binary files (`.npy`) are supported as input and output. Use [pointio](https://github.com/Ylannl/pointio) for reading and writing of `.npy` files and conversion from the ASPRS LAS format. 
 
 ## Limitations
 The current implementation is not infinitely scalable, mainly in terms of memory usage. Processing very large datasets (hundreds of millions of points or more) is therefore not really supported. 
 
 ## Acknowledgements
-The shinking ball algorithm was originally introduced by [ma12]
+The shinking ball algorithm was originally introduced by
 
 ```bib
 @article{ma12,
@@ -48,6 +52,20 @@ The shinking ball algorithm was originally introduced by [ma12]
   pages={7--19},
   year={2012},
   publisher={Springer}
+}
+```
+
+Details on how I adapted the shrinking ball algorithm to handle noisy inputs can be found in
+```bib
+@article{Peters16,
+	author = {Peters, Ravi and Ledoux, Hugo},
+	title = {Robust approximation of the {Medial Axis Transform} of {LiDAR} point clouds as a tool for visualisation},
+	journal = {Computers \& Geosciences},
+	year = {2016},
+	volume = {90},
+	number = {A},
+	pages = {123--133},
+	month = {mar}
 }
 ```
 
