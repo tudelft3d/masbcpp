@@ -2,6 +2,15 @@ cmake_minimum_required(VERSION 2.8)
 
 project(masbcpp)
 
+# C++11
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+if(COMPILER_SUPPORTS_CXX11)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+else()
+  message(STATUS "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+endif()
+
 # Figure out if we can enable OpenMP
 set(LINK_LIBS)
 set(COMPILE_OPTIONS "-funroll-loops -ffast-math")
