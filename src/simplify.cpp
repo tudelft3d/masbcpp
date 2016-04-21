@@ -92,6 +92,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
         #endif
         
         kdtree2::KDTreeResultVector result;
+        #pragma omp parallel for private(result)
         for( unsigned int i=0; i<madata.m; i++ ){
             kd_tree.n_nearest((*madata.ma_coords_in)[i], k, result);
             madata.mask[i] = false;
@@ -133,6 +134,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
         #endif
 
         kdtree2::KDTreeResultVector result;
+        #pragma omp parallel for private(result)
         for( unsigned int i=0; i<madata.m; i++ ){
             kd_tree.n_nearest((*madata.coords)[i], k, result);
             madata.lfs[i] = sqrt(result[0].dis);
@@ -151,6 +153,10 @@ inline int flatindex(int ind[], int size[]){
 }
 
 void simplify(ma_data &madata, float cellsize, float epsilon){
+    #ifndef __MINGW32__
+    Misc::Timer t0;
+    #endif
+    
     Box::Size size = madata.bbox.getSize();
     Point origin = Point(madata.bbox.min);
 
@@ -185,6 +191,7 @@ void simplify(ma_data &madata, float cellsize, float epsilon){
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> randu(0, 1);
     
+    // parallelize?
     for( int i=0; i<ncells; i++)
         if( grid[i] != NULL ){
             int n = grid[i]->size();
@@ -197,6 +204,10 @@ void simplify(ma_data &madata, float cellsize, float epsilon){
             for(auto i: *grid[i])
                 madata.mask[i] = randu(gen) <= target_n/n;
         }
+    #ifndef __MINGW32__
+    t0.elapse();
+    std::cout<<"Performed grid simplification in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
+    #endif
 
 
 }
