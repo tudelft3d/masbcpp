@@ -219,12 +219,12 @@ int main(int argc, char **argv)
     try {
         TCLAP::CmdLine cmd("Computes a MAT point approximation, see also https://github.com/tudelft3d/masbcpp", ' ', "0.1");
 
-        TCLAP::UnlabeledValueArg<std::string> inputArg( "input", "path to directory with inside it a 'coords.npy' and a 'normals.npy' file. Both should be Nx3 float arrays where N is the number of input points.", true, "", "input dir", cmd);
-        TCLAP::UnlabeledValueArg<std::string> outputArg( "ouput", "path to output directory. Estimated MAT points are written to the files 'ma_coords_in.npy' and 'ma_coords_out.npy', for interior and exterior MAT respectively.", true, "", "output dir", cmd);
+        TCLAP::UnlabeledValueArg<std::string> inputArg( "input", "path to input directory with inside it a 'coords.npy' and 'ma_*.npy' files. Both should be Nx3 float arrays where N is the number of input points.", true, "", "input dir", cmd);
+        TCLAP::UnlabeledValueArg<std::string> outputArg( "ouput", "path to output directory", false, "", "output dir", cmd);
 
-        TCLAP::ValueArg<double> epsilonArg("e","preserve","denoise preserve threshold",false,0.4,"double", cmd);
-        TCLAP::ValueArg<double> cellsizeArg("c","planar","denoise planar threshold",false,1,"double", cmd);
-        TCLAP::ValueArg<double> bisecArg("b","bisec","bisector threshold",false,3,"double", cmd);
+        TCLAP::ValueArg<double> epsilonArg("e","epsilon","espilon threshold that controls the degree of simplification",false,0.4,"double", cmd);
+        TCLAP::ValueArg<double> cellsizeArg("c","cellsize","cellsize used during grid-based lfs simplification",false,1,"double", cmd);
+        TCLAP::ValueArg<double> bisecArg("b","bisec","bisector threshold used to clean the MAT points",false,3,"double", cmd);
         
         TCLAP::SwitchArg towdimSwitch("t","twodim","use 2D grid instead of 3D grid", cmd, false);
 
@@ -236,14 +236,18 @@ int main(int argc, char **argv)
         
         bool twodim = towdimSwitch.getValue();
 
+        std::string output_path = inputArg.getValue();
+        if(outputArg.isSet())
+            output_path = outputArg.getValue();
+
         // check for proper in-output arguments and set in and output filepath strings
         std::string input_coords_path = inputArg.getValue()+"/coords.npy";
         std::string input_path_ma_coords_in = inputArg.getValue()+"/ma_coords_in.npy";
         std::string input_path_ma_coords_out = inputArg.getValue()+"/ma_coords_out.npy";
         std::string input_path_ma_qidx_in = inputArg.getValue()+"/ma_qidx_in.npy";
         std::string input_path_ma_qidx_out = inputArg.getValue()+"/ma_qidx_out.npy";
-        std::string output_lfs = outputArg.getValue()+"/lfs.npy";
-        std::string output_filtermask = outputArg.getValue()+"/decimate_lfs.npy";
+        std::string output_lfs = output_path+"/lfs.npy";
+        std::string output_filtermask = output_path+"/decimate_lfs.npy";
         {
             std::ifstream infile(input_coords_path.c_str());
             if(!infile)
@@ -257,7 +261,7 @@ int main(int argc, char **argv)
         {
             std::ofstream outfile(output_filtermask.c_str());    
             if(!outfile)
-                throw TCLAP::ArgParseException("invalid filepath", outputArg.getValue());
+                throw TCLAP::ArgParseException("invalid filepath", output_path);
         }
 
         ma_data madata = {};

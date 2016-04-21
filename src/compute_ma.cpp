@@ -204,7 +204,7 @@ int main(int argc, char **argv)
         TCLAP::CmdLine cmd("Computes a MAT point approximation, see also https://github.com/tudelft3d/masbcpp", ' ', "0.1");
 
         TCLAP::UnlabeledValueArg<std::string> inputArg( "input", "path to directory with inside it a 'coords.npy' and a 'normals.npy' file. Both should be Nx3 float arrays where N is the number of input points.", true, "", "input dir", cmd);
-        TCLAP::UnlabeledValueArg<std::string> outputArg( "ouput", "path to output directory. Estimated MAT points are written to the files 'ma_coords_in.npy' and 'ma_coords_out.npy', for interior and exterior MAT respectively.", true, "", "output dir", cmd);
+        TCLAP::UnlabeledValueArg<std::string> outputArg( "output", "path to output directory", false, "", "output dir", cmd);
 
         TCLAP::ValueArg<double> denoise_preserveArg("d","preserve","denoise preserve threshold",false,20,"double", cmd);
         TCLAP::ValueArg<double> denoise_planarArg("p","planar","denoise planar threshold",false,32,"double", cmd);
@@ -216,19 +216,23 @@ int main(int argc, char **argv)
         cmd.parse(argc,argv);
         
         initial_radius = initial_radiusArg.getValue();
-        denoise_preserve = (3.1415/180) * denoise_preserveArg.getValue();
-        denoise_planar = (3.1415/180) * denoise_planarArg.getValue();
+        denoise_preserve = (M_PI/180) * denoise_preserveArg.getValue();
+        denoise_planar = (M_PI/180) * denoise_planarArg.getValue();
         
         nan_for_initr = nan_for_initrSwitch.getValue();
         bool kd_tree_reorder = reorder_kdtreeSwitch.getValue();
 
+        std::string output_path = inputArg.getValue();
+        if(outputArg.isSet())
+            output_path = outputArg.getValue();
+
         // check for proper in-output arguments and set in and output filepath strings
         std::string input_coords_path = inputArg.getValue()+"/coords.npy";
         std::string input_normals_path = inputArg.getValue()+"/normals.npy";
-        std::string output_path_ma_in = outputArg.getValue()+"/ma_coords_in.npy";
-        std::string output_path_ma_out = outputArg.getValue()+"/ma_coords_out.npy";
-        std::string output_path_ma_q_in = outputArg.getValue()+"/ma_qidx_in.npy";
-        std::string output_path_ma_q_out = outputArg.getValue()+"/ma_qidx_out.npy";
+        std::string output_path_ma_in = output_path+"/ma_coords_in.npy";
+        std::string output_path_ma_out = output_path+"/ma_coords_out.npy";
+        std::string output_path_ma_q_in = output_path+"/ma_qidx_in.npy";
+        std::string output_path_ma_q_out = output_path+"/ma_qidx_out.npy";
         {
             std::ifstream infile(input_coords_path.c_str());
             if(!infile)
@@ -242,7 +246,7 @@ int main(int argc, char **argv)
         {
             std::ofstream outfile(output_path_ma_in.c_str());    
             if(!outfile)
-                throw TCLAP::ArgParseException("invalid filepath", outputArg.getValue());
+                throw TCLAP::ArgParseException("invalid filepath", output_path);
         }
 
 	   	std::cout << "Parameters: denoise_preserve="<<denoise_preserveArg.getValue()<<", denoise_planar="<<denoise_planarArg.getValue()<<", initial_radius="<<initial_radius<<"\n";

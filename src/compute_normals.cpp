@@ -79,7 +79,7 @@ int main(int argc, char **argv)
         TCLAP::CmdLine cmd("Estimates normals using PCA, see also https://github.com/tudelft3d/masbcpp", ' ', "0.1");
 
         TCLAP::UnlabeledValueArg<std::string> inputArg( "input", "path to directory with inside it a 'coords.npy' file; a Nx3 float array where N is the number of input points.", true, "", "input dir", cmd);
-        TCLAP::UnlabeledValueArg<std::string> outputArg( "ouput", "path to output directory. Estimated normals are written to the file 'normals.npy'.", true, "", "output dir", cmd);
+        TCLAP::UnlabeledValueArg<std::string> outputArg( "output", "path to output directory. Estimated normals are written to the file 'normals.npy'.", false, "", "output dir", cmd);
 
         TCLAP::ValueArg<int> kArg("k","kneighbours","number of nearest neighbours to use for PCA",false,10,"int", cmd);
 
@@ -91,8 +91,12 @@ int main(int argc, char **argv)
 
         bool kd_tree_reorder = reorder_kdtreeSwitch.getValue();
 
+        std::string output_path = inputArg.getValue();
+        if(outputArg.isSet())
+            output_path = outputArg.getValue();
+
         std::string input_coords_path = inputArg.getValue()+"/coords.npy";
-        std::string output_path = outputArg.getValue()+"/normals.npy";
+        output_path += "/normals.npy";
         // check for proper in-output arguments
         {
             std::ifstream infile(input_coords_path.c_str());
@@ -102,7 +106,7 @@ int main(int argc, char **argv)
         {
             std::ofstream outfile(output_path.c_str());    
             if(!outfile)
-                throw TCLAP::ArgParseException("invalid filepath", outputArg.getValue());
+                throw TCLAP::ArgParseException("invalid filepath", output_path);
         }
         
         std::cout << "Parameters: k="<<k<<"\n";
