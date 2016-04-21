@@ -1,4 +1,5 @@
-/*
+The MIT License (MIT)
+
 Copyright (c) 2016 Ravi Peters
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -18,44 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-*/
-
-#ifndef TYPES_
-#define TYPES_
-
-#include <vrui/Geometry/Vector.h>
-#include <vrui/Geometry/Point.h>
-#include <vrui/Geometry/Box.h>
-
-typedef float Scalar; // Scalar type for 3D points
-typedef Geometry::Point<Scalar,3> Point; // Type for 3D points
-typedef std::vector<Point> PointList; // Type for 3D points
-typedef Geometry::Vector<Scalar,3> Vector; // Type for 3D vectors
-typedef std::vector<Vector> VectorList; // Type for 3D vectors
-typedef Geometry::Box<Scalar,3> Box; // Type for 3D Box
-
-typedef std::vector<int> intList; // Type for ints
-
-struct ma_result {
-	Point c;
-	int qidx;
-};
-
-struct ma_data {
-	int m;
-	Box bbox;
-
-	PointList *coords;
-	VectorList *normals;
-	PointList *ma_coords_in;
-	PointList *ma_coords_out;
-	int *ma_qidx_in;
-	int *ma_qidx_out;
-	VectorList *ma_bisec_in;
-	VectorList *ma_bisec_out;
-
-	float *lfs;
-	bool *mask;
-};
-
-#endif
