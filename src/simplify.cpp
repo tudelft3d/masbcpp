@@ -24,6 +24,8 @@
 #include <string>
 #include <limits>
 #include <cmath>
+#include <array>
+#include <random>
 
 // OpenMP
 #ifdef WITH_OPENMP
@@ -144,6 +146,61 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
 
 }
 
+inline int flatindex(int ind[], int size[]){
+    return ind[0] + size[0] * (ind[1] + ind[2]*size[1]);
+}
+
+void simplify(ma_data &madata, float cellsize, float epsilon){
+    Box::Size size = madata.bbox.getSize();
+    Point origin = Point(madata.bbox.min);
+
+    int resolution[3];
+
+    for( int i=0; i<3; i++ )
+        resolution[i] = int(size[i]/cellsize)+1;
+    std::cout << "grid resolution: " << resolution[0] << " " << resolution[1] << " " << resolution[2] << std::endl;
+
+    const int ncells = resolution[0]*resolution[1]*resolution[2];
+    intList* grid[ncells];
+    for (int i=0; i<ncells; i++) {
+        grid[i] = NULL;
+    }
+
+    int idx[3], index;
+    for( int i=0; i<madata.m; i++ ){
+        for( int j=0; j<3; j++){
+            idx[j] = int(((*madata.coords)[i][j]-origin[j]) / cellsize);
+        }
+        index = flatindex(idx, resolution);
+        
+        if( grid[index] == NULL ){
+            intList *ilist = new intList;
+            grid[index] = ilist; // this should be clear later
+        }
+        (*grid[index]).push_back(i);
+    }
+
+    float mean_lfs, target_n, A=cellsize*cellsize;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<float> randu(0, 1);
+    
+    for( int i=0; i<ncells; i++)
+        if( grid[i] != NULL ){
+            int n = grid[i]->size();
+            float sum=0;
+            for(auto i: *grid[i])
+                sum += madata.lfs[i];
+            mean_lfs = sum/n;
+
+            target_n = A/pow(epsilon*mean_lfs,2);
+            for(auto i: *grid[i])
+                madata.mask[i] = randu(gen) <= target_n/n;
+        }
+
+
+}
+
 
 int main(int argc, char **argv)
 {
@@ -154,8 +211,9 @@ int main(int argc, char **argv)
         TCLAP::UnlabeledValueArg<std::string> inputArg( "input", "path to directory with inside it a 'coords.npy' and a 'normals.npy' file. Both should be Nx3 float arrays where N is the number of input points.", true, "", "input dir", cmd);
         TCLAP::UnlabeledValueArg<std::string> outputArg( "ouput", "path to output directory. Estimated MAT points are written to the files 'ma_coords_in.npy' and 'ma_coords_out.npy', for interior and exterior MAT respectively.", true, "", "output dir", cmd);
 
-        TCLAP::ValueArg<double> epsilonArg("e","preserve","denoise preserve threshold",false,20,"double", cmd);
-        TCLAP::ValueArg<double> cellsizeArg("c","planar","denoise planar threshold",false,32,"double", cmd);
+        TCLAP::ValueArg<double> epsilonArg("e","preserve","denoise preserve threshold",false,0.4,"double", cmd);
+        TCLAP::ValueArg<double> cellsizeArg("c","planar","denoise planar threshold",false,1,"double", cmd);
+        TCLAP::ValueArg<double> bisecArg("b","bisec","bisector threshold",false,3,"double", cmd);
         
         TCLAP::SwitchArg towdimSwitch("t","twodim","use 2D grid instead of 3D grid", cmd, false);
 
@@ -163,6 +221,7 @@ int main(int argc, char **argv)
         
         float epsilon = epsilonArg.getValue();
         float cellsize = cellsizeArg.getValue();
+        float bisec_threshold = (bisecArg.getValue() / 180.0) * M_PI;
         
         bool twodim = towdimSwitch.getValue();
 
@@ -198,13 +257,13 @@ int main(int argc, char **argv)
 	    unsigned int num_points = coords_npy.shape[0];
 	    unsigned int dim = coords_npy.shape[1];
 	    PointList coords(num_points);
-        madata.bbox = Box();
+        madata.bbox = Box(Point(&coords_carray[0]), Point(&coords_carray[0]));
 	    for ( int i=0; i<num_points; i++){ 
             coords[i] = Point(&coords_carray[i*3]);
             madata.bbox.addPoint(coords[i]);
         }
 	    coords_npy.destruct();
-        // std::cout << "bbox: " << madata.bbox.min[0] << " " << madata.bbox.min[1] << " " << madata.bbox.min[2] << " " << madata.bbox.max[0] << " " << madata.bbox.max[1] << " " << madata.bbox.max[2] << std::endl;
+        std::cout << "bbox: " << madata.bbox.min[0] << " " << madata.bbox.min[1] << " " << madata.bbox.min[2] << " " << madata.bbox.max[0] << " " << madata.bbox.max[1] << " " << madata.bbox.max[2] << std::endl;
 
         cnpy::NpyArray ma_coords_in_npy = cnpy::npy_load( input_path_ma_coords_in.c_str() );
         float* ma_coords_in_carray = reinterpret_cast<float*>(ma_coords_in_npy.data);
@@ -239,7 +298,8 @@ int main(int argc, char **argv)
 
 	    {
             // compute lfs
-            compute_lfs(madata, (1.0 / 180.0) * M_PI);
+            compute_lfs(madata, bisec_threshold);
+            simplify(madata, cellsize, epsilon);
 
             // create filter ...
 	    

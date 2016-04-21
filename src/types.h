@@ -30,7 +30,7 @@ typedef Geometry::Vector<Scalar,3> Vector; // Type for 3D vectors
 typedef std::vector<Vector> VectorList; // Type for 3D vectors
 typedef Geometry::Box<Scalar,3> Box; // Type for 3D Box
 
-typedef std::vector<int> intList; // Type for 3D vectors
+typedef std::vector<int> intList; // Type for ints
 
 struct ma_result {
 	Point c;
