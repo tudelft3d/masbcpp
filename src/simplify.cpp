@@ -56,7 +56,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
     Misc::Timer t0;
     #endif
 
-    // compute bisectors
+    // compute bisector and filter .. rebuild kdtree .. compute lfs .. compute grid .. thin each cell
     VectorList ma_bisec_in(madata.m);
     madata.ma_bisec_in = &ma_bisec_in;
     VectorList ma_bisec_out(madata.m);
@@ -65,7 +65,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
 
         Vector f1_in = (*madata.coords)[i] - (*madata.ma_coords_in)[i];
         Vector f2_in = (*madata.coords)[ madata.ma_qidx_in[i] ] - (*madata.ma_coords_in)[i];
-        
+
         (*madata.ma_bisec_in)[i] = (f1_in+f2_in).normalize();
 
         Vector f1_out = (*madata.coords)[i] - (*madata.ma_coords_out)[i];
@@ -92,7 +92,6 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
         kdtree2::KDTreeResultVector result;
         for( unsigned int i=0; i<madata.m; i++ ){
             kd_tree.n_nearest((*madata.ma_coords_in)[i], k, result);
-            // compute bisector and filter .. rebuild kdtree .. compute lfs
             madata.mask[i] = false;
             // for( int j=1; j<k; j++ ){
                 float bisec_angle = acos((*madata.ma_bisec_in)[result[1].idx] * (*madata.ma_bisec_in)[i]);
@@ -141,6 +140,8 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
         std::cout<<"Computed LFS "<<t0.getTime()*1000.0<<" ms"<<std::endl;
         #endif
     }
+
+
 }
 
 
@@ -197,8 +198,13 @@ int main(int argc, char **argv)
 	    unsigned int num_points = coords_npy.shape[0];
 	    unsigned int dim = coords_npy.shape[1];
 	    PointList coords(num_points);
-	    for ( int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
+        madata.bbox = Box();
+	    for ( int i=0; i<num_points; i++){ 
+            coords[i] = Point(&coords_carray[i*3]);
+            madata.bbox.addPoint(coords[i]);
+        }
 	    coords_npy.destruct();
+        // std::cout << "bbox: " << madata.bbox.min[0] << " " << madata.bbox.min[1] << " " << madata.bbox.min[2] << " " << madata.bbox.max[0] << " " << madata.bbox.max[1] << " " << madata.bbox.max[2] << std::endl;
 
         cnpy::NpyArray ma_coords_in_npy = cnpy::npy_load( input_path_ma_coords_in.c_str() );
         float* ma_coords_in_carray = reinterpret_cast<float*>(ma_coords_in_npy.data);

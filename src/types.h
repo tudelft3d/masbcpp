@@ -21,12 +21,14 @@
 
 #include <vrui/Geometry/Vector.h>
 #include <vrui/Geometry/Point.h>
+#include <vrui/Geometry/Box.h>
 
 typedef float Scalar; // Scalar type for 3D points
 typedef Geometry::Point<Scalar,3> Point; // Type for 3D points
 typedef std::vector<Point> PointList; // Type for 3D points
 typedef Geometry::Vector<Scalar,3> Vector; // Type for 3D vectors
 typedef std::vector<Vector> VectorList; // Type for 3D vectors
+typedef Geometry::Box<Scalar,3> Box; // Type for 3D Box
 
 typedef std::vector<int> intList; // Type for 3D vectors
 
@@ -37,6 +39,7 @@ struct ma_result {
 
 struct ma_data {
 	int m;
+	Box bbox;
 
 	PointList *coords;
 	VectorList *normals;

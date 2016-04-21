@@ -1,0 +1,346 @@
+/***********************************************************************
+Box - Class for n-dimensional axis-aligned boxes.
+Copyright (c) 2001-2013 Oliver Kreylos
+
+This file is part of the Templatized Geometry Library (TGL).
+
+The Templatized Geometry Library is free software; you can redistribute
+it and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation; either version 2 of the
+License, or (at your option) any later version.
+
+The Templatized Geometry Library is distributed in the hope that it will
+be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with the Templatized Geometry Library; if not, write to the Free
+Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
+02111-1307 USA
+***********************************************************************/
+
+#define GEOMETRY_BOX_IMPLEMENTATION
+
+#include <Geometry/Box.h>
+
+#include <Math/Math.h>
+#include <Math/Constants.h>
+
+namespace Geometry {
+
+/****************************
+Static elements of class Box:
+****************************/
+
+template <class ScalarParam,int dimensionParam>
+const Box<ScalarParam,dimensionParam> Box<ScalarParam,dimensionParam>::empty(Math::Constants<ScalarParam>::max,Math::Constants<ScalarParam>::min);
+template <class ScalarParam,int dimensionParam>
+const Box<ScalarParam,dimensionParam> Box<ScalarParam,dimensionParam>::full(Math::Constants<ScalarParam>::min,Math::Constants<ScalarParam>::max);
+
+/********************
+Methods of class Box:
+********************/
+
+template <class ScalarParam,int dimensionParam>
+inline
+Box<ScalarParam,dimensionParam>::Box(
+	const typename Box<ScalarParam,dimensionParam>::Point& sOrigin,
+	const typename Box<ScalarParam,dimensionParam>::Size& sSize)
+	{
+	for(int i=0;i<dimension;++i)
+		{
+		if(sSize[i]>=Scalar(0))
+			{
+			min[i]=sOrigin[i];
+			max[i]=sOrigin[i]+sSize[i];
+			}
+		else
+			{
+			max[i]=sOrigin[i];
+			min[i]=sOrigin[i]+sSize[i];
+			}
+		}
+	}
+
+template <class ScalarParam,int dimensionParam>
+inline
+bool
+Box<ScalarParam,dimensionParam>::isNull(
+	void) const
+	{
+	bool result=false;
+	for(int i=0;i<dimension;++i)
+		result|=min[i]>max[i];
+	return result;
+	}
+
+template <class ScalarParam,int dimensionParam>
+inline
+bool
+Box<ScalarParam,dimensionParam>::isEmpty(
+	void) const
+	{
+	bool result=false;
+	for(int i=0;i<dimension;++i)
+		result|=min[i]>=max[i];
+	return result;
+	}
+
+template <class ScalarParam,int dimensionParam>
+inline
+bool
+Box<ScalarParam,dimensionParam>::isFull(
+	void) const
+	{
+	bool result=true;
+	for(int i=0;i<dimension;++i)
+		result&=min[i]==Math::Constants<Scalar>::min&&max[i]==Math::Constants<Scalar>::max;
+	return result;
+	}
+
+template <class ScalarParam,int dimensionParam>
+inline
+Box<ScalarParam,dimensionParam>&
+Box<ScalarParam,dimensionParam>::addPoint(
+	const typename Box<ScalarParam,dimensionParam>::Point& p)
+	{
+	/* Adjust box's borders: */
+	for(int i=0;i<dimension;++i)
+		{
+		if(min[i]>p[i])
+			min[i]=p[i];
+		if(max[i]<p[i])
+			max[i]=p[i];
+		}
+	
+	return *this;
+	}
+
+template <class ScalarParam,int dimensionParam>
+inline
+Box<ScalarParam,dimensionParam>&
+Box<ScalarParam,dimensionParam>::addBox(
+	const Box<ScalarParam,dimensionParam>& other)
+	{
+	/* Ignore null boxes: */
+	if(!other.isNull())
+		{
+		/* Adjust box's borders: */
+		for(int i=0;i<dimension;++i)
+			{
+			if(min[i]>other.min[i])
+				min[i]=other.min[i];
+			if(max[i]<other.max[i])
+				max[i]=other.max[i];
+			}
+		}
+	
+	return *this;
+	}
+
+template <class ScalarParam,int dimensionParam>
+inline
+Box<ScalarParam,dimensionParam>&
+Box<ScalarParam,dimensionParam>::intersectBox(
+	const Box<ScalarParam,dimensionParam>& other)
+	{
+	/* Adjust box's borders: */
+	bool null=false;
+	for(int i=0;i<dimension;++i)
+		{
+		if(min[i]<other.min[i])
+			min[i]=other.min[i];
+		if(max[i]>other.max[i])
+			max[i]=other.max[i];
+		
+		null|=min[i]>max[i];
+		}
+	
+	/* If resulting box is null, set it to prototype empty box: */
+	if(null)
+		*this=empty;
+	
+	return *this;
+	}
+
+template <class ScalarParam,int dimensionParam>
+inline
+std::pair<typename Box<ScalarParam,dimensionParam>::Scalar,typename Box<ScalarParam,dimensionParam>::Scalar>
+Box<ScalarParam,dimensionParam>::getRayParameters(
+	const typename Box<ScalarParam,dimensionParam>::Ray& ray) const
+	{
+	/* Initialize the result interval to contain everything: */
+	Scalar lambda1=Math::Constants<Scalar>::min;
+	Scalar lambda2=Math::Constants<Scalar>::max;
+	
+	/* Intersect the ray with each side of the box: */
+	for(int i=0;i<dimension;++i)
+		{
+		/* Calculate ray intersection interval along this direction: */
+		Scalar ro=ray.getOrigin()[i];
+		Scalar rd=ray.getDirection()[i];
+		if(rd<Scalar(0))
+			{
+			/* Ray intersects "max" face first: */
+			Scalar l1=(max[i]-ro)/rd;
+			Scalar l2=(min[i]-ro)/rd;
+			
+			/* Intersect computed interval with result interval: */
+			if(lambda1<l1)
+				lambda1=l1;
+			if(lambda2>l2)
+				lambda2=l2;
+			}
+		else if(rd>Scalar(0))
+			{
+			/* Ray intersects "min" face first: */
+			Scalar l1=(min[i]-ro)/rd;
+			Scalar l2=(max[i]-ro)/rd;
+			
+			/* Intersect computed interval with result interval: */
+			if(lambda1<l1)
+				lambda1=l1;
+			if(lambda2>l2)
+				lambda2=l2;
+			}
+		else if(ro<min[i]||max[i]<ro)
+			{
+			/* Ray is entirely outside the faces: */
+			lambda1=Math::Constants<Scalar>::max;
+			lambda2=Math::Constants<Scalar>::min;
+			break;
+			}
+		}
+	
+	/* Return the ray parameter interval: */
+	return std::pair<Scalar,Scalar>(lambda1,lambda2);
+	}
+
+template <class ScalarParam,int dimensionParam>
+inline
+typename Box<ScalarParam,dimensionParam>::HitResult
+Box<ScalarParam,dimensionParam>::intersectRay(
+	const typename Box<ScalarParam,dimensionParam>::Ray& ray) const
+	{
+	/* Initialize the result interval to contain everything: */
+	Scalar lambda1=Math::Constants<Scalar>::min;
+	Scalar lambda2=Math::Constants<Scalar>::max;
+	
+	/* Intersect the ray with each side of the box: */
+	for(int i=0;i<dimension;++i)
+		{
+		/* Calculate ray intersection interval along this direction: */
+		Scalar ro=ray.getOrigin()[i];
+		Scalar rd=ray.getDirection()[i];
+		if(rd<Scalar(0))
+			{
+			/* Ray intersects "max" face first: */
+			Scalar l1=(max[i]-ro)/rd;
+			Scalar l2=(min[i]-ro)/rd;
+			
+			/* Intersect computed interval with result interval: */
+			if(lambda1<l1)
+				lambda1=l1;
+			if(lambda2>l2)
+				lambda2=l2;
+			}
+		else if(rd>Scalar(0))
+			{
+			/* Ray intersects "min" face first: */
+			Scalar l1=(min[i]-ro)/rd;
+			Scalar l2=(max[i]-ro)/rd;
+			
+			/* Intersect computed interval with result interval: */
+			if(lambda1<l1)
+				lambda1=l1;
+			if(lambda2>l2)
+				lambda2=l2;
+			}
+		else if(ro<min[i]||max[i]<ro)
+			{
+			/* Ray is entirely outside the faces: */
+			lambda1=Math::Constants<Scalar>::max;
+			lambda2=Math::Constants<Scalar>::min;
+			break;
+			}
+		}
+	
+	/* Return the first intersection: */
+	if(lambda1<lambda2)
+		{
+		if(lambda1>=Scalar(0))
+			return HitResult(lambda1,HitResult::ENTRY);
+		else if(lambda2>=Scalar(0))
+			return HitResult(lambda2,HitResult::EXIT);
+		else
+			return HitResult();
+		}
+	else
+		return HitResult();
+	}
+
+/*****************************
+Friend functions of class Box:
+*****************************/
+
+template <class ScalarParam,int dimensionParam>
+inline
+Box<ScalarParam,dimensionParam>
+add(
+	const Box<ScalarParam,dimensionParam>& b1,
+	const Box<ScalarParam,dimensionParam>& b2)
+	{
+	/* Check if either box is null: */
+	if(b1.isNull()) // First box is null
+		{
+		/* Return second box unchanged: */
+		return b2;
+		}
+	else if(b2.isNull()) // Second box is null
+		{
+		/* Return first box unchanged: */
+		return b1;
+		}
+	else // Neither box is null
+		{
+		Box<ScalarParam,dimensionParam> result;
+		
+		/* Calculate result box's borders: */
+		for(int i=0;i<dimensionParam;++i)
+			{
+			result.min[i]=Math::min(b1.min[i],b2.min[i]);
+			result.max[i]=Math::max(b1.max[i],b2.max[i]);
+			}
+		
+		return result;
+		}
+	}
+
+template <class ScalarParam,int dimensionParam>
+inline
+Box<ScalarParam,dimensionParam>
+intersect(
+	const Box<ScalarParam,dimensionParam>& b1,
+	const Box<ScalarParam,dimensionParam>& b2)
+	{
+	Box<ScalarParam,dimensionParam> result;
+	
+	/* Calculate result box's borders: */
+	bool null=false;
+	for(int i=0;i<dimensionParam;++i)
+		{
+		result.min[i]=Math::max(b1.min[i],b2.min[i]);
+		result.max[i]=Math::min(b1.max[i],b2.max[i]);
+		
+		null|=result.min[i]>result.max[i];
+		}
+	
+	/* If resulting box is null, set it to prototype empty box: */
+	if(null)
+		result=Box<ScalarParam,dimensionParam>::empty;
+	
+	return result;
+	}
+
+}
