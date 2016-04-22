@@ -96,7 +96,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
         #endif
         
         kdtree2::KDTreeResultVector result;
-        #pragma omp parallel for private(result)
+        // #pragma omp parallel for private(result)
         for( unsigned int i=0; i<madata.m; i++ ){
             kd_tree.n_nearest((*madata.ma_coords_in)[i], k, result);
             madata.mask[i] = false;
@@ -138,7 +138,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
         #endif
 
         kdtree2::KDTreeResultVector result;
-        #pragma omp parallel for private(result)
+        // #pragma omp parallel for private(result)
         for( unsigned int i=0; i<madata.m; i++ ){
             kd_tree.n_nearest((*madata.coords)[i], k, result);
             madata.lfs[i] = sqrt(result[0].dis);
@@ -171,7 +171,7 @@ void simplify(ma_data &madata, float cellsize, float epsilon){
     std::cout << "grid resolution: " << resolution[0] << " " << resolution[1] << " " << resolution[2] << std::endl;
 
     const int ncells = resolution[0]*resolution[1]*resolution[2];
-    intList* grid[ncells];
+    intList** grid = new intList*[ncells];
     for (int i=0; i<ncells; i++) {
         grid[i] = NULL;
     }
@@ -185,10 +185,13 @@ void simplify(ma_data &madata, float cellsize, float epsilon){
         
         if( grid[index] == NULL ){
             intList *ilist = new intList;
-            grid[index] = ilist; // this should be clear later
+            // std::unique_ptr<intList> ilist(new intList);
+            grid[index] = ilist;
         }
         (*grid[index]).push_back(i);
     }
+
+
 
     float mean_lfs, target_n, A=cellsize*cellsize;
     std::random_device rd;
@@ -213,6 +216,12 @@ void simplify(ma_data &madata, float cellsize, float epsilon){
     std::cout<<"Performed grid simplification in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
     #endif
 
+
+    // clear some memory in non-smart ptr way
+    for (int i=0; i<ncells; i++) {
+        delete grid[i];
+    }
+    delete[] grid;
 
 }
 
