@@ -155,7 +155,7 @@ inline int flatindex(int ind[], int size[], int dimension){
     return ind[0] + size[0] * (ind[1] + ind[2]*size[1]);
 }
 
-void simplify(ma_data &madata, float cellsize, float epsilon, int dimension=3){
+void simplify(ma_data &madata, float cellsize, float epsilon, int dimension=3, float elevation_threshold=0){
     #ifndef __MINGW32__
     Misc::Timer t0;
     #endif
@@ -204,10 +204,21 @@ void simplify(ma_data &madata, float cellsize, float epsilon, int dimension=3){
     for( int i=0; i<ncells; i++)
         if( grid[i] != NULL ){
             int n = grid[i]->size();
-            float sum=0;
-            for(auto i: *grid[i])
-                sum += madata.lfs[i];
+            float sum=0, max_z, min_z;
+            max_z = min_z = (*madata.coords)[(*grid[i])[0]][2];
+
+            for(auto j: *grid[i]){
+                sum += madata.lfs[j];
+                float z = (*madata.coords)[j][2];
+                if (z>max_z) max_z=z;
+                if (z<min_z) min_z=z;
+            }
+
             mean_lfs = sum/n;
+
+            if( elevation_threshold != 0 and (max_z-min_z) > elevation_threshold )
+                mean_lfs /= 5;
+                
 
             target_n = A/pow(epsilon*mean_lfs,2);
             for(auto i: *grid[i])
@@ -241,7 +252,7 @@ int main(int argc, char **argv)
         TCLAP::ValueArg<double> cellsizeArg("c","cellsize","cellsize used during grid-based lfs simplification",false,1,"double", cmd);
         TCLAP::ValueArg<double> bisecArg("b","bisec","bisector threshold used to clean the MAT points",false,3,"double", cmd);
         
-        TCLAP::SwitchArg twodimSwitch("f","fake3d","use 2D grid instead of 3D grid, intended for 2.5D datasets", cmd, false);
+        TCLAP::ValueArg<double> fake3dArg("f","fake3d","use 2D grid instead of 3D grid, intended for 2.5D datasets, provide the elevation_threshold",false,0,"double", cmd);
 
         cmd.parse(argc,argv);
         
@@ -249,8 +260,9 @@ int main(int argc, char **argv)
         float cellsize = cellsizeArg.getValue();
         float bisec_threshold = (bisecArg.getValue() / 180.0) * M_PI;
         
+        float elevation_threshold = fake3dArg.getValue();
         int dimension = 3;
-        bool only_inner = twodimSwitch.getValue();
+        bool only_inner = fake3dArg.isSet();
         if( only_inner )
             dimension = 2;
 
@@ -333,7 +345,7 @@ int main(int argc, char **argv)
 	    {
             // compute lfs, simplify
             compute_lfs(madata, bisec_threshold, only_inner);
-            simplify(madata, cellsize, epsilon, dimension);
+            simplify(madata, cellsize, epsilon, dimension, elevation_threshold);
 	    
 	        const unsigned int c_size = madata.m;
             const unsigned int shape[] = {c_size};
