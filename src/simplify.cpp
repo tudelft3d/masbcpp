@@ -63,22 +63,16 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
     #endif
 
     // compute bisector and filter .. rebuild kdtree .. compute lfs .. compute grid .. thin each cell
-    VectorList ma_bisec_in(madata.m);
-    madata.ma_bisec_in = &ma_bisec_in;
-    VectorList ma_bisec_out(madata.m);
-    madata.ma_bisec_out = &ma_bisec_out;
-    for( int i=0; i<madata.m; i++ ){
+    int N = madata.m*2;
 
-        Vector f1_in = (*madata.coords)[i] - (*madata.ma_coords_in)[i];
-        Vector f2_in = (*madata.coords)[ madata.ma_qidx_in[i] ] - (*madata.ma_coords_in)[i];
+    VectorList ma_bisec(N);
+    madata.ma_bisec = &ma_bisec;
+    for( int i=0; i<N; i++ ){
 
-        (*madata.ma_bisec_in)[i] = (f1_in+f2_in).normalize();
+        Vector f1_in = (*madata.coords)[ i%madata.m ] - (*madata.ma_coords)[i];
+        Vector f2_in = (*madata.coords)[ madata.ma_qidx[i] ] - (*madata.ma_coords)[i];
 
-        Vector f1_out = (*madata.coords)[i] - (*madata.ma_coords_out)[i];
-        Vector f2_out = (*madata.coords)[ madata.ma_qidx_out[i] ] - (*madata.ma_coords_out)[i];
-
-        (*madata.ma_bisec_out)[i] = (f1_out+f2_out).normalize();
-
+        (*madata.ma_bisec)[i] = (f1_in+f2_in).normalize();
         // madata.ma_theta_in = np.arccos(np.sum(f1_in*f2_in,axis=1))
     }
     #ifndef __MINGW32__
@@ -88,7 +82,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
 
     int k = 2, count=0;
     {
-        kdtree2::KDTree kd_tree(*madata.ma_coords_in,true);
+        kdtree2::KDTree kd_tree(*madata.ma_coords,true);
         kd_tree.sort_results = true;
         #ifndef __MINGW32__
         t0.elapse();
@@ -97,15 +91,14 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
         
         kdtree2::KDTreeResultVector result;
         #pragma omp parallel for private(result)
-        for( unsigned int i=0; i<madata.m; i++ ){
-            kd_tree.n_nearest((*madata.ma_coords_in)[i], k, result);
+        for( unsigned int i=0; i<N; i++ ){
+            kd_tree.n_nearest((*madata.ma_coords)[i], k, result);
             madata.mask[i] = false;
-            float bisec_angle = acos((*madata.ma_bisec_in)[result[1].idx] * (*madata.ma_bisec_in)[i]);
+            float bisec_angle = acos((*madata.ma_bisec)[result[1].idx] * (*madata.ma_bisec)[i]);
             if( bisec_angle < bisec_threshold )
                 madata.mask[i] = true;
         }
-
-        for( unsigned int i=0; i<madata.m; i++ )
+        for( unsigned int i=0; i<N; i++ )
             if (madata.mask[i])
                 count++;
 
@@ -115,11 +108,11 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
         #endif
     }
     // mask and copy pointlist ma_coords
-    PointList ma_coords_in_masked(count);
+    PointList ma_coords_masked(count);
     int j=0;
-    for( int i=0; i<madata.m; i++ ){
+    for( int i=0; i<N; i++ ){
         if( madata.mask[i] )
-            ma_coords_in_masked[j++] = (*madata.ma_coords_in)[i];
+            ma_coords_masked[j++] = (*madata.ma_coords)[i];
     }
     #ifndef __MINGW32__
     t0.elapse();
@@ -129,7 +122,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
     k=1;
     {
         // rebuild kd-tree
-        kdtree2::KDTree kd_tree(ma_coords_in_masked,true);
+        kdtree2::KDTree kd_tree(ma_coords_masked,true);
         // kd_tree = new kdtree2::KDTree;
         kd_tree.sort_results = true;
         #ifndef __MINGW32__
@@ -153,11 +146,9 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
 }
 
 inline int flatindex(int ind[], int size[], int dimension){
-    if( dimension==3 )
-        return ind[0] + size[0] * (ind[1] + ind[2]*size[1]);
-    else if( dimension==2 )
+    if( dimension==2 )
         return ind[0] + size[0] * ind[1];
-    return -1;
+    return ind[0] + size[0] * (ind[1] + ind[2]*size[1]);
 }
 
 void simplify(ma_data &madata, float cellsize, float epsilon, int dimension=3){
@@ -291,56 +282,55 @@ int main(int argc, char **argv)
 	    cnpy::NpyArray coords_npy = cnpy::npy_load( input_coords_path.c_str() );
 	    float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
 
-	    unsigned int num_points = coords_npy.shape[0];
+	    madata.m = coords_npy.shape[0];
 	    unsigned int dim = coords_npy.shape[1];
-	    PointList coords(num_points);
+	    PointList coords(madata.m);
         madata.bbox = Box(Point(&coords_carray[0]), Point(&coords_carray[0]));
-	    for ( int i=0; i<num_points; i++){ 
+	    for ( int i=0; i<madata.m; i++){ 
             coords[i] = Point(&coords_carray[i*3]);
             madata.bbox.addPoint(coords[i]);
         }
 	    coords_npy.destruct();
         std::cout << "bbox: " << madata.bbox.min[0] << " " << madata.bbox.min[1] << " " << madata.bbox.min[2] << " " << madata.bbox.max[0] << " " << madata.bbox.max[1] << " " << madata.bbox.max[2] << std::endl;
 
+        PointList ma_coords(2*madata.m);
+
         cnpy::NpyArray ma_coords_in_npy = cnpy::npy_load( input_path_ma_coords_in.c_str() );
         float* ma_coords_in_carray = reinterpret_cast<float*>(ma_coords_in_npy.data);
-        PointList ma_coords_in(ma_coords_in_npy.shape[0]);
-        for ( int i=0; i<num_points; i++) ma_coords_in[i] = Point(&ma_coords_in_carray[i*3]);
+        for ( int i=0; i<madata.m; i++) ma_coords[i] = Point(&ma_coords_in_carray[i*3]);
         ma_coords_in_npy.destruct();    
+        
         cnpy::NpyArray ma_coords_out_npy = cnpy::npy_load( input_path_ma_coords_out.c_str() );
         float* ma_coords_out_carray = reinterpret_cast<float*>(ma_coords_out_npy.data);
-        PointList ma_coords_out(ma_coords_out_npy.shape[0]);
-        for ( int i=0; i<num_points; i++) ma_coords_out[i] = Point(&ma_coords_out_carray[i*3]);
+        for ( int i=0; i<madata.m; i++) ma_coords[i+madata.m] = Point(&ma_coords_out_carray[i*3]);
         ma_coords_out_npy.destruct();
 
+        
+        madata.ma_qidx = new int[2*madata.m];
         cnpy::NpyArray ma_qidx_in_npy = cnpy::npy_load( input_path_ma_qidx_in.c_str() );
-        madata.ma_qidx_in = reinterpret_cast<int*>(ma_qidx_in_npy.data);
-        // ma_qidx_in_npy.destruct
+        int* ma_qidx_in = reinterpret_cast<int*>(ma_qidx_in_npy.data);
+        for ( int i=0; i<madata.m; i++) madata.ma_qidx[i] = ma_qidx_in[i];
+        ma_qidx_in_npy.destruct();
 
         cnpy::NpyArray ma_qidx_out_npy = cnpy::npy_load( input_path_ma_qidx_out.c_str() );
-        madata.ma_qidx_out = reinterpret_cast<int*>(ma_qidx_out_npy.data);
-        // ma_qidx_out_npy.destruct
+        int* ma_qidx_out = reinterpret_cast<int*>(ma_qidx_out_npy.data);
+        for ( int i=0; i<madata.m; i++) madata.ma_qidx[i+madata.m] = ma_qidx_in[i];
+        ma_qidx_out_npy.destruct();
 	    
         
-        madata.m = num_points;
         madata.coords = &coords;
         // madata.normals = &normals;
-        madata.ma_coords_in = &ma_coords_in;
-        madata.ma_coords_out = &ma_coords_out;
+        madata.ma_coords = &ma_coords;
 
-        madata.mask = new bool[num_points];
-        madata.lfs = new float[num_points];
-
-	    // omp_set_num_threads(4);
+        madata.mask = new bool[madata.m];
+        madata.lfs = new float[madata.m];
 
 	    {
-            // compute lfs
+            // compute lfs, simplify
             compute_lfs(madata, bisec_threshold);
             simplify(madata, cellsize, epsilon, dimension);
-
-            // create filter ...
 	    
-	        const unsigned int c_size = num_points;
+	        const unsigned int c_size = madata.m;
             const unsigned int shape[] = {c_size};
             cnpy::npy_save(output_filtermask.c_str(), madata.mask, shape, 1, "w");
 	        cnpy::npy_save(output_lfs.c_str(), madata.lfs, shape, 1, "w");

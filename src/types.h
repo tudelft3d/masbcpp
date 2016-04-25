@@ -47,12 +47,9 @@ struct ma_data {
 
 	PointList *coords;
 	VectorList *normals;
-	PointList *ma_coords_in;
-	PointList *ma_coords_out;
-	int *ma_qidx_in;
-	int *ma_qidx_out;
-	VectorList *ma_bisec_in;
-	VectorList *ma_bisec_out;
+	PointList *ma_coords;
+	int *ma_qidx;
+	VectorList *ma_bisec;
 
 	float *lfs;
 	bool *mask;
