@@ -56,14 +56,18 @@ SOFTWARE.
 const Point nanPoint( std::numeric_limits<Scalar>::quiet_NaN() );
 
 
-void compute_lfs(ma_data &madata, float bisec_threshold)
+void compute_lfs(ma_data &madata, float bisec_threshold, bool only_inner=true)
 {
     #ifndef __MINGW32__
     Misc::Timer t0;
     #endif
 
+    int N = 2*madata.m;
+    if( only_inner ){
+        N = madata.m;
+        (*madata.ma_coords).resize(N); // HACK this will destroy permanently the exterior ma_coords!
+    }
     // compute bisector and filter .. rebuild kdtree .. compute lfs .. compute grid .. thin each cell
-    int N = madata.m*2;
 
     VectorList ma_bisec(N);
     madata.ma_bisec = &ma_bisec;
@@ -237,7 +241,7 @@ int main(int argc, char **argv)
         TCLAP::ValueArg<double> cellsizeArg("c","cellsize","cellsize used during grid-based lfs simplification",false,1,"double", cmd);
         TCLAP::ValueArg<double> bisecArg("b","bisec","bisector threshold used to clean the MAT points",false,3,"double", cmd);
         
-        TCLAP::SwitchArg towdimSwitch("t","twodim","use 2D grid instead of 3D grid", cmd, false);
+        TCLAP::SwitchArg twodimSwitch("f","fake3d","use 2D grid instead of 3D grid, intended for 2.5D datasets", cmd, false);
 
         cmd.parse(argc,argv);
         
@@ -246,7 +250,8 @@ int main(int argc, char **argv)
         float bisec_threshold = (bisecArg.getValue() / 180.0) * M_PI;
         
         int dimension = 3;
-        if( towdimSwitch.getValue() )
+        bool only_inner = twodimSwitch.getValue();
+        if( only_inner )
             dimension = 2;
 
         std::string output_path = inputArg.getValue();
@@ -327,7 +332,7 @@ int main(int argc, char **argv)
 
 	    {
             // compute lfs, simplify
-            compute_lfs(madata, bisec_threshold);
+            compute_lfs(madata, bisec_threshold, only_inner);
             simplify(madata, cellsize, epsilon, dimension);
 	    
 	        const unsigned int c_size = madata.m;
