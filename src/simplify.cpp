@@ -96,19 +96,19 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
         #endif
         
         kdtree2::KDTreeResultVector result;
-        // #pragma omp parallel for private(result)
+        #pragma omp parallel for private(result)
         for( unsigned int i=0; i<madata.m; i++ ){
             kd_tree.n_nearest((*madata.ma_coords_in)[i], k, result);
             madata.mask[i] = false;
-            // for( int j=1; j<k; j++ ){
-                float bisec_angle = acos((*madata.ma_bisec_in)[result[1].idx] * (*madata.ma_bisec_in)[i]);
-                if( bisec_angle < bisec_threshold )
-                    madata.mask[i] = true;
-            // }
+            float bisec_angle = acos((*madata.ma_bisec_in)[result[1].idx] * (*madata.ma_bisec_in)[i]);
+            if( bisec_angle < bisec_threshold )
+                madata.mask[i] = true;
+        }
+
+        for( unsigned int i=0; i<madata.m; i++ )
             if (madata.mask[i])
                 count++;
 
-        }
         #ifndef __MINGW32__
         t0.elapse();
         std::cout<<"Cleaned MA points in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
@@ -138,7 +138,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
         #endif
 
         kdtree2::KDTreeResultVector result;
-        // #pragma omp parallel for private(result)
+        #pragma omp parallel for private(result)
         for( unsigned int i=0; i<madata.m; i++ ){
             kd_tree.n_nearest((*madata.coords)[i], k, result);
             madata.lfs[i] = sqrt(result[0].dis);
@@ -152,11 +152,15 @@ void compute_lfs(ma_data &madata, float bisec_threshold)
 
 }
 
-inline int flatindex(int ind[], int size[]){
-    return ind[0] + size[0] * (ind[1] + ind[2]*size[1]);
+inline int flatindex(int ind[], int size[], int dimension){
+    if( dimension==3 )
+        return ind[0] + size[0] * (ind[1] + ind[2]*size[1]);
+    else if( dimension==2 )
+        return ind[0] + size[0] * ind[1];
+    return -1;
 }
 
-void simplify(ma_data &madata, float cellsize, float epsilon){
+void simplify(ma_data &madata, float cellsize, float epsilon, int dimension=3){
     #ifndef __MINGW32__
     Misc::Timer t0;
     #endif
@@ -164,24 +168,27 @@ void simplify(ma_data &madata, float cellsize, float epsilon){
     Box::Size size = madata.bbox.getSize();
     Point origin = Point(madata.bbox.min);
 
-    int resolution[3];
+    int resolution[dimension];
 
-    for( int i=0; i<3; i++ )
+    for( int i=0; i<dimension; i++ )
         resolution[i] = int(size[i]/cellsize)+1;
     std::cout << "grid resolution: " << resolution[0] << " " << resolution[1] << " " << resolution[2] << std::endl;
 
-    const int ncells = resolution[0]*resolution[1]*resolution[2];
+    int ncells = 1;
+    for( int i=0; i<dimension; i++ )
+        ncells *= resolution[i];
+
     intList** grid = new intList*[ncells];
     for (int i=0; i<ncells; i++) {
         grid[i] = NULL;
     }
 
-    int idx[3], index;
+    int idx[dimension], index;
     for( int i=0; i<madata.m; i++ ){
-        for( int j=0; j<3; j++){
+        for( int j=0; j<dimension; j++){
             idx[j] = int(((*madata.coords)[i][j]-origin[j]) / cellsize);
         }
-        index = flatindex(idx, resolution);
+        index = flatindex(idx, resolution, dimension);
         
         if( grid[index] == NULL ){
             intList *ilist = new intList;
@@ -247,7 +254,9 @@ int main(int argc, char **argv)
         float cellsize = cellsizeArg.getValue();
         float bisec_threshold = (bisecArg.getValue() / 180.0) * M_PI;
         
-        bool twodim = towdimSwitch.getValue();
+        int dimension = 3;
+        if( towdimSwitch.getValue() )
+            dimension = 2;
 
         std::string output_path = inputArg.getValue();
         if(outputArg.isSet())
@@ -327,7 +336,7 @@ int main(int argc, char **argv)
 	    {
             // compute lfs
             compute_lfs(madata, bisec_threshold);
-            simplify(madata, cellsize, epsilon);
+            simplify(madata, cellsize, epsilon, dimension);
 
             // create filter ...
 	    
