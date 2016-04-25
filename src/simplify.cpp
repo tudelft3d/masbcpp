@@ -253,6 +253,8 @@ int main(int argc, char **argv)
         TCLAP::ValueArg<double> bisecArg("b","bisec","bisector threshold used to clean the MAT points",false,3,"double", cmd);
         
         TCLAP::ValueArg<double> fake3dArg("f","fake3d","use 2D grid instead of 3D grid, intended for 2.5D datasets, provide the elevation_threshold",false,0,"double", cmd);
+        
+        TCLAP::ValueArg<std::string> outputXYZArg("a","xyz","output filtered points to plain .xyz text file",false,"lfs_simp.xyz","string", cmd);
 
         cmd.parse(argc,argv);
         
@@ -352,6 +354,32 @@ int main(int argc, char **argv)
             cnpy::npy_save(output_filtermask.c_str(), madata.mask, shape, 1, "w");
 	        cnpy::npy_save(output_lfs.c_str(), madata.lfs, shape, 1, "w");
 	    }
+
+        if( outputXYZArg.isSet() ){
+            std::string outFile_bounds = outputXYZArg.getValue();
+            outFile_bounds.append(".bounds");
+            
+            std::ofstream ofs_bounds(outFile_bounds.c_str());
+            ofs_bounds << madata.bbox.min[0] << std::endl << madata.bbox.max[0] << 
+             std::endl << madata.bbox.min[1] << std::endl << madata.bbox.max[1] << 
+             std::endl << madata.bbox.min[2] << std::endl << madata.bbox.max[2] << std::endl;
+            
+            ofs_bounds.close();
+            
+            std::ofstream ofs(outputXYZArg.getValue());
+            ofs <<std::setprecision(2)<<std::fixed;
+            
+            for( int i=0; i<madata.m; i++ ) {
+                if( madata.mask[i] ){
+                    ofs << " " << (*madata.coords)[i][0];
+                    ofs << " " << (*madata.coords)[i][1];
+                    ofs << " " << (*madata.coords)[i][2];
+                ofs << std::endl;
+                }
+            }
+            
+            ofs.close();
+        }
 
 	} catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
 
