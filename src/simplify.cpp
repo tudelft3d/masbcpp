@@ -170,9 +170,12 @@ void simplify(ma_data &madata, float cellsize, float epsilon, int dimension=3, f
 
     int resolution[dimension];
 
-    for( int i=0; i<dimension; i++ )
+    std::cout << "grid resolution: ";
+    for( int i=0; i<dimension; i++ ){
         resolution[i] = int(size[i]/cellsize)+1;
-    std::cout << "grid resolution: " << resolution[0] << " " << resolution[1] << " " << resolution[2] << std::endl;
+        std::cout << resolution[i] << " ";
+    }
+    std::cout << std::endl;
 
     int ncells = 1;
     for( int i=0; i<dimension; i++ )
