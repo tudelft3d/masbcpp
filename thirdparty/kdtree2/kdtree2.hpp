@@ -207,7 +207,7 @@ namespace kdtree2 {
         // return true if the bounding box for this node is within the
         // search range given by the searchvector and maximum ballsize in 'sr'. 
         
-        void check_query_in_bound(SearchRecord& sr); // debugging only
+        void check_query_in_bound(SearchRecord& sr) {}; // debugging only
         
         // for processing final buckets. 
         void process_terminal_node(SearchRecord& sr);

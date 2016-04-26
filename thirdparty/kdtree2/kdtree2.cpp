@@ -99,10 +99,7 @@ namespace kdtree2 {
             
             // permute the data for it.
             for (int i=0; i<N; i++) {
-                for (int j=0; j<dim; j++) {
-                    rearranged_data[i][j] = the_data[ind[i]][j];
-                    // wouldn't F90 be nice here?
-                }
+                rearranged_data.push_back(the_data[ind[i]]);
             }
             data = &rearranged_data;
         } else {

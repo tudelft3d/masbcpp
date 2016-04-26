@@ -1,0 +1,16 @@
+.vs
+*.VC.opendb
+*.VC.db
+*.exe
+*.ilk
+*.pdb
+*.vcxproj.user
+*.lib
+src/compute_ma/
+src/compute_normals/
+src/simplify/
+thirdparty/x64/
+thirdparty/Debug/
+thirdparty/Release/
+
+

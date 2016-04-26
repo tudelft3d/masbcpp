@@ -69,7 +69,7 @@ VectorList estimate_normals(PointList &points, kdtree2::KDTree* kd_tree, int k)
     VectorList normals(points.size());
 
     #pragma omp parallel for
-    for( unsigned int i=0; i<points.size(); i++ )
+    for( int i=0; i<points.size(); i++ )
         normals[i] = estimate_normal( points[i], kd_tree, k );
 
     return normals;
@@ -98,8 +98,12 @@ int main(int argc, char **argv)
         std::string output_path = inputArg.getValue();
         if(outputArg.isSet())
             output_path = outputArg.getValue();
+        std::replace(output_path.begin(), output_path.end(), '\\', '/');
+
 
         std::string input_coords_path = inputArg.getValue()+"/coords.npy";
+        std::replace(input_coords_path.begin(), input_coords_path.end(), '\\', '/');
+
         output_path += "/normals.npy";
         // check for proper in-output arguments
         {

@@ -28,6 +28,11 @@ SOFTWARE.
 #include <string>
 #include <limits>
 
+// Required on Windows, if you use the boolean operators "and" and "or" instead of "&&" and "||"
+#ifndef and
+#include <iso646.h>
+#endif
+
 // OpenMP
 #ifdef WITH_OPENMP
     #include <omp.h>
@@ -184,7 +189,7 @@ void sb_points(PointList &points, VectorList &normals, kdtree2::KDTree* kd_tree,
     Vector n;
 
     #pragma omp parallel for private(p, n)
-    for( unsigned int i=0; i<points.size(); i++ )
+    for( int i=0; i<points.size(); i++ )
     {
         p = points[i];
         if( inner )
@@ -227,10 +232,13 @@ int main(int argc, char **argv)
         std::string output_path = inputArg.getValue();
         if(outputArg.isSet())
             output_path = outputArg.getValue();
+        std::replace(output_path.begin(), output_path.end(), '\\', '/');
 
         // check for proper in-output arguments and set in and output filepath strings
         std::string input_coords_path = inputArg.getValue()+"/coords.npy";
+        std::replace(input_coords_path.begin(), input_coords_path.end(), '\\', '/');
         std::string input_normals_path = inputArg.getValue()+"/normals.npy";
+        std::replace(input_normals_path.begin(), input_normals_path.end(), '\\', '/');
         std::string output_path_ma_in = output_path+"/ma_coords_in.npy";
         std::string output_path_ma_out = output_path+"/ma_coords_out.npy";
         std::string output_path_ma_q_in = output_path+"/ma_qidx_in.npy";
@@ -259,13 +267,13 @@ int main(int argc, char **argv)
 	    unsigned int num_points = coords_npy.shape[0];
 	    unsigned int dim = coords_npy.shape[1];
 	    PointList coords(num_points);
-	    for ( int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
+	    for ( unsigned int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
 	    coords_npy.destruct();
 
 	    cnpy::NpyArray normals_npy = cnpy::npy_load( input_normals_path.c_str() );
 	    float* normals_carray = reinterpret_cast<float*>(normals_npy.data);
 	    VectorList normals(normals_npy.shape[0]);
-	    for ( int i=0; i<num_points; i++) normals[i] = Vector(&normals_carray[i*3]);
+	    for ( unsigned int i=0; i<num_points; i++) normals[i] = Vector(&normals_carray[i*3]);
 	    normals_npy.destruct();
 	    
         #ifndef __MINGW32__

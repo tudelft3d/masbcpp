@@ -31,6 +31,11 @@ SOFTWARE.
 #include <array>
 #include <random>
 
+// Required on Windows, if you use the boolean operators "and" and "or" instead of "&&" and "||"
+#ifndef and
+#include <iso646.h>
+#endif
+
 // OpenMP
 #ifdef WITH_OPENMP
     #include <omp.h>
@@ -97,7 +102,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold, bool only_inner=true)
         
         kdtree2::KDTreeResultVector result;
         #pragma omp parallel for private(result)
-        for( unsigned int i=0; i<N; i++ ){
+        for( int i=0; i<N; i++ ){
             madata.mask[i] = false;
             if( madata.ma_qidx[i] != -1 ){
                 kd_tree.n_nearest((*madata.ma_coords)[i], k, result);
@@ -141,7 +146,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold, bool only_inner=true)
 
         kdtree2::KDTreeResultVector result;
         #pragma omp parallel for private(result)
-        for( unsigned int i=0; i<madata.m; i++ ){
+        for( int i=0; i<madata.m; i++ ){
             kd_tree.n_nearest((*madata.coords)[i], k, result);
             madata.lfs[i] = sqrt(result[0].dis);
         }
@@ -168,7 +173,7 @@ void simplify(ma_data &madata, float cellsize, float epsilon, int dimension=3, f
     Box::Size size = madata.bbox.getSize();
     Point origin = Point(madata.bbox.min);
 
-    int resolution[dimension];
+    int* resolution = new int[dimension];
 
     std::cout << "grid resolution: ";
     for( int i=0; i<dimension; i++ ){
@@ -186,7 +191,8 @@ void simplify(ma_data &madata, float cellsize, float epsilon, int dimension=3, f
         grid[i] = NULL;
     }
 
-    int idx[dimension], index;
+    int* idx = new int[dimension];
+    int index;
     for( int i=0; i<madata.m; i++ ){
         for( int j=0; j<dimension; j++){
             idx[j] = int(((*madata.coords)[i][j]-origin[j]) / cellsize);
@@ -201,7 +207,8 @@ void simplify(ma_data &madata, float cellsize, float epsilon, int dimension=3, f
         (*grid[index]).push_back(i);
     }
 
-
+    delete[] resolution; resolution = NULL;
+    delete[] idx; idx = NULL;
 
     float mean_lfs, target_n, A=cellsize*cellsize;
     std::random_device rd;
@@ -279,13 +286,16 @@ int main(int argc, char **argv)
         std::string output_path = inputArg.getValue();
         if(outputArg.isSet())
             output_path = outputArg.getValue();
+        std::replace(output_path.begin(), output_path.end(), '\\', '/');
 
         // check for proper in-output arguments and set in and output filepath strings
-        std::string input_coords_path = inputArg.getValue()+"/coords.npy";
-        std::string input_path_ma_coords_in = inputArg.getValue()+"/ma_coords_in.npy";
-        std::string input_path_ma_coords_out = inputArg.getValue()+"/ma_coords_out.npy";
-        std::string input_path_ma_qidx_in = inputArg.getValue()+"/ma_qidx_in.npy";
-        std::string input_path_ma_qidx_out = inputArg.getValue()+"/ma_qidx_out.npy";
+        std::string input_path = inputArg.getValue();
+        std::replace(input_path.begin(), input_path.end(), '\\', '/');
+        std::string input_coords_path = input_path+"/coords.npy";
+        std::string input_path_ma_coords_in = input_path+"/ma_coords_in.npy";
+        std::string input_path_ma_coords_out = input_path+"/ma_coords_out.npy";
+        std::string input_path_ma_qidx_in = input_path+"/ma_qidx_in.npy";
+        std::string input_path_ma_qidx_out = input_path+"/ma_qidx_out.npy";
         std::string output_lfs = output_path+"/lfs.npy";
         std::string output_filtermask = output_path+"/decimate_lfs.npy";
         {
@@ -366,6 +376,7 @@ int main(int argc, char **argv)
         if( outputXYZArg.isSet() ){
             std::string outFile_bounds = outputXYZArg.getValue();
             outFile_bounds.append(".bounds");
+            std::replace(outFile_bounds.begin(), outFile_bounds.end(), '\\', '/');
             
             std::ofstream ofs_bounds(outFile_bounds.c_str());
             ofs_bounds << madata.bbox.min[0] << std::endl << madata.bbox.max[0] << 
@@ -374,12 +385,14 @@ int main(int argc, char **argv)
             
             ofs_bounds.close();
             
-            std::ofstream ofs(outputXYZArg.getValue());
+            outFile_bounds = outputXYZArg.getValue();
+            std::replace(outFile_bounds.begin(), outFile_bounds.end(), '\\', '/');
+            std::ofstream ofs(outFile_bounds.c_str());
             ofs <<std::setprecision(2)<<std::fixed;
             
             for( int i=0; i<madata.m; i++ ) {
                 if( madata.mask[i] ){
-                    ofs << " " << (*madata.coords)[i][0];
+                    ofs << (*madata.coords)[i][0];
                     ofs << " " << (*madata.coords)[i][1];
                     ofs << " " << (*madata.coords)[i][2];
                 ofs << std::endl;
