@@ -73,10 +73,12 @@ void compute_lfs(ma_data &madata, float bisec_threshold, bool only_inner=true)
     madata.ma_bisec = &ma_bisec;
     for( int i=0; i<N; i++ ){
 
-        Vector f1_in = (*madata.coords)[ i%madata.m ] - (*madata.ma_coords)[i];
-        Vector f2_in = (*madata.coords)[ madata.ma_qidx[i] ] - (*madata.ma_coords)[i];
-
-        (*madata.ma_bisec)[i] = (f1_in+f2_in).normalize();
+        if( madata.ma_qidx[i] != -1 ){
+            Vector f1_in = (*madata.coords)[ i%madata.m ] - (*madata.ma_coords)[i];
+            Vector f2_in = (*madata.coords)[ madata.ma_qidx[i] ] - (*madata.ma_coords)[i];
+    
+            (*madata.ma_bisec)[i] = (f1_in+f2_in).normalize();
+        }
         // madata.ma_theta_in = np.arccos(np.sum(f1_in*f2_in,axis=1))
     }
     #ifndef __MINGW32__
@@ -96,11 +98,14 @@ void compute_lfs(ma_data &madata, float bisec_threshold, bool only_inner=true)
         kdtree2::KDTreeResultVector result;
         #pragma omp parallel for private(result)
         for( unsigned int i=0; i<N; i++ ){
-            kd_tree.n_nearest((*madata.ma_coords)[i], k, result);
             madata.mask[i] = false;
-            float bisec_angle = acos((*madata.ma_bisec)[result[1].idx] * (*madata.ma_bisec)[i]);
-            if( bisec_angle < bisec_threshold )
-                madata.mask[i] = true;
+            if( madata.ma_qidx[i] != -1 ){
+                kd_tree.n_nearest((*madata.ma_coords)[i], k, result);
+                
+                float bisec_angle = acos((*madata.ma_bisec)[result[1].idx] * (*madata.ma_bisec)[i]);
+                if( bisec_angle < bisec_threshold )
+                    madata.mask[i] = true;
+            }
         }
         for( unsigned int i=0; i<N; i++ )
             if (madata.mask[i])
@@ -248,9 +253,9 @@ int main(int argc, char **argv)
         TCLAP::UnlabeledValueArg<std::string> inputArg( "input", "path to input directory with inside it a 'coords.npy' and 'ma_*.npy' files. Both should be Nx3 float arrays where N is the number of input points.", true, "", "input dir", cmd);
         TCLAP::UnlabeledValueArg<std::string> outputArg( "ouput", "path to output directory", false, "", "output dir", cmd);
 
-        TCLAP::ValueArg<double> epsilonArg("e","epsilon","espilon threshold that controls the degree of simplification",false,0.4,"double", cmd);
+        TCLAP::ValueArg<double> epsilonArg("e","epsilon","espilon threshold that controls the degree of simplification",false,0.1,"double", cmd);
         TCLAP::ValueArg<double> cellsizeArg("c","cellsize","cellsize used during grid-based lfs simplification",false,1,"double", cmd);
-        TCLAP::ValueArg<double> bisecArg("b","bisec","bisector threshold used to clean the MAT points",false,3,"double", cmd);
+        TCLAP::ValueArg<double> bisecArg("b","bisec","bisector threshold used to clean the MAT points",false,1,"double", cmd);
         
         TCLAP::ValueArg<double> fake3dArg("f","fake3d","use 2D grid instead of 3D grid, intended for 2.5D datasets, provide the elevation_threshold",false,0,"double", cmd);
         
@@ -333,7 +338,7 @@ int main(int argc, char **argv)
 
         cnpy::NpyArray ma_qidx_out_npy = cnpy::npy_load( input_path_ma_qidx_out.c_str() );
         int* ma_qidx_out = reinterpret_cast<int*>(ma_qidx_out_npy.data);
-        for ( int i=0; i<madata.m; i++) madata.ma_qidx[i+madata.m] = ma_qidx_in[i];
+        for ( int i=0; i<madata.m; i++) madata.ma_qidx[i+madata.m] = ma_qidx_out[i];
         ma_qidx_out_npy.destruct();
 	    
         
