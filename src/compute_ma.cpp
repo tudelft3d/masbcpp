@@ -140,7 +140,7 @@ ma_result sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
         c_next = p - n * r;
 
         // denoising
-        if( denoise_preserve or denoise_planar )
+        if( denoise_preserve || denoise_planar )
         {
             Scalar a = cos_angle(p-c_next, q-c_next);
             Scalar separation_angle = Math::acos(a);
