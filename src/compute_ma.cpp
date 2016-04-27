@@ -28,11 +28,6 @@ SOFTWARE.
 #include <string>
 #include <limits>
 
-// Required on Windows, if you use the boolean operators "and" and "or" instead of "&&" and "||"
-#ifndef and
-#include <iso646.h>
-#endif
-
 // OpenMP
 #ifdef WITH_OPENMP
     #include <omp.h>
@@ -150,14 +145,14 @@ ma_result sb_point(Point &p, Vector &n, kdtree2::KDTree* kd_tree)
             Scalar a = cos_angle(p-c_next, q-c_next);
             Scalar separation_angle = Math::acos(a);
 
-            if( denoise_preserve and ( separation_angle < denoise_preserve and j>0 and r > Geometry::mag(q-p) ) )
+            if( denoise_preserve && ( separation_angle < denoise_preserve && j>0 && r > Geometry::mag(q-p) ) )
             {
                 // keep previous radius:
                 r = r_previous;
                 // qidx = qidx_next;
                 break;
             }
-            if( denoise_planar and ( separation_angle < denoise_planar and j==0 ) )
+            if( denoise_planar && ( separation_angle < denoise_planar && j==0 ) )
             {
                 r = initial_radius;
                 c = nan_for_initr ? nanPoint : p - n * r;

@@ -31,11 +31,6 @@ SOFTWARE.
 #include <array>
 #include <random>
 
-// Required on Windows, if you use the boolean operators "and" and "or" instead of "&&" and "||"
-#ifndef and
-#include <iso646.h>
-#endif
-
 // OpenMP
 #ifdef WITH_OPENMP
     #include <omp.h>
@@ -231,7 +226,7 @@ void simplify(ma_data &madata, float cellsize, float epsilon, int dimension=3, f
 
             mean_lfs = sum/n;
 
-            if( elevation_threshold != 0 and (max_z-min_z) > elevation_threshold )
+            if( elevation_threshold != 0 && (max_z-min_z) > elevation_threshold )
                 mean_lfs /= 5;
                 
 
