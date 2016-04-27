@@ -168,13 +168,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include=".\types.h" />
+    <ClInclude Include="simplify_processing.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include=".\simplify.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\thirdparty\thirdparty.vcxproj">
-      <Project>{513d08ae-3eee-4241-b994-4a51aea8fb2a}</Project>
+    <ProjectReference Include="masbcpp_processing.vcxproj">
+      <Project>{513d08ae-3eed-4241-b994-4a51aea8fb2a}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -9,6 +9,7 @@
 src/compute_ma/
 src/compute_normals/
 src/simplify/
+src/masbcpp_processing/
 thirdparty/x64/
 thirdparty/Debug/
 thirdparty/Release/

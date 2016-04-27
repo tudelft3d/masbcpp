@@ -19,34 +19,34 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{513D08AE-3EEA-4241-B994-4A51AEA8FB2A}</ProjectGuid>
+    <ProjectGuid>{513D08AE-3EED-4241-B994-4A51AEA8FB2A}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>compute_ma</RootNamespace>
+    <RootNamespace>masbcpp_processing</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>compute_ma</ProjectName>
+    <ProjectName>masbcpp_processing</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -97,7 +97,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
     </ClCompile>
@@ -114,7 +114,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
     </ClCompile>
@@ -133,7 +133,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
     </ClCompile>
@@ -154,7 +154,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
     </ClCompile>
@@ -169,13 +169,17 @@
   <ItemGroup>
     <ClInclude Include=".\types.h" />
     <ClInclude Include="compute_ma_processing.h" />
+    <ClInclude Include="compute_normals_processing.h" />
+    <ClInclude Include="simplify_processing.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include=".\compute_ma.cpp" />
+    <ClCompile Include=".\compute_normals_processing.cpp" />
+    <ClCompile Include="compute_ma_processing.cpp" />
+    <ClCompile Include="simplify_processing.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="masbcpp_processing.vcxproj">
-      <Project>{513d08ae-3eed-4241-b994-4a51aea8fb2a}</Project>
+    <ProjectReference Include="..\thirdparty\thirdparty.vcxproj">
+      <Project>{513d08ae-3eee-4241-b994-4a51aea8fb2a}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

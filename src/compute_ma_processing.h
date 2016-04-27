@@ -20,39 +20,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef MASBCPP_TYPES_
-#define MASBCPP_TYPES_
+#ifndef COMPUTE_MA_PROCESSING_
+#define COMPUTE_MA_PROCESSING_
 
-#include <vrui/Geometry/Vector.h>
-#include <vrui/Geometry/Point.h>
-#include <vrui/Geometry/Box.h>
+#include "types.h"
 
-typedef float Scalar; // Scalar type for 3D points
-typedef Geometry::Point<Scalar,3> Point; // Type for 3D points
-typedef std::vector<Point> PointList; // Type for 3D points
-typedef Geometry::Vector<Scalar,3> Vector; // Type for 3D vectors
-typedef std::vector<Vector> VectorList; // Type for 3D vectors
-typedef Geometry::Box<Scalar,3> Box; // Type for 3D Box
-
-typedef std::vector<int> intList; // Type for ints
-
-struct ma_result {
-	Point c;
-	int qidx;
+struct ma_parameters {
+   Scalar initial_radius;
+   bool nan_for_initr;
+   double denoise_preserve;
+   double denoise_planar;
+   bool kd_tree_reorder;
 };
 
-struct ma_data {
-	int m;
-	Box bbox;
+void compute_masb_points(ma_parameters &input_parameters, PointList &coords, VectorList &normals,
+                         PointList &ma_coords_in, int* ma_qidx_in, PointList &ma_coords_out, int* ma_qidx_out);
 
-	PointList *coords; // don't own this memory
-	//VectorList *normals;
-	PointList *ma_coords; // don't own this memory
-	int *ma_qidx;
-	//VectorList *ma_bisec;
-
-	float *lfs;
-	bool *mask;
-};
 
 #endif

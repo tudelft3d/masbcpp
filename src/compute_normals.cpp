@@ -27,20 +27,6 @@ SOFTWARE.
 #include <fstream>
 #include <string>
 
-// OpenMP
-#ifdef WITH_OPENMP
-    #include <omp.h>
-#endif
-
-// Vrui
-#include <vrui/Geometry/ComponentArray.h>
-#include <vrui/Math/Math.h>
-#include <vrui/Geometry/PCACalculator.h>
-#ifndef __MINGW32__
-#include <vrui/Misc/Timer.h>
-#endif
-// kdtree2
-#include <kdtree2/kdtree2.hpp>
 // cnpy
 #include <cnpy/cnpy.h>
 // tclap
@@ -48,33 +34,7 @@ SOFTWARE.
 
 // typedefs
 #include "types.h"
-
-Vector estimate_normal(Point &p, kdtree2::KDTree* kd_tree, int k)
-{
-    kdtree2::KDTreeResultVector result;
-    kd_tree->n_nearest(p,k+1,result);
-
-    Geometry::PCACalculator<3> PCACalc;
-    for(int i=0; i<k+1; i++)
-        PCACalc.accumulatePoint( kd_tree->the_data[ result[i].idx ] );
-
-    double eigen_values[3];
-    PCACalc.calcCovariance();
-    PCACalc.calcEigenvalues(eigen_values);
-    return PCACalc.calcEigenvector(eigen_values[2]);
-}
-
-VectorList estimate_normals(PointList &points, kdtree2::KDTree* kd_tree, int k)
-{
-    VectorList normals(points.size());
-
-    #pragma omp parallel for
-    for( int i=0; i<points.size(); i++ )
-        normals[i] = estimate_normal( points[i], kd_tree, k );
-
-    return normals;
-}
-
+#include "compute_normals_processing.h"
 
 int main(int argc, char **argv)
 {
@@ -91,9 +51,10 @@ int main(int argc, char **argv)
         
         cmd.parse(argc,argv);
         
-        int k = kArg.getValue();
+        normals_parameters input_parameters;
+        input_parameters.k = kArg.getValue();
 
-        bool kd_tree_reorder = reorder_kdtreeSwitch.getValue();
+        input_parameters.kd_tree_reorder = reorder_kdtreeSwitch.getValue();
 
         std::string output_path = inputArg.getValue();
         if(outputArg.isSet())
@@ -116,8 +77,8 @@ int main(int argc, char **argv)
             if(!outfile)
                 throw TCLAP::ArgParseException("invalid filepath", output_path);
         }
-        
-        std::cout << "Parameters: k="<<k<<"\n";
+
+        std::cout << "Parameters: k="<<input_parameters.k<<"\n";
 
         cnpy::NpyArray coords_npy = cnpy::npy_load( input_coords_path.c_str() );
         float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
@@ -128,36 +89,22 @@ int main(int argc, char **argv)
         for ( int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
         coords_npy.destruct();
 
-        #ifndef __MINGW32__
-        Misc::Timer t0;
-        #endif
-        kdtree2::KDTree* kd_tree;
-        kd_tree = new kdtree2::KDTree(coords,kd_tree_reorder);
-        kd_tree->sort_results = false;
-        #ifndef __MINGW32__
-        t0.elapse();
-        std::cout<<"Constructed kd-tree in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
-        #endif
+        // Perform the actual processing
+        VectorList normals;
+        compute_normals(input_parameters, coords, normals);
 
-        // omp_set_num_threads(1);
+        // Output results
+        Scalar* normals_carray = new Scalar[num_points * 3];
+        for (int i = 0; i < normals.size(); i++)
+           for (int j = 0; j < 3; j++)
+              normals_carray[i * 3 + j] = normals[i][j];
 
-        {
-            Scalar* normals_carray = new Scalar[num_points*3];
-            VectorList normals = estimate_normals(coords, kd_tree, k);
-            #ifndef __MINGW32__
-            t0.elapse();
-            std::cout<<"Done estimating normals, took "<<t0.getTime()*1000.0<<" ms"<<std::endl;
-            #endif
-            
-            for (int i=0; i<normals.size(); i++)
-                for (int j=0; j<3; j++)
-                    normals_carray[i*3+j] = normals[i][j];
-        
-            const unsigned int c_size = normals.size();
-            const unsigned int shape[] = {c_size,3};
-            cnpy::npy_save(output_path.c_str(), normals_carray, shape, 2, "w");
-        }
+        const unsigned int c_size = normals.size();
+        const unsigned int shape[] = { c_size,3 };
+        cnpy::npy_save(output_path.c_str(), normals_carray, shape, 2, "w");
 
+        // Free memory
+        delete[] normals_carray; normals_carray = NULL;
     } catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
 
     return 0;

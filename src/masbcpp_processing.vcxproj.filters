@@ -18,12 +18,24 @@
     <ClInclude Include=".\types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="compute_normals_processing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="compute_ma_processing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="simplify_processing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include=".\simplify.cpp">
+    <ClCompile Include=".\compute_normals_processing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="compute_ma_processing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simplify_processing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

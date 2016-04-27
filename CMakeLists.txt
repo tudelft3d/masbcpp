@@ -51,9 +51,9 @@ add_library(thirdparty STATIC ${THIRDPARTY})
 set(LINK_LIBS ${LINK_LIBS} thirdparty)
 
 # set targets
-add_executable(compute_ma src/compute_ma.cpp)
-add_executable(compute_normals src/compute_normals.cpp)
-add_executable(simplify src/simplify.cpp)
+add_executable(compute_ma src/compute_ma.cpp src/compute_ma_processing.cpp)
+add_executable(compute_normals src/compute_normals.cpp src/compute_normals_processing.cpp)
+add_executable(simplify src/simplify.cpp src/simplify_processing.cpp)
 
 # link targets
 target_link_libraries(compute_ma ${LINK_LIBS})

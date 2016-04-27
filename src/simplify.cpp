@@ -26,227 +26,15 @@ SOFTWARE.
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <limits>
-#include <cmath>
-#include <array>
-#include <random>
 
-// OpenMP
-#ifdef WITH_OPENMP
-    #include <omp.h>
-#endif
-
-// Vrui
-#include <vrui/Geometry/ComponentArray.h>
-#include <vrui/Math/Math.h>
-#ifndef __MINGW32__
-#include <vrui/Misc/Timer.h>
-#endif
-// kdtree2
-#include <kdtree2/kdtree2.hpp>
 // cnpy
 #include <cnpy/cnpy.h>
 // tclap
 #include <tclap/CmdLine.h>
 
 // typedefs
-#include "types.h"
+#include "simplify_processing.h"
 
-// globals
-const Point nanPoint( std::numeric_limits<Scalar>::quiet_NaN() );
-
-
-void compute_lfs(ma_data &madata, float bisec_threshold, bool only_inner=true)
-{
-    #ifndef __MINGW32__
-    Misc::Timer t0;
-    #endif
-
-    int N = 2*madata.m;
-    if( only_inner ){
-        N = madata.m;
-        (*madata.ma_coords).resize(N); // HACK this will destroy permanently the exterior ma_coords!
-    }
-    // compute bisector and filter .. rebuild kdtree .. compute lfs .. compute grid .. thin each cell
-
-    VectorList ma_bisec(N);
-    madata.ma_bisec = &ma_bisec;
-    for( int i=0; i<N; i++ ){
-
-        if( madata.ma_qidx[i] != -1 ){
-            Vector f1_in = (*madata.coords)[ i%madata.m ] - (*madata.ma_coords)[i];
-            Vector f2_in = (*madata.coords)[ madata.ma_qidx[i] ] - (*madata.ma_coords)[i];
-    
-            (*madata.ma_bisec)[i] = (f1_in+f2_in).normalize();
-        }
-        // madata.ma_theta_in = np.arccos(np.sum(f1_in*f2_in,axis=1))
-    }
-    #ifndef __MINGW32__
-    t0.elapse();
-    std::cout<<"Computed bisectors in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
-    #endif
-
-    int k = 2, count=0;
-    {
-        kdtree2::KDTree kd_tree(*madata.ma_coords,true);
-        kd_tree.sort_results = true;
-        #ifndef __MINGW32__
-        t0.elapse();
-        std::cout<<"Constructed kd-tree in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
-        #endif
-        
-        kdtree2::KDTreeResultVector result;
-        #pragma omp parallel for private(result)
-        for( int i=0; i<N; i++ ){
-            madata.mask[i] = false;
-            if( madata.ma_qidx[i] != -1 ){
-                kd_tree.n_nearest((*madata.ma_coords)[i], k, result);
-                
-                float bisec_angle = acos((*madata.ma_bisec)[result[1].idx] * (*madata.ma_bisec)[i]);
-                if( bisec_angle < bisec_threshold )
-                    madata.mask[i] = true;
-            }
-        }
-        for( unsigned int i=0; i<N; i++ )
-            if (madata.mask[i])
-                count++;
-
-        #ifndef __MINGW32__
-        t0.elapse();
-        std::cout<<"Cleaned MA points in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
-        #endif
-    }
-    // mask and copy pointlist ma_coords
-    PointList ma_coords_masked(count);
-    int j=0;
-    for( int i=0; i<N; i++ ){
-        if( madata.mask[i] )
-            ma_coords_masked[j++] = (*madata.ma_coords)[i];
-    }
-    #ifndef __MINGW32__
-    t0.elapse();
-    std::cout<<"Copied cleaned MA points in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
-    #endif
-
-    k=1;
-    {
-        // rebuild kd-tree
-        kdtree2::KDTree kd_tree(ma_coords_masked,true);
-        // kd_tree = new kdtree2::KDTree;
-        kd_tree.sort_results = true;
-        #ifndef __MINGW32__
-        t0.elapse();
-        std::cout<<"Constructed cleaned kd-tree in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
-        #endif
-
-        kdtree2::KDTreeResultVector result;
-        #pragma omp parallel for private(result)
-        for( int i=0; i<madata.m; i++ ){
-            kd_tree.n_nearest((*madata.coords)[i], k, result);
-            madata.lfs[i] = sqrt(result[0].dis);
-        }
-        #ifndef __MINGW32__
-        t0.elapse();
-        std::cout<<"Computed LFS "<<t0.getTime()*1000.0<<" ms"<<std::endl;
-        #endif
-    }
-
-
-}
-
-inline int flatindex(int ind[], int size[], int dimension){
-    if( dimension==2 )
-        return ind[0] + size[0] * ind[1];
-    return ind[0] + size[0] * (ind[1] + ind[2]*size[1]);
-}
-
-void simplify(ma_data &madata, float cellsize, float epsilon, int dimension=3, float elevation_threshold=0){
-    #ifndef __MINGW32__
-    Misc::Timer t0;
-    #endif
-    
-    Box::Size size = madata.bbox.getSize();
-    Point origin = Point(madata.bbox.min);
-
-    int* resolution = new int[dimension];
-
-    std::cout << "grid resolution: ";
-    for( int i=0; i<dimension; i++ ){
-        resolution[i] = int(size[i]/cellsize)+1;
-        std::cout << resolution[i] << " ";
-    }
-    std::cout << std::endl;
-
-    int ncells = 1;
-    for( int i=0; i<dimension; i++ )
-        ncells *= resolution[i];
-
-    intList** grid = new intList*[ncells];
-    for (int i=0; i<ncells; i++) {
-        grid[i] = NULL;
-    }
-
-    int* idx = new int[dimension];
-    int index;
-    for( int i=0; i<madata.m; i++ ){
-        for( int j=0; j<dimension; j++){
-            idx[j] = int(((*madata.coords)[i][j]-origin[j]) / cellsize);
-        }
-        index = flatindex(idx, resolution, dimension);
-        
-        if( grid[index] == NULL ){
-            intList *ilist = new intList;
-            // std::unique_ptr<intList> ilist(new intList);
-            grid[index] = ilist;
-        }
-        (*grid[index]).push_back(i);
-    }
-
-    delete[] resolution; resolution = NULL;
-    delete[] idx; idx = NULL;
-
-    float mean_lfs, target_n, A=cellsize*cellsize;
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<float> randu(0, 1);
-    
-    // parallelize?
-    for( int i=0; i<ncells; i++)
-        if( grid[i] != NULL ){
-            int n = grid[i]->size();
-            float sum=0, max_z, min_z;
-            max_z = min_z = (*madata.coords)[(*grid[i])[0]][2];
-
-            for(auto j: *grid[i]){
-                sum += madata.lfs[j];
-                float z = (*madata.coords)[j][2];
-                if (z>max_z) max_z=z;
-                if (z<min_z) min_z=z;
-            }
-
-            mean_lfs = sum/n;
-
-            if( elevation_threshold != 0 && (max_z-min_z) > elevation_threshold )
-                mean_lfs /= 5;
-                
-
-            target_n = A/pow(epsilon*mean_lfs,2);
-            for(auto i: *grid[i])
-                madata.mask[i] = randu(gen) <= target_n/n;
-        }
-    #ifndef __MINGW32__
-    t0.elapse();
-    std::cout<<"Performed grid simplification in "<<t0.getTime()*1000.0<<" ms"<<std::endl;
-    #endif
-
-
-    // clear some memory in non-smart ptr way
-    for (int i=0; i<ncells; i++) {
-        delete grid[i];
-    }
-    delete[] grid;
-
-}
 
 
 int main(int argc, char **argv)
@@ -268,15 +56,17 @@ int main(int argc, char **argv)
 
         cmd.parse(argc,argv);
         
-        float epsilon = epsilonArg.getValue();
-        float cellsize = cellsizeArg.getValue();
-        float bisec_threshold = (bisecArg.getValue() / 180.0) * M_PI;
+        simplify_parameters input_parameters;
+
+        input_parameters.epsilon = epsilonArg.getValue();
+        input_parameters.cellsize = cellsizeArg.getValue();
+        input_parameters.bisec_threshold = (bisecArg.getValue() / 180.0) * M_PI;
         
-        float elevation_threshold = fake3dArg.getValue();
-        int dimension = 3;
-        bool only_inner = fake3dArg.isSet();
-        if( only_inner )
-            dimension = 2;
+        input_parameters.elevation_threshold = fake3dArg.getValue();
+        input_parameters.dimension = 3;
+        input_parameters.only_inner = fake3dArg.isSet();
+        if( input_parameters.only_inner )
+           input_parameters.dimension = 2;
 
         std::string output_path = inputArg.getValue();
         if(outputArg.isSet())
@@ -350,23 +140,23 @@ int main(int argc, char **argv)
         ma_qidx_out_npy.destruct();
 	    
         
-        madata.coords = &coords;
+        madata.coords = &coords; // don't own this memory
         // madata.normals = &normals;
-        madata.ma_coords = &ma_coords;
+        madata.ma_coords = &ma_coords; // don't own this memory
 
         madata.mask = new bool[2*madata.m];
         madata.lfs = new float[madata.m];
 
 	    {
-            // compute lfs, simplify
-            compute_lfs(madata, bisec_threshold, only_inner);
-            simplify(madata, cellsize, epsilon, dimension, elevation_threshold);
-	    
-	        const unsigned int c_size = madata.m;
-            const unsigned int shape[] = {c_size};
-            cnpy::npy_save(output_filtermask.c_str(), madata.mask, shape, 1, "w");
-	        cnpy::npy_save(output_lfs.c_str(), madata.lfs, shape, 1, "w");
-	    }
+          // Perform the actual processing
+          simplify_lfs(input_parameters, madata);
+
+          // Output results
+          const unsigned int c_size = madata.m;
+          const unsigned int shape[] = { c_size };
+          cnpy::npy_save(output_filtermask.c_str(), madata.mask, shape, 1, "w");
+          cnpy::npy_save(output_lfs.c_str(), madata.lfs, shape, 1, "w");
+        }
 
         if( outputXYZArg.isSet() ){
             std::string outFile_bounds = outputXYZArg.getValue();
@@ -385,6 +175,9 @@ int main(int argc, char **argv)
             std::ofstream ofs(outFile_bounds.c_str());
             ofs <<std::setprecision(2)<<std::fixed;
             
+            // many pointcloud xyz readers prefer a "header" line.
+            ofs << "x y z" << std::endl;
+
             for( int i=0; i<madata.m; i++ ) {
                 if( madata.mask[i] ){
                     ofs << (*madata.coords)[i][0];
@@ -396,6 +189,11 @@ int main(int argc, char **argv)
             
             ofs.close();
         }
+
+        // Free memory
+        delete[] madata.mask; madata.mask = NULL;
+        delete[] madata.lfs; madata.lfs = NULL;
+        delete[] madata.ma_qidx; madata.ma_qidx = NULL;
 
 	} catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
 

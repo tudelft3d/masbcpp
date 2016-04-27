@@ -20,39 +20,20 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef MASBCPP_TYPES_
-#define MASBCPP_TYPES_
+#ifndef SIMPLIFY_PROCESSING_
+#define SIMPLIFY_PROCESSING_
 
-#include <vrui/Geometry/Vector.h>
-#include <vrui/Geometry/Point.h>
-#include <vrui/Geometry/Box.h>
+#include "types.h"
 
-typedef float Scalar; // Scalar type for 3D points
-typedef Geometry::Point<Scalar,3> Point; // Type for 3D points
-typedef std::vector<Point> PointList; // Type for 3D points
-typedef Geometry::Vector<Scalar,3> Vector; // Type for 3D vectors
-typedef std::vector<Vector> VectorList; // Type for 3D vectors
-typedef Geometry::Box<Scalar,3> Box; // Type for 3D Box
-
-typedef std::vector<int> intList; // Type for ints
-
-struct ma_result {
-	Point c;
-	int qidx;
+struct simplify_parameters {
+   float epsilon;
+   float cellsize;
+   float bisec_threshold;
+   float elevation_threshold;
+   int dimension;
+   bool only_inner;
 };
 
-struct ma_data {
-	int m;
-	Box bbox;
-
-	PointList *coords; // don't own this memory
-	//VectorList *normals;
-	PointList *ma_coords; // don't own this memory
-	int *ma_qidx;
-	//VectorList *ma_bisec;
-
-	float *lfs;
-	bool *mask;
-};
+void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata);
 
 #endif

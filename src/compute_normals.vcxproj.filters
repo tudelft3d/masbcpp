@@ -18,6 +18,9 @@
     <ClInclude Include=".\types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="compute_normals_processing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="compute_normals.cpp">
