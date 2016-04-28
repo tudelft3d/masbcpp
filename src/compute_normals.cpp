@@ -83,7 +83,7 @@ int main(int argc, char **argv)
         unsigned int num_points = coords_npy.shape[0];
         unsigned int dim = coords_npy.shape[1];
         PointList coords(num_points);
-        for ( int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
+        for (unsigned int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
         coords_npy.destruct();
 
         // Perform the actual processing
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
            for (int j = 0; j < 3; j++)
               normals_carray[i * 3 + j] = normals[i][j];
 
-        const unsigned int c_size = normals.size();
+        const unsigned int c_size = (unsigned int) normals.size();
         const unsigned int shape[] = { c_size,3 };
         cnpy::npy_save(output_path.c_str(), normals_carray, shape, 2, "w");
 

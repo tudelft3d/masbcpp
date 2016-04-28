@@ -49,7 +49,7 @@ SOFTWARE.
 //   COMPUTE MA
 //==============================
 
-const Scalar delta_convergance = 1E-5;
+const Scalar delta_convergance = 1E-5f;
 const unsigned int iteration_limit = 30;
 const Point nanPoint(std::numeric_limits<Scalar>::quiet_NaN());
 
@@ -58,14 +58,14 @@ inline Scalar compute_radius(Point &p, Vector &n, Point &q)
 {
    // this is basic goniometry
    double d = Geometry::mag(p - q);
-   Scalar cos_theta = (n * (p - q)) / d;
-   return d / (2 * cos_theta);
+   Scalar cos_theta = float((n * (p - q)) / d);
+   return float(d / (2 * cos_theta));
 }
 
 inline Scalar cos_angle(Vector p, Vector q)
 {
    // Calculate the cosine of angle between vector p and q, see http://en.wikipedia.org/wiki/Law_of_cosines#Vector_formulation
-   Scalar result = p*q / (Geometry::mag(p) * Geometry::mag(q));
+   Scalar result = float(p*q / (Geometry::mag(p) * Geometry::mag(q)));
    if (result > 1) return 1;
    else if (result < -1) return -1;
    return result;

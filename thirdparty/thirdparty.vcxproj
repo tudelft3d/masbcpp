@@ -95,7 +95,8 @@
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -112,7 +113,8 @@
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,7 +133,8 @@
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,7 +155,8 @@
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>.\;.\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

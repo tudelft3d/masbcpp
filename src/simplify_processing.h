@@ -26,10 +26,10 @@ SOFTWARE.
 #include "types.h"
 
 struct simplify_parameters {
-   float epsilon;
-   float cellsize;
-   float bisec_threshold;
-   float elevation_threshold;
+   double epsilon;
+   double cellsize;
+   double bisec_threshold;
+   double elevation_threshold;
    int dimension;
    bool only_inner;
 };
