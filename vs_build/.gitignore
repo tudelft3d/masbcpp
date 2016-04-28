@@ -1,0 +1,15 @@
+.vs
+*.VC.opendb
+*.VC.db
+*.exe
+*.ilk
+*.pdb
+*.vcxproj.user
+*.lib
+compute_ma/
+compute_normals/
+simplify/
+masbcpp_processing/
+thirdparty/
+
+

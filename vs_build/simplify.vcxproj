@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -19,11 +19,11 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{513D08AE-3EEA-4241-B994-4A51AEA8FB2A}</ProjectGuid>
+    <ProjectGuid>{513D08AE-3EEC-4241-B994-4A51AEA8FB2A}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>compute_ma</RootNamespace>
+    <RootNamespace>simplify</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>compute_ma</ProjectName>
+    <ProjectName>simplify</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -171,11 +171,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include=".\types.h" />
-    <ClInclude Include="compute_ma_processing.h" />
+    <ClInclude Include="..\src\types.h" />
+    <ClInclude Include="..\src\simplify_processing.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include=".\compute_ma.cpp" />
+    <ClCompile Include="..\src\simplify.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="masbcpp_processing.vcxproj">

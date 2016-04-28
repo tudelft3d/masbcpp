@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -27,176 +27,176 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include=".\kdtree2\kdtree2.hpp">
+    <ClInclude Include="..\thirdparty\kdtree2\kdtree2.hpp">
       <Filter>Source Files\kdtree</Filter>
     </ClInclude>
-    <ClInclude Include=".\vrui\Misc\Timer.h">
+    <ClInclude Include="..\thirdparty\vrui\Misc\Timer.h">
       <Filter>Source Files\vrui</Filter>
     </ClInclude>
-    <ClInclude Include=".\vrui\Misc\Utility.h">
+    <ClInclude Include="..\thirdparty\vrui\Misc\Utility.h">
       <Filter>Source Files\vrui</Filter>
     </ClInclude>
-    <ClInclude Include=".\vrui\Math\Constants.h">
+    <ClInclude Include="..\thirdparty\vrui\Math\Constants.h">
       <Filter>Source Files\vrui</Filter>
     </ClInclude>
-    <ClInclude Include=".\vrui\Math\Math.h">
+    <ClInclude Include="..\thirdparty\vrui\Math\Math.h">
       <Filter>Source Files\vrui</Filter>
     </ClInclude>
-    <ClInclude Include=".\vrui\Geometry\Box.h">
+    <ClInclude Include="..\thirdparty\vrui\Geometry\Box.h">
       <Filter>Source Files\vrui</Filter>
     </ClInclude>
-    <ClInclude Include=".\vrui\Geometry\ComponentArray.h">
+    <ClInclude Include="..\thirdparty\vrui\Geometry\ComponentArray.h">
       <Filter>Source Files\vrui</Filter>
     </ClInclude>
-    <ClInclude Include=".\vrui\Geometry\HitResult.h">
+    <ClInclude Include="..\thirdparty\vrui\Geometry\HitResult.h">
       <Filter>Source Files\vrui</Filter>
     </ClInclude>
-    <ClInclude Include=".\vrui\Geometry\Matrix.h">
+    <ClInclude Include="..\thirdparty\vrui\Geometry\Matrix.h">
       <Filter>Source Files\vrui</Filter>
     </ClInclude>
-    <ClInclude Include=".\vrui\Geometry\MatrixHelperFunctions.h">
+    <ClInclude Include="..\thirdparty\vrui\Geometry\MatrixHelperFunctions.h">
       <Filter>Source Files\vrui</Filter>
     </ClInclude>
-    <ClInclude Include=".\vrui\Geometry\PCACalculator.h">
+    <ClInclude Include="..\thirdparty\vrui\Geometry\PCACalculator.h">
       <Filter>Source Files\vrui</Filter>
     </ClInclude>
-    <ClInclude Include=".\vrui\Geometry\Point.h">
+    <ClInclude Include="..\thirdparty\vrui\Geometry\Point.h">
       <Filter>Source Files\vrui</Filter>
     </ClInclude>
-    <ClInclude Include=".\vrui\Geometry\Ray.h">
+    <ClInclude Include="..\thirdparty\vrui\Geometry\Ray.h">
       <Filter>Source Files\vrui</Filter>
     </ClInclude>
-    <ClInclude Include=".\vrui\Geometry\SolidHitResult.h">
+    <ClInclude Include="..\thirdparty\vrui\Geometry\SolidHitResult.h">
       <Filter>Source Files\vrui</Filter>
     </ClInclude>
-    <ClInclude Include=".\vrui\Geometry\Vector.h">
+    <ClInclude Include="..\thirdparty\vrui\Geometry\Vector.h">
       <Filter>Source Files\vrui</Filter>
     </ClInclude>
-    <ClInclude Include=".\cnpy\cnpy.h">
+    <ClInclude Include="..\thirdparty\cnpy\cnpy.h">
       <Filter>Source Files\cnpy</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\Arg.h">
+    <ClInclude Include="..\thirdparty\tclap\Arg.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\ArgException.h">
+    <ClInclude Include="..\thirdparty\tclap\ArgException.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\ArgTraits.h">
+    <ClInclude Include="..\thirdparty\tclap\ArgTraits.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\CmdLine.h">
+    <ClInclude Include="..\thirdparty\tclap\CmdLine.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\CmdLineInterface.h">
+    <ClInclude Include="..\thirdparty\tclap\CmdLineInterface.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\CmdLineOutput.h">
+    <ClInclude Include="..\thirdparty\tclap\CmdLineOutput.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\Constraint.h">
+    <ClInclude Include="..\thirdparty\tclap\Constraint.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\DocBookOutput.h">
+    <ClInclude Include="..\thirdparty\tclap\DocBookOutput.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\HelpVisitor.h">
+    <ClInclude Include="..\thirdparty\tclap\HelpVisitor.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\IgnoreRestVisitor.h">
+    <ClInclude Include="..\thirdparty\tclap\IgnoreRestVisitor.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\MultiArg.h">
+    <ClInclude Include="..\thirdparty\tclap\MultiArg.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\MultiSwitchArg.h">
+    <ClInclude Include="..\thirdparty\tclap\MultiSwitchArg.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\OptionalUnlabeledTracker.h">
+    <ClInclude Include="..\thirdparty\tclap\OptionalUnlabeledTracker.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\StandardTraits.h">
+    <ClInclude Include="..\thirdparty\tclap\StandardTraits.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\StdOutput.h">
+    <ClInclude Include="..\thirdparty\tclap\StdOutput.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\SwitchArg.h">
+    <ClInclude Include="..\thirdparty\tclap\SwitchArg.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\UnlabeledMultiArg.h">
+    <ClInclude Include="..\thirdparty\tclap\UnlabeledMultiArg.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\UnlabeledValueArg.h">
+    <ClInclude Include="..\thirdparty\tclap\UnlabeledValueArg.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\ValueArg.h">
+    <ClInclude Include="..\thirdparty\tclap\ValueArg.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\ValuesConstraint.h">
+    <ClInclude Include="..\thirdparty\tclap\ValuesConstraint.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\VersionVisitor.h">
+    <ClInclude Include="..\thirdparty\tclap\VersionVisitor.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\Visitor.h">
+    <ClInclude Include="..\thirdparty\tclap\Visitor.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\XorHandler.h">
+    <ClInclude Include="..\thirdparty\tclap\XorHandler.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
-    <ClInclude Include=".\tclap\ZshCompletionOutput.h">
+    <ClInclude Include="..\thirdparty\tclap\ZshCompletionOutput.h">
       <Filter>Source Files\tclap</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include=".\kdtree2\kdtree2.cpp">
+    <ClCompile Include="..\thirdparty\kdtree2\kdtree2.cpp">
       <Filter>Source Files\kdtree</Filter>
     </ClCompile>
-    <ClCompile Include=".\vrui\Misc\Timer.cpp">
+    <ClCompile Include="..\thirdparty\vrui\Misc\Timer.cpp">
       <Filter>Source Files\vrui</Filter>
     </ClCompile>
-    <ClCompile Include=".\vrui\Math\Constants.cpp">
+    <ClCompile Include="..\thirdparty\vrui\Math\Constants.cpp">
       <Filter>Source Files\vrui</Filter>
     </ClCompile>
-    <ClCompile Include=".\vrui\Geometry\Box.cpp">
+    <ClCompile Include="..\thirdparty\vrui\Geometry\Box.cpp">
       <Filter>Source Files\vrui</Filter>
     </ClCompile>
-    <ClCompile Include=".\vrui\Geometry\ComponentArray.cpp">
+    <ClCompile Include="..\thirdparty\vrui\Geometry\ComponentArray.cpp">
       <Filter>Source Files\vrui</Filter>
     </ClCompile>
-    <ClCompile Include=".\vrui\Geometry\Matrix.cpp">
+    <ClCompile Include="..\thirdparty\vrui\Geometry\Matrix.cpp">
       <Filter>Source Files\vrui</Filter>
     </ClCompile>
-    <ClCompile Include=".\vrui\Geometry\PCACalculator.cpp">
+    <ClCompile Include="..\thirdparty\vrui\Geometry\PCACalculator.cpp">
       <Filter>Source Files\vrui</Filter>
     </ClCompile>
-    <ClCompile Include=".\vrui\Geometry\Point.cpp">
+    <ClCompile Include="..\thirdparty\vrui\Geometry\Point.cpp">
       <Filter>Source Files\vrui</Filter>
     </ClCompile>
-    <ClCompile Include=".\vrui\Geometry\Vector.cpp">
+    <ClCompile Include="..\thirdparty\vrui\Geometry\Vector.cpp">
       <Filter>Source Files\vrui</Filter>
     </ClCompile>
-    <ClCompile Include=".\cnpy\cnpy.cpp">
+    <ClCompile Include="..\thirdparty\cnpy\cnpy.cpp">
       <Filter>Source Files\cnpy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include=".\vrui\Geometry\Box.icpp">
+    <None Include="..\thirdparty\vrui\Geometry\Box.icpp">
       <Filter>Source Files\vrui</Filter>
     </None>
-    <None Include=".\vrui\Geometry\ComponentArray.icpp">
+    <None Include="..\thirdparty\vrui\Geometry\ComponentArray.icpp">
       <Filter>Source Files\vrui</Filter>
     </None>
-    <None Include=".\vrui\Geometry\Matrix.icpp">
+    <None Include="..\thirdparty\vrui\Geometry\Matrix.icpp">
       <Filter>Source Files\vrui</Filter>
     </None>
-    <None Include=".\vrui\Geometry\Point.icpp">
+    <None Include="..\thirdparty\vrui\Geometry\Point.icpp">
       <Filter>Source Files\vrui</Filter>
     </None>
-    <None Include=".\vrui\Geometry\Vector.icpp">
+    <None Include="..\thirdparty\vrui\Geometry\Vector.icpp">
       <Filter>Source Files\vrui</Filter>
     </None>
-    <None Include=".\tclap\COPYING">
+    <None Include="..\thirdparty\tclap\COPYING">
       <Filter>Source Files\tclap</Filter>
     </None>
   </ItemGroup>
