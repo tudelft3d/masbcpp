@@ -20,10 +20,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// #define VERBOSEPRINT 1;
-// #define WITH_OPENMP 1;
-
-#include <iostream>
 #include <limits>
 #include <random>
 
@@ -35,9 +31,12 @@ SOFTWARE.
 // Vrui
 #include <vrui/Geometry/ComponentArray.h>
 #include <vrui/Math/Math.h>
-#ifndef __MINGW32__
+
+#ifdef VERBOSEPRINT
 #include <vrui/Misc/Timer.h>
+#include <iostream>
 #endif
+
 // kdtree2
 #include <kdtree2/kdtree2.hpp>
 
@@ -56,7 +55,7 @@ SOFTWARE.
 
 void compute_lfs(ma_data &madata, float bisec_threshold, bool only_inner = true)
 {
-#ifndef __MINGW32__
+#ifdef VERBOSEPRINT
    Misc::Timer t0;
 #endif
 
@@ -70,16 +69,14 @@ void compute_lfs(ma_data &madata, float bisec_threshold, bool only_inner = true)
    VectorList ma_bisec(N);
    //madata.ma_bisec = &ma_bisec;
    for (int i = 0; i < N; i++) {
-
       if (madata.ma_qidx[i] != -1) {
          Vector f1_in = (*madata.coords)[i%madata.m] - (*madata.ma_coords)[i];
          Vector f2_in = (*madata.coords)[madata.ma_qidx[i]] - (*madata.ma_coords)[i];
 
          ma_bisec[i] = (f1_in + f2_in).normalize();
       }
-      // madata.ma_theta_in = np.arccos(np.sum(f1_in*f2_in,axis=1))
    }
-#ifndef __MINGW32__
+#ifdef VERBOSEPRINT
    t0.elapse();
    std::cout << "Computed bisectors in " << t0.getTime()*1000.0 << " ms" << std::endl;
 #endif
@@ -88,7 +85,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold, bool only_inner = true)
    {
       kdtree2::KDTree kd_tree(*madata.ma_coords, true);
       kd_tree.sort_results = true;
-#ifndef __MINGW32__
+#ifdef VERBOSEPRINT
       t0.elapse();
       std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
 #endif
@@ -109,7 +106,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold, bool only_inner = true)
          if (madata.mask[i])
             count++;
 
-#ifndef __MINGW32__
+#ifdef VERBOSEPRINT
       t0.elapse();
       std::cout << "Cleaned MA points in " << t0.getTime()*1000.0 << " ms" << std::endl;
 #endif
@@ -121,7 +118,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold, bool only_inner = true)
       if (madata.mask[i])
          ma_coords_masked[j++] = (*madata.ma_coords)[i];
    }
-#ifndef __MINGW32__
+#ifdef VERBOSEPRINT
    t0.elapse();
    std::cout << "Copied cleaned MA points in " << t0.getTime()*1000.0 << " ms" << std::endl;
 #endif
@@ -132,7 +129,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold, bool only_inner = true)
       kdtree2::KDTree kd_tree(ma_coords_masked, true);
       // kd_tree = new kdtree2::KDTree;
       kd_tree.sort_results = true;
-#ifndef __MINGW32__
+#ifdef VERBOSEPRINT
       t0.elapse();
       std::cout << "Constructed cleaned kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
 #endif
@@ -143,9 +140,9 @@ void compute_lfs(ma_data &madata, float bisec_threshold, bool only_inner = true)
          kd_tree.n_nearest((*madata.coords)[i], k, result);
          madata.lfs[i] = sqrt(result[0].dis);
       }
-#ifndef __MINGW32__
+#ifdef VERBOSEPRINT
       t0.elapse();
-      std::cout << "Computed LFS " << t0.getTime()*1000.0 << " ms" << std::endl;
+      std::cout << "Computed LFS in " << t0.getTime()*1000.0 << " ms" << std::endl;
 #endif
    }
 
@@ -159,7 +156,7 @@ inline int flatindex(int ind[], int size[], int dimension) {
 }
 
 void simplify(ma_data &madata, float cellsize, float epsilon, int dimension = 3, float elevation_threshold = 0) {
-#ifndef __MINGW32__
+#ifdef VERBOSEPRINT
    Misc::Timer t0;
 #endif
 
@@ -168,12 +165,18 @@ void simplify(ma_data &madata, float cellsize, float epsilon, int dimension = 3,
 
    int* resolution = new int[dimension];
 
-   std::cout << "grid resolution: ";
+   #ifdef VERBOSEPRINT
+   std::cout << "Grid resolution: ";
+   #endif
    for (int i = 0; i < dimension; i++) {
       resolution[i] = int(size[i] / cellsize) + 1;
+      #ifdef VERBOSEPRINT
       std::cout << resolution[i] << " ";
+      #endif
    }
+   #ifdef VERBOSEPRINT
    std::cout << std::endl;
+   #endif
 
    int ncells = 1;
    for (int i = 0; i < dimension; i++)
@@ -232,7 +235,7 @@ void simplify(ma_data &madata, float cellsize, float epsilon, int dimension = 3,
          for (auto i : *grid[i])
             madata.mask[i] = randu(gen) <= target_n / n;
       }
-#ifndef __MINGW32__
+#ifdef VERBOSEPRINT
    t0.elapse();
    std::cout << "Performed grid simplification in " << t0.getTime()*1000.0 << " ms" << std::endl;
 #endif

@@ -113,7 +113,7 @@ int main(int argc, char **argv)
             madata.bbox.addPoint(coords[i]);
         }
 	    coords_npy.destruct();
-        std::cout << "bbox: " << madata.bbox.min[0] << " " << madata.bbox.min[1] << " " << madata.bbox.min[2] << " " << madata.bbox.max[0] << " " << madata.bbox.max[1] << " " << madata.bbox.max[2] << std::endl;
+        // std::cout << "bbox: " << madata.bbox.min[0] << " " << madata.bbox.min[1] << " " << madata.bbox.min[2] << " " << madata.bbox.max[0] << " " << madata.bbox.max[1] << " " << madata.bbox.max[2] << std::endl;
 
         PointList ma_coords(2*madata.m);
 

@@ -37,6 +37,9 @@ else()
 	endif()
 endif()
 
+# enable verbose printing by default
+add_definitions(-DVERBOSEPRINT)
+
 # global
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${COMPILE_OPTIONS}")
 set(CMAKE_BUILD_TYPE Release)

@@ -20,10 +20,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// #define VERBOSEPRINT 1;
-// #define WITH_OPENMP 1;
-
-#include <iostream>
 #include <limits>
 
 // OpenMP
@@ -34,9 +30,12 @@ SOFTWARE.
 // Vrui
 #include <vrui/Geometry/ComponentArray.h>
 #include <vrui/Math/Math.h>
-#ifndef __MINGW32__
+
+#ifdef VERBOSEPRINT
 #include <vrui/Misc/Timer.h>
+#include <iostream>
 #endif
+
 // kdtree2
 #include <kdtree2/kdtree2.hpp>
 
@@ -82,11 +81,11 @@ ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree2
 
    while (1)
    {
-#ifdef VERBOSEPRINT
-      std::cout << "\nloop iteration: " << j << ", p = (" << p[0] << "," << p[1] << "," << p[2] << ", n = (" << n[0] << "," << n[1] << "," << n[2] << ") \n";
+// #ifdef VERBOSEPRINT
+//       std::cout << "\nloop iteration: " << j << ", p = (" << p[0] << "," << p[1] << "," << p[2] << ", n = (" << n[0] << "," << n[1] << "," << n[2] << ") \n";
 
-      std::cout << "c = (" << c[0] << "," << c[1] << "," << c[2] << ")\n";
-#endif
+//       std::cout << "c = (" << c[0] << "," << c[1] << "," << c[2] << ")\n";
+// #endif
 
       // find closest point to c
       kdtree2::KDTreeResultVector result;
@@ -95,9 +94,9 @@ ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree2
       qidx_next = result[0].idx;
       q = kd_tree->the_data[qidx_next];
 
-#ifdef VERBOSEPRINT
-      std::cout << "q = (" << q[0] << "," << q[1] << "," << q[2] << ")\n";
-#endif
+// #ifdef VERBOSEPRINT
+//       std::cout << "q = (" << q[0] << "," << q[1] << "," << q[2] << ")\n";
+// #endif
 
       // handle case when q==p
       if (q == p)
@@ -119,9 +118,9 @@ ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree2
       // compute radius
       r = compute_radius(p, n, q);
 
-#ifdef VERBOSEPRINT
-      std::cout << "r = " << r << "\n";
-#endif
+// #ifdef VERBOSEPRINT
+//       std::cout << "r = " << r << "\n";
+// #endif
 
       // if r < 0 closest point was on the wrong side of plane with normal n => start over with SuperRadius on the right side of that plane
       if (r < 0)
@@ -199,13 +198,13 @@ void sb_points(ma_parameters &input_parameters, PointList &points, VectorList &n
 void compute_masb_points(ma_parameters &input_parameters, PointList &coords, VectorList &normals, 
                          PointList &ma_coords_in, int* ma_qidx_in, PointList &ma_coords_out, int* ma_qidx_out)
 {
-#ifndef __MINGW32__
+#ifdef VERBOSEPRINT
    Misc::Timer t0;
 #endif
    kdtree2::KDTree* kd_tree;
    kd_tree = new kdtree2::KDTree(coords, input_parameters.kd_tree_reorder);
    kd_tree->sort_results = true;
-#ifndef __MINGW32__
+#ifdef VERBOSEPRINT
    t0.elapse();
    std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
 #endif
@@ -215,7 +214,7 @@ void compute_masb_points(ma_parameters &input_parameters, PointList &coords, Vec
    // Inside processing
    {
       sb_points(input_parameters, coords, normals, kd_tree, ma_coords_in, ma_qidx_in, 1);
-#ifndef __MINGW32__
+#ifdef VERBOSEPRINT
       t0.elapse();
       std::cout << "Done shrinking interior balls, took " << t0.getTime()*1000.0 << " ms" << std::endl;
 #endif
@@ -224,7 +223,7 @@ void compute_masb_points(ma_parameters &input_parameters, PointList &coords, Vec
    // Outside processing
    {
       sb_points(input_parameters, coords, normals, kd_tree, ma_coords_out, ma_qidx_out, 0);
-#ifndef __MINGW32__
+#ifdef VERBOSEPRINT
       t0.elapse();
       std::cout << "Done shrinking exterior balls, took " << t0.getTime()*1000.0 << " ms" << std::endl;
 #endif

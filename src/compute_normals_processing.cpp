@@ -20,10 +20,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// #define VERBOSEPRINT 1;
-// #define WITH_OPENMP 1;
-
-#include <iostream>
 #include <limits>
 
 // OpenMP
@@ -35,9 +31,12 @@ SOFTWARE.
 #include <vrui/Geometry/ComponentArray.h>
 #include <vrui/Math/Math.h>
 #include <vrui/Geometry/PCACalculator.h>
-#ifndef __MINGW32__
+
+#ifdef VERBOSEPRINT
 #include <vrui/Misc/Timer.h>
+#include <iostream>
 #endif
+
 // kdtree2
 #include <kdtree2/kdtree2.hpp>
 
@@ -82,13 +81,13 @@ VectorList estimate_normals(PointList &points, kdtree2::KDTree* kd_tree, int k)
 void compute_normals(normals_parameters &input_parameters, PointList &coords, VectorList &normals)
 {
 
-#ifndef __MINGW32__
+#ifdef VERBOSEPRINT
    Misc::Timer t0;
 #endif
    kdtree2::KDTree* kd_tree;
    kd_tree = new kdtree2::KDTree(coords, input_parameters.kd_tree_reorder);
    kd_tree->sort_results = false;
-#ifndef __MINGW32__
+#ifdef VERBOSEPRINT
    t0.elapse();
    std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
 #endif
@@ -97,7 +96,7 @@ void compute_normals(normals_parameters &input_parameters, PointList &coords, Ve
 
    {
       normals = estimate_normals(coords, kd_tree, input_parameters.k);
-#ifndef __MINGW32__
+#ifdef VERBOSEPRINT
       t0.elapse();
       std::cout << "Done estimating normals, took " << t0.getTime()*1000.0 << " ms" << std::endl;
 #endif
