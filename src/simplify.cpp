@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 {
     // parse command line arguments
     try {
-        TCLAP::CmdLine cmd("Feature aware pointcloud simplifcation based on the Medial Axis Transform, see also https://github.com/tudelft3d/masbcpp", ' ', "0.1");
+        TCLAP::CmdLine cmd("Feature-aware pointcloud simplification based on the Medial Axis Transform, see also https://github.com/tudelft3d/masbcpp", ' ', "0.1");
 
         TCLAP::UnlabeledValueArg<std::string> inputArg( "input", "path to input directory with inside it a 'coords.npy' and 'ma_*.npy' files. Both should be Nx3 float arrays where N is the number of input points.", true, "", "input dir", cmd);
         TCLAP::UnlabeledValueArg<std::string> outputArg( "ouput", "path to output directory", false, "", "output dir", cmd);
