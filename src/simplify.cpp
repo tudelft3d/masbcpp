@@ -46,11 +46,11 @@ int main(int argc, char **argv)
         TCLAP::UnlabeledValueArg<std::string> inputArg( "input", "path to input directory with inside it a 'coords.npy' and 'ma_*.npy' files. Both should be Nx3 float arrays where N is the number of input points.", true, "", "input dir", cmd);
         TCLAP::UnlabeledValueArg<std::string> outputArg( "ouput", "path to output directory", false, "", "output dir", cmd);
 
-        TCLAP::ValueArg<double> epsilonArg("e","epsilon","espilon threshold that controls the degree of simplification",false,0.1,"double", cmd);
-        TCLAP::ValueArg<double> cellsizeArg("c","cellsize","cellsize used during grid-based lfs simplification",false,1,"double", cmd);
-        TCLAP::ValueArg<double> bisecArg("b","bisec","bisector threshold used to clean the MAT points",false,1,"double", cmd);
+        TCLAP::ValueArg<double> epsilonArg("e","epsilon","Control the degree of simplification, higher values mean more simplification. Typical values are in the range [0.01,0.6].",false,0.1,"double", cmd);
+        TCLAP::ValueArg<double> cellsizeArg("c","cellsize","Cellsize used during grid-based lfs simplification (in units of your dataset). Large cellsize means faster processing, but potentially more noticable jumps in point density at cell boundaries.",false,1,"double", cmd);
+        TCLAP::ValueArg<double> bisecArg("b","bisec","Bisector threshold used to clean the MAT points before LFS computation. With lower values more aggressive cleaning is performed which means more robustness to noise (in the MAT) but also less features will be detected. Typical range [0.1,10] (degrees).",false,1,"double", cmd);
         
-        TCLAP::ValueArg<double> fake3dArg("f","fake3d","use 2D grid instead of 3D grid, intended for 2.5D datasets, provide the elevation_threshold",false,0,"double", cmd);
+        TCLAP::ValueArg<double> fake3dArg("f","fake3d","Use 2D grid instead of 3D grid, intended for 2.5D datasets (eg. buildings without points only on the roof and not on the walls). In addition this mode will try to detect elevation jumps in the dataset (eg. where there should be a wall) and still try to preserve points around those areas, the value for this parameter is the threshold elevation difference (in units of your dataset) within one gridcell that will be used for the elevation jump detection function.",false,0.5,"double", cmd);
         
         TCLAP::ValueArg<std::string> outputXYZArg("a","xyz","output filtered points to plain .xyz text file",false,"lfs_simp.xyz","string", cmd);
 
