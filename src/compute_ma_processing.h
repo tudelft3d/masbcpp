@@ -33,6 +33,11 @@ struct ma_parameters {
    bool kd_tree_reorder;
 };
 
+struct ma_result {
+	Point c;
+	int qidx;
+};
+
 void compute_masb_points(ma_parameters &input_parameters, PointList &coords, VectorList &normals,
                          PointList &ma_coords_in, int* ma_qidx_in, PointList &ma_coords_out, int* ma_qidx_out);
 

@@ -36,11 +36,6 @@ typedef Geometry::Box<Scalar,3> Box; // Type for 3D Box
 
 typedef std::vector<int> intList; // Type for ints
 
-struct ma_result {
-	Point c;
-	int qidx;
-};
-
 struct ma_data {
 	int m;
 	Box bbox;
