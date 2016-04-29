@@ -147,6 +147,12 @@ int main(int argc, char **argv)
 	    {
           // Perform the actual processing
           simplify_lfs(input_parameters, madata);
+          
+          // count number of remaining points
+          unsigned int cnt;
+          for( int i=0; i<madata.m; i++ )
+                if( madata.mask[i] ) cnt++;
+          std::cout << cnt << " out of " << madata.m << " points remaining [" << int(100*float(cnt)/madata.m) << "%]" << std::endl;
 
           // Output results
           const unsigned int c_size = madata.m;
