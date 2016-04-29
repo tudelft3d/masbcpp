@@ -232,8 +232,8 @@ void simplify(ma_data &madata, double cellsize, double epsilon, int dimension = 
 
 
          target_n = A / pow(epsilon*mean_lfs, 2);
-         for (auto i : *grid[i])
-            madata.mask[i] = randu(gen) <= target_n / n;
+         for (auto j : *grid[i])
+            madata.mask[j] = randu(gen) <= target_n / n;
       }
 #ifdef VERBOSEPRINT
    t0.elapse();
