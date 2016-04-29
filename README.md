@@ -12,7 +12,10 @@ $ cd masbcpp
 $ cmake .
 $ make
 ```
-Building on windows is also possible, see the [wiki](https://github.com/tudelft3d/masbcpp/wiki/Building-on-Windows-with-CMake-and-MinGW).
+Building on windows should be possible with Visual Studio.
+
+### External dependencies
+`zlib` is currently the only dependency.
 
 ###Build with OpenMP support (multithreading)
 The build system should autodetect whether your compiler supports OpenMP and build masbpp with multithreading support accordingly. To enable multithreading on Mac OS X (tested with version 10.10), do
