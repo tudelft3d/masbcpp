@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -19,34 +19,34 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{513D08AE-3EEE-4241-B994-4A51AEA8FB2A}</ProjectGuid>
+    <ProjectGuid>{513D08AE-3EEB-4241-B994-4A51AEA8FB2A}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>thirdparty</RootNamespace>
+    <RootNamespace>compute_normals</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>thirdparty</ProjectName>
+    <ProjectName>compute_normals</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -73,18 +73,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)</OutDir>
+    <IntDir>$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <OutDir>$(ProjectDir)</OutDir>
+    <IntDir>$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)</OutDir>
+    <IntDir>$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(ProjectDir)</OutDir>
+    <IntDir>$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -93,9 +97,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -110,9 +115,10 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -129,9 +135,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -150,9 +157,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.\;.\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -163,66 +171,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include=".\cnpy\cnpy.h" />
-    <ClInclude Include=".\kdtree2\kdtree2.hpp" />
-    <ClInclude Include=".\tclap\Arg.h" />
-    <ClInclude Include=".\tclap\ArgException.h" />
-    <ClInclude Include=".\tclap\ArgTraits.h" />
-    <ClInclude Include=".\tclap\CmdLine.h" />
-    <ClInclude Include=".\tclap\CmdLineInterface.h" />
-    <ClInclude Include=".\tclap\CmdLineOutput.h" />
-    <ClInclude Include=".\tclap\Constraint.h" />
-    <ClInclude Include=".\tclap\DocBookOutput.h" />
-    <ClInclude Include=".\tclap\HelpVisitor.h" />
-    <ClInclude Include=".\tclap\IgnoreRestVisitor.h" />
-    <ClInclude Include=".\tclap\MultiArg.h" />
-    <ClInclude Include=".\tclap\MultiSwitchArg.h" />
-    <ClInclude Include=".\tclap\OptionalUnlabeledTracker.h" />
-    <ClInclude Include=".\tclap\StandardTraits.h" />
-    <ClInclude Include=".\tclap\StdOutput.h" />
-    <ClInclude Include=".\tclap\SwitchArg.h" />
-    <ClInclude Include=".\tclap\UnlabeledMultiArg.h" />
-    <ClInclude Include=".\tclap\UnlabeledValueArg.h" />
-    <ClInclude Include=".\tclap\ValueArg.h" />
-    <ClInclude Include=".\tclap\ValuesConstraint.h" />
-    <ClInclude Include=".\tclap\VersionVisitor.h" />
-    <ClInclude Include=".\tclap\Visitor.h" />
-    <ClInclude Include=".\tclap\XorHandler.h" />
-    <ClInclude Include=".\tclap\ZshCompletionOutput.h" />
-    <ClInclude Include=".\vrui\Geometry\Box.h" />
-    <ClInclude Include=".\vrui\Geometry\ComponentArray.h" />
-    <ClInclude Include=".\vrui\Geometry\HitResult.h" />
-    <ClInclude Include=".\vrui\Geometry\Matrix.h" />
-    <ClInclude Include=".\vrui\Geometry\MatrixHelperFunctions.h" />
-    <ClInclude Include=".\vrui\Geometry\PCACalculator.h" />
-    <ClInclude Include=".\vrui\Geometry\Point.h" />
-    <ClInclude Include=".\vrui\Geometry\Ray.h" />
-    <ClInclude Include=".\vrui\Geometry\SolidHitResult.h" />
-    <ClInclude Include=".\vrui\Geometry\Vector.h" />
-    <ClInclude Include=".\vrui\Math\Constants.h" />
-    <ClInclude Include=".\vrui\Math\Math.h" />
-    <ClInclude Include=".\vrui\Misc\Timer.h" />
-    <ClInclude Include=".\vrui\Misc\Utility.h" />
+    <ClInclude Include="..\src\types.h" />
+    <ClInclude Include="..\src\compute_normals_processing.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include=".\cnpy\cnpy.cpp" />
-    <ClCompile Include=".\kdtree2\kdtree2.cpp" />
-    <ClCompile Include=".\vrui\Geometry\Box.cpp" />
-    <ClCompile Include=".\vrui\Geometry\ComponentArray.cpp" />
-    <ClCompile Include=".\vrui\Geometry\Matrix.cpp" />
-    <ClCompile Include=".\vrui\Geometry\PCACalculator.cpp" />
-    <ClCompile Include=".\vrui\Geometry\Point.cpp" />
-    <ClCompile Include=".\vrui\Geometry\Vector.cpp" />
-    <ClCompile Include=".\vrui\Math\Constants.cpp" />
-    <ClCompile Include=".\vrui\Misc\Timer.cpp" />
+    <ClCompile Include="..\src\compute_normals.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".\tclap\COPYING" />
-    <None Include=".\vrui\Geometry\Box.icpp" />
-    <None Include=".\vrui\Geometry\ComponentArray.icpp" />
-    <None Include=".\vrui\Geometry\Matrix.icpp" />
-    <None Include=".\vrui\Geometry\Point.icpp" />
-    <None Include=".\vrui\Geometry\Vector.icpp" />
+    <ProjectReference Include="masbcpp_processing.vcxproj">
+      <Project>{513d08ae-3eed-4241-b994-4a51aea8fb2a}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

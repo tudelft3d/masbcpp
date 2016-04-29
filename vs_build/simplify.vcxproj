@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -99,7 +99,8 @@
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -116,7 +117,8 @@
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,7 +137,8 @@
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -156,7 +159,8 @@
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -167,11 +171,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include=".\types.h" />
-    <ClInclude Include="simplify_processing.h" />
+    <ClInclude Include="..\src\types.h" />
+    <ClInclude Include="..\src\simplify_processing.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include=".\simplify.cpp" />
+    <ClCompile Include="..\src\simplify.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="masbcpp_processing.vcxproj">

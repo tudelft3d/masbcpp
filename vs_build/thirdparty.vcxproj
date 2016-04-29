@@ -19,34 +19,34 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{513D08AE-3EEB-4241-B994-4A51AEA8FB2A}</ProjectGuid>
+    <ProjectGuid>{513D08AE-3EEE-4241-B994-4A51AEA8FB2A}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>compute_normals</RootNamespace>
+    <RootNamespace>thirdparty</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
-    <ProjectName>compute_normals</ProjectName>
+    <ProjectName>thirdparty</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -99,7 +99,8 @@
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -116,7 +117,8 @@
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,7 +137,8 @@
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -156,7 +159,8 @@
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\thirdparty\;..\thirdparty\vrui\;..\..\zlib\include\</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
-      <DisableSpecificWarnings>4018;4267;4996;4244;4396</DisableSpecificWarnings>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -167,16 +171,66 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include=".\types.h" />
-    <ClInclude Include="compute_normals_processing.h" />
+    <ClInclude Include="..\thirdparty\cnpy\cnpy.h" />
+    <ClInclude Include="..\thirdparty\kdtree2\kdtree2.hpp" />
+    <ClInclude Include="..\thirdparty\tclap\Arg.h" />
+    <ClInclude Include="..\thirdparty\tclap\ArgException.h" />
+    <ClInclude Include="..\thirdparty\tclap\ArgTraits.h" />
+    <ClInclude Include="..\thirdparty\tclap\CmdLine.h" />
+    <ClInclude Include="..\thirdparty\tclap\CmdLineInterface.h" />
+    <ClInclude Include="..\thirdparty\tclap\CmdLineOutput.h" />
+    <ClInclude Include="..\thirdparty\tclap\Constraint.h" />
+    <ClInclude Include="..\thirdparty\tclap\DocBookOutput.h" />
+    <ClInclude Include="..\thirdparty\tclap\HelpVisitor.h" />
+    <ClInclude Include="..\thirdparty\tclap\IgnoreRestVisitor.h" />
+    <ClInclude Include="..\thirdparty\tclap\MultiArg.h" />
+    <ClInclude Include="..\thirdparty\tclap\MultiSwitchArg.h" />
+    <ClInclude Include="..\thirdparty\tclap\OptionalUnlabeledTracker.h" />
+    <ClInclude Include="..\thirdparty\tclap\StandardTraits.h" />
+    <ClInclude Include="..\thirdparty\tclap\StdOutput.h" />
+    <ClInclude Include="..\thirdparty\tclap\SwitchArg.h" />
+    <ClInclude Include="..\thirdparty\tclap\UnlabeledMultiArg.h" />
+    <ClInclude Include="..\thirdparty\tclap\UnlabeledValueArg.h" />
+    <ClInclude Include="..\thirdparty\tclap\ValueArg.h" />
+    <ClInclude Include="..\thirdparty\tclap\ValuesConstraint.h" />
+    <ClInclude Include="..\thirdparty\tclap\VersionVisitor.h" />
+    <ClInclude Include="..\thirdparty\tclap\Visitor.h" />
+    <ClInclude Include="..\thirdparty\tclap\XorHandler.h" />
+    <ClInclude Include="..\thirdparty\tclap\ZshCompletionOutput.h" />
+    <ClInclude Include="..\thirdparty\vrui\Geometry\Box.h" />
+    <ClInclude Include="..\thirdparty\vrui\Geometry\ComponentArray.h" />
+    <ClInclude Include="..\thirdparty\vrui\Geometry\HitResult.h" />
+    <ClInclude Include="..\thirdparty\vrui\Geometry\Matrix.h" />
+    <ClInclude Include="..\thirdparty\vrui\Geometry\MatrixHelperFunctions.h" />
+    <ClInclude Include="..\thirdparty\vrui\Geometry\PCACalculator.h" />
+    <ClInclude Include="..\thirdparty\vrui\Geometry\Point.h" />
+    <ClInclude Include="..\thirdparty\vrui\Geometry\Ray.h" />
+    <ClInclude Include="..\thirdparty\vrui\Geometry\SolidHitResult.h" />
+    <ClInclude Include="..\thirdparty\vrui\Geometry\Vector.h" />
+    <ClInclude Include="..\thirdparty\vrui\Math\Constants.h" />
+    <ClInclude Include="..\thirdparty\vrui\Math\Math.h" />
+    <ClInclude Include="..\thirdparty\vrui\Misc\Timer.h" />
+    <ClInclude Include="..\thirdparty\vrui\Misc\Utility.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="compute_normals.cpp" />
+    <ClCompile Include="..\thirdparty\cnpy\cnpy.cpp" />
+    <ClCompile Include="..\thirdparty\kdtree2\kdtree2.cpp" />
+    <ClCompile Include="..\thirdparty\vrui\Geometry\Box.cpp" />
+    <ClCompile Include="..\thirdparty\vrui\Geometry\ComponentArray.cpp" />
+    <ClCompile Include="..\thirdparty\vrui\Geometry\Matrix.cpp" />
+    <ClCompile Include="..\thirdparty\vrui\Geometry\PCACalculator.cpp" />
+    <ClCompile Include="..\thirdparty\vrui\Geometry\Point.cpp" />
+    <ClCompile Include="..\thirdparty\vrui\Geometry\Vector.cpp" />
+    <ClCompile Include="..\thirdparty\vrui\Math\Constants.cpp" />
+    <ClCompile Include="..\thirdparty\vrui\Misc\Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="masbcpp_processing.vcxproj">
-      <Project>{513d08ae-3eed-4241-b994-4a51aea8fb2a}</Project>
-    </ProjectReference>
+    <None Include="..\thirdparty\tclap\COPYING" />
+    <None Include="..\thirdparty\vrui\Geometry\Box.icpp" />
+    <None Include="..\thirdparty\vrui\Geometry\ComponentArray.icpp" />
+    <None Include="..\thirdparty\vrui\Geometry\Matrix.icpp" />
+    <None Include="..\thirdparty\vrui\Geometry\Point.icpp" />
+    <None Include="..\thirdparty\vrui\Geometry\Vector.icpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -53,9 +53,9 @@ int main(int argc, char **argv)
         
         ma_parameters input_parameters;
 
-        input_parameters.initial_radius = initial_radiusArg.getValue();
-        input_parameters.denoise_preserve = (M_PI/180) * denoise_preserveArg.getValue();
-        input_parameters.denoise_planar = (M_PI/180) * denoise_planarArg.getValue();
+        input_parameters.initial_radius = float(initial_radiusArg.getValue());
+        input_parameters.denoise_preserve = (M_PI/180.0) * denoise_preserveArg.getValue();
+        input_parameters.denoise_planar = (M_PI/180.0) * denoise_planarArg.getValue();
         
         input_parameters.nan_for_initr = nan_for_initrSwitch.getValue();
         input_parameters.kd_tree_reorder = reorder_kdtreeSwitch.getValue();
@@ -122,7 +122,7 @@ int main(int argc, char **argv)
           for (int j = 0; j < 3; j++)
              ma_coords_in_carray[i * 3 + j] = ma_coords_in[i][j];
 
-       const unsigned int c_size_in = ma_coords_in.size();
+       const unsigned int c_size_in = (unsigned int)ma_coords_in.size();
        const unsigned int shape_in[] = { c_size_in,3 };
        cnpy::npy_save(output_path_ma_in.c_str(), ma_coords_in_carray, shape_in, 2, "w");
        const unsigned int shape_in_[] = { c_size_in };
@@ -134,7 +134,7 @@ int main(int argc, char **argv)
           for (int j = 0; j < 3; j++)
              ma_coords_out_carray[i * 3 + j] = ma_coords_out[i][j];
 
-       const unsigned int c_size_out = ma_coords_out.size();
+       const unsigned int c_size_out = (unsigned int)ma_coords_out.size();
        const unsigned int shape_out[] = { c_size_out,3 };
        cnpy::npy_save(output_path_ma_out.c_str(), ma_coords_out_carray, shape_in, 2, "w");
        const unsigned int shape_out_[] = { c_size_out };

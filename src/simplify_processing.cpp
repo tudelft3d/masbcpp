@@ -53,7 +53,7 @@ SOFTWARE.
 
 
 
-void compute_lfs(ma_data &madata, float bisec_threshold, bool only_inner = true)
+void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true)
 {
 #ifdef VERBOSEPRINT
    Misc::Timer t0;
@@ -102,7 +102,7 @@ void compute_lfs(ma_data &madata, float bisec_threshold, bool only_inner = true)
                madata.mask[i] = true;
          }
       }
-      for (unsigned int i = 0; i < N; i++)
+      for (int i = 0; i < N; i++)
          if (madata.mask[i])
             count++;
 
@@ -155,7 +155,7 @@ inline int flatindex(int ind[], int size[], int dimension) {
    return ind[0] + size[0] * (ind[1] + ind[2] * size[1]);
 }
 
-void simplify(ma_data &madata, float cellsize, float epsilon, int dimension = 3, float elevation_threshold = 0) {
+void simplify(ma_data &madata, double cellsize, double epsilon, int dimension = 3, double elevation_threshold = 0.0) {
 #ifdef VERBOSEPRINT
    Misc::Timer t0;
 #endif
@@ -206,7 +206,7 @@ void simplify(ma_data &madata, float cellsize, float epsilon, int dimension = 3,
    delete[] resolution; resolution = NULL;
    delete[] idx; idx = NULL;
 
-   float mean_lfs, target_n, A = cellsize*cellsize;
+   double mean_lfs, target_n, A = cellsize*cellsize;
    std::random_device rd;
    std::mt19937 gen(rd());
    std::uniform_real_distribution<float> randu(0, 1);
@@ -214,7 +214,7 @@ void simplify(ma_data &madata, float cellsize, float epsilon, int dimension = 3,
    // parallelize?
    for (int i = 0; i < ncells; i++)
       if (grid[i] != NULL) {
-         int n = grid[i]->size();
+         size_t n = grid[i]->size();
          float sum = 0, max_z, min_z;
          max_z = min_z = (*madata.coords)[(*grid[i])[0]][2];
 
@@ -232,8 +232,8 @@ void simplify(ma_data &madata, float cellsize, float epsilon, int dimension = 3,
 
 
          target_n = A / pow(epsilon*mean_lfs, 2);
-         for (auto i : *grid[i])
-            madata.mask[i] = randu(gen) <= target_n / n;
+         for (auto j : *grid[i])
+            madata.mask[j] = randu(gen) <= target_n / n;
       }
 #ifdef VERBOSEPRINT
    t0.elapse();
