@@ -27,5 +27,4 @@ Tree_double* construct_tree_double(double *pa, int8_t no_dims, uint32_t n, uint3
 void search_tree_double(Tree_double *tree, double *pa, double *point_coords, 
                  uint32_t num_points, uint32_t k,  double distance_upper_bound, 
                  double eps, uint32_t *closest_idxs, double *closest_dists);
-
 }
