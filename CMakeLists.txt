@@ -51,7 +51,8 @@ include_directories(${CMAKE_SOURCE_DIR}/thirdparty ${CMAKE_SOURCE_DIR}/thirdpart
 # bundle all thirdparty stuff as a static library
 FILE(GLOB_RECURSE THIRDPARTY thirdparty/*.cpp)
 add_library(thirdparty STATIC ${THIRDPARTY})
-set(LINK_LIBS ${LINK_LIBS} thirdparty)
+add_library(kdtree STATIC thirdparty/kdtree/_kdtree_core.c)
+set(LINK_LIBS ${LINK_LIBS} thirdparty kdtree)
 
 # set targets
 add_executable(compute_ma src/compute_ma.cpp src/compute_ma_processing.cpp)
@@ -60,7 +61,7 @@ add_executable(simplify src/simplify.cpp src/simplify_processing.cpp)
 
 # link targets
 target_link_libraries(compute_ma ${LINK_LIBS})
-target_link_libraries(compute_normals ${LINK_LIBS})
+target_link_libraries(compute_normals ${LINK_LIBS} kdtree)
 target_link_libraries(simplify ${LINK_LIBS})
 
 install(TARGETS compute_ma compute_normals simplify DESTINATION bin)

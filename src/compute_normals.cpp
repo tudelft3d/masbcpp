@@ -84,11 +84,11 @@ int main(int argc, char **argv)
         unsigned int dim = coords_npy.shape[1];
         PointList coords(num_points);
         for (unsigned int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
-        coords_npy.destruct();
+        
 
         // Perform the actual processing
         VectorList normals;
-        compute_normals(input_parameters, coords, normals);
+        compute_normals(input_parameters, coords, coords_carray, normals);
 
         // Output results
         Scalar* normals_carray = new Scalar[num_points * 3];
@@ -101,6 +101,7 @@ int main(int argc, char **argv)
         cnpy::npy_save(output_path.c_str(), normals_carray, shape, 2, "w");
 
         // Free memory
+        coords_npy.destruct();
         delete[] normals_carray; normals_carray = NULL;
     } catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
 

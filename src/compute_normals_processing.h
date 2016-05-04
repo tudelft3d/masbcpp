@@ -30,7 +30,7 @@ struct normals_parameters {
    bool kd_tree_reorder;
 };
 
-void compute_normals(normals_parameters &input_parameters, PointList &coords, VectorList &normals);
+void compute_normals(normals_parameters &input_parameters, PointList &coords, float *coords_carray, VectorList &normals);
 
 
 #endif

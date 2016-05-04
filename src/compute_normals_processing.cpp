@@ -39,6 +39,7 @@ SOFTWARE.
 
 // kdtree2
 #include <kdtree2/kdtree2.hpp>
+#include <kdtree/_kdtree_core.h>
 
 // typedefs
 #include "compute_normals_processing.h"
@@ -78,15 +79,13 @@ VectorList estimate_normals(PointList &points, kdtree2::KDTree* kd_tree, int k)
    return normals;
 }
 
-void compute_normals(normals_parameters &input_parameters, PointList &coords, VectorList &normals)
+void compute_normals(normals_parameters &input_parameters, PointList &coords, float *coords_carray, VectorList &normals)
 {
 
 #ifdef VERBOSEPRINT
    Misc::Timer t0;
 #endif
-   kdtree2::KDTree* kd_tree;
-   kd_tree = new kdtree2::KDTree(coords, input_parameters.kd_tree_reorder);
-   kd_tree->sort_results = false;
+   Tree_float* kd_tree = construct_tree_float(coords_carray, 3, coords.size(), 16);
 #ifdef VERBOSEPRINT
    t0.elapse();
    std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
@@ -95,7 +94,7 @@ void compute_normals(normals_parameters &input_parameters, PointList &coords, Ve
    // omp_set_num_threads(1);
 
    {
-      normals = estimate_normals(coords, kd_tree, input_parameters.k);
+      // normals = estimate_normals(coords, kd_tree, input_parameters.k);
 #ifdef VERBOSEPRINT
       t0.elapse();
       std::cout << "Done estimating normals, took " << t0.getTime()*1000.0 << " ms" << std::endl;
