@@ -53,7 +53,7 @@ SOFTWARE.
 
 
 
-void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true)
+void compute_lfs(lfs_data &madata, double bisec_threshold, bool only_inner = true)
 {
 #ifdef VERBOSEPRINT
    Misc::Timer t0;
@@ -155,7 +155,7 @@ inline int flatindex(int ind[], int size[], int dimension) {
    return ind[0] + size[0] * (ind[1] + ind[2] * size[1]);
 }
 
-void simplify(ma_data &madata, double cellsize, double epsilon, int dimension = 3, double elevation_threshold = 0.0) {
+void simplify(lfs_data &madata, double cellsize, double epsilon, int dimension = 3, double elevation_threshold = 0.0) {
 #ifdef VERBOSEPRINT
    Misc::Timer t0;
 #endif
@@ -249,11 +249,64 @@ void simplify(ma_data &madata, double cellsize, double epsilon, int dimension = 
 
 }
 
-void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata)
+void simplify_lfs(simplify_parameters &input_parameters, lfs_data& madata)
 {
 
    // compute lfs, simplify
    compute_lfs(madata, input_parameters.bisec_threshold, input_parameters.only_inner);
    simplify(madata, input_parameters.cellsize, input_parameters.epsilon, input_parameters.dimension, input_parameters.elevation_threshold);
+}
+
+void simplify(normals_parameters &normals_params, 
+              ma_parameters &ma_params,
+              simplify_parameters &simplify_params,
+              PointList &coords, bool *mask) // mask *must* be allocated ahead of time to be an array of size "2*coords.size()".
+{
+   ///////////////////////////
+   // Step 1: compute normals:
+   VectorList normals(coords.size());
+   compute_normals(normals_params, coords, normals);
+
+
+   ///////////////////////////
+   // Step 2: compute ma
+   PointList ma_coords_in(coords.size());
+   int* ma_qidx_in = new int[coords.size()];
+   PointList ma_coords_out(coords.size());
+   int* ma_qidx_out = new int[coords.size()];
+   compute_masb_points(ma_params, coords, normals,
+                       ma_coords_in, ma_qidx_in,
+                       ma_coords_out, ma_qidx_out);
+
+
+   ///////////////////////////
+   // Step 3: Simplify
+   lfs_data madata = {};
+   madata.m = coords.size();
+   madata.bbox = Box(Point(coords[0]), Point(coords[0]));
+   for (int i = 0; i < madata.m; i++) {
+      madata.bbox.addPoint(coords[i]);
+   }
+
+   PointList ma_coords(2 * madata.m);
+   for (int i = 0; i < madata.m; i++) ma_coords[i] = ma_coords_in[i];
+   for (int i = 0; i < madata.m; i++) ma_coords[i + madata.m] = ma_coords_out[i];
+
+   madata.ma_qidx = new int[2 * madata.m];
+   for (int i = 0; i < madata.m; i++) madata.ma_qidx[i] = ma_qidx_in[i];
+   for (int i = 0; i < madata.m; i++) madata.ma_qidx[i + madata.m] = ma_qidx_out[i];
+   // Clean up unused memory here
+   delete[] ma_qidx_in; ma_qidx_in = NULL;
+   delete[] ma_qidx_out; ma_qidx_out = NULL;
+
+   madata.coords = &coords; // don't own this memory
+   madata.ma_coords = &ma_coords; // don't own this memory
+   madata.mask = mask; // don't own this memory
+   madata.lfs = new float[madata.m];
+   void simplify_lfs(simplify_parameters &input_parameters, lfs_data& madata);
+
+   // Clean up unused memory here
+   delete[] madata.lfs; madata.lfs = NULL;
+   delete[] madata.ma_qidx; madata.ma_qidx = NULL;
 }
 
