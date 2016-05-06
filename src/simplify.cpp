@@ -96,7 +96,7 @@ int main(int argc, char **argv)
                 throw TCLAP::ArgParseException("invalid filepath", output_path);
         }
 
-        ma_data madata = {};
+        lfs_data madata = {};
 	    
 	    cnpy::NpyArray coords_npy = cnpy::npy_load( input_coords_path.c_str() );
 	    float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
