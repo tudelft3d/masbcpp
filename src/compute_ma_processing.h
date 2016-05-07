@@ -23,7 +23,7 @@ SOFTWARE.
 #ifndef COMPUTE_MA_PROCESSING_
 #define COMPUTE_MA_PROCESSING_
 
-#include "types.h"
+#include "madata.h"
 
 struct ma_parameters {
    Scalar initial_radius;

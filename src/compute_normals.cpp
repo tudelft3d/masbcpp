@@ -30,7 +30,7 @@ SOFTWARE.
 #include <tclap/CmdLine.h>
 
 // typedefs
-#include "types.h"
+#include "madata.h"
 #include "compute_normals_processing.h"
 
 int main(int argc, char **argv)
@@ -76,22 +76,27 @@ int main(int argc, char **argv)
         }
 
         std::cout << "Parameters: k="<<input_parameters.k<<"\n";
+        
+        ma_data madata = {};
 
         cnpy::NpyArray coords_npy = cnpy::npy_load( input_coords_path.c_str() );
         float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
 
-        unsigned int num_points = coords_npy.shape[0];
+        madata.m = coords_npy.shape[0];
         unsigned int dim = coords_npy.shape[1];
-        PointList coords(num_points);
-        for (unsigned int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
+        PointList coords(madata.m);
+        for (unsigned int i=0; i<madata.m; i++) coords[i] = Point(&coords_carray[i*3]);
         coords_npy.destruct();
 
+        VectorList normals(madata.m);
+        madata.normals = &normals;
+        madata.coords = &coords;
+
         // Perform the actual processing
-        VectorList normals;
-        compute_normals(input_parameters, coords, normals);
+        compute_normals(input_parameters, madata);
 
         // Output results
-        Scalar* normals_carray = new Scalar[num_points * 3];
+        Scalar* normals_carray = new Scalar[madata.m * 3];
         for (int i = 0; i < normals.size(); i++)
            for (int j = 0; j < 3; j++)
               normals_carray[i * 3 + j] = normals[i][j];

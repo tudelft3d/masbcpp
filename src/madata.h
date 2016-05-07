@@ -20,20 +20,26 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef SIMPLIFY_PROCESSING_
-#define SIMPLIFY_PROCESSING_
+#ifndef MASBCPP_MADATA_
+#define MASBCPP_MADATA_
 
-#include "madata.h"
+// kdtree2
+#include "types.h"
+#include <kdtree2/kdtree2.hpp>
 
-struct simplify_parameters {
-   double epsilon;
-   double cellsize;
-   double bisec_threshold;
-   double elevation_threshold;
-   int dimension;
-   bool only_inner;
+struct ma_data {
+   unsigned int m;
+   Box bbox;
+
+   PointList *coords; // don't own this memory
+   VectorList *normals; // don't own this memory
+   PointList *ma_coords; // don't own this memory
+   int *ma_qidx;
+
+   float *lfs;
+   bool *mask;
+   
+   kdtree2::KDTree* kdtree_coords;
 };
-
-void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata);
 
 #endif

@@ -23,14 +23,14 @@ SOFTWARE.
 #ifndef COMPUTE_NORMALS_PROCESSING_
 #define COMPUTE_NORMALS_PROCESSING_
 
-#include "types.h"
+#include "madata.h"
 
 struct normals_parameters {
    int k;
    bool kd_tree_reorder;
 };
 
-void compute_normals(normals_parameters &input_parameters, PointList &coords, VectorList &normals);
+void compute_normals(normals_parameters &input_parameters, ma_data &madata);
 
 
 #endif

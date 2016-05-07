@@ -23,6 +23,8 @@ SOFTWARE.
 #ifndef MASBCPP_TYPES_
 #define MASBCPP_TYPES_
 
+#include <vector>
+
 #include <vrui/Geometry/Vector.h>
 #include <vrui/Geometry/Point.h>
 #include <vrui/Geometry/Box.h>
@@ -35,19 +37,5 @@ typedef std::vector<Vector> VectorList; // Type for 3D vectors
 typedef Geometry::Box<Scalar,3> Box; // Type for 3D Box
 
 typedef std::vector<int> intList; // Type for ints
-
-struct ma_data {
-	int m;
-	Box bbox;
-
-	PointList *coords; // don't own this memory
-	//VectorList *normals;
-	PointList *ma_coords; // don't own this memory
-	int *ma_qidx;
-	//VectorList *ma_bisec;
-
-	float *lfs;
-	bool *mask;
-};
 
 #endif

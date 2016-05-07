@@ -37,9 +37,6 @@ SOFTWARE.
 #include <iostream>
 #endif
 
-// kdtree2
-#include <kdtree2/kdtree2.hpp>
-
 // typedefs
 #include "compute_normals_processing.h"
 
@@ -67,39 +64,37 @@ Vector estimate_normal(Point &p, kdtree2::KDTree* kd_tree, int k)
    return PCACalc.calcEigenvector(eigen_values[2]);
 }
 
-VectorList estimate_normals(PointList &points, kdtree2::KDTree* kd_tree, int k)
+void estimate_normals(ma_data &madata, int k)
 {
-   VectorList normals(points.size());
-
-#pragma omp parallel for
-   for (int i = 0; i < points.size(); i++)
-      normals[i] = estimate_normal(points[i], kd_tree, k);
-
-   return normals;
+      #pragma omp parallel for
+      for (int i = 0; i < madata.coords->size(); i++)
+            (*madata.normals)[i] = estimate_normal((*madata.coords)[i], madata.kdtree_coords, k);
 }
 
-void compute_normals(normals_parameters &input_parameters, PointList &coords, VectorList &normals)
+void compute_normals(normals_parameters &input_parameters, ma_data &madata)
 {
+      #ifdef VERBOSEPRINT
+      Misc::Timer t0;
+      #endif
+      
+      if (madata.kdtree_coords == NULL) {
 
-#ifdef VERBOSEPRINT
-   Misc::Timer t0;
-#endif
-   kdtree2::KDTree* kd_tree;
-   kd_tree = new kdtree2::KDTree(coords, input_parameters.kd_tree_reorder);
-   kd_tree->sort_results = false;
-#ifdef VERBOSEPRINT
-   t0.elapse();
-   std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
-#endif
+            madata.kdtree_coords = new kdtree2::KDTree((*madata.coords), input_parameters.kd_tree_reorder);
+            madata.kdtree_coords->sort_results = false;
+            #ifdef VERBOSEPRINT
+            t0.elapse();
+            std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
+            #endif
+      }
 
-   // omp_set_num_threads(1);
+//    madata.normals = new VectorList(madata.coords->size());
+      {
 
-   {
-      normals = estimate_normals(coords, kd_tree, input_parameters.k);
-#ifdef VERBOSEPRINT
-      t0.elapse();
-      std::cout << "Done estimating normals, took " << t0.getTime()*1000.0 << " ms" << std::endl;
-#endif
-   }
+            estimate_normals(madata, input_parameters.k);
+            #ifdef VERBOSEPRINT
+            t0.elapse();
+            std::cout << "Done estimating normals, took " << t0.getTime()*1000.0 << " ms" << std::endl;
+            #endif
+      }
 }
 
