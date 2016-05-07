@@ -141,7 +141,7 @@ int main(int argc, char **argv)
         // madata.normals = &normals;
         madata.ma_coords = &ma_coords; // don't own this memory
 
-        madata.mask = new bool[2*madata.m];
+        madata.mask = new bool[madata.m];
         madata.lfs = new float[madata.m];
 
 	    {

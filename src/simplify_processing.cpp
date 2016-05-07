@@ -65,7 +65,7 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
       (*madata.ma_coords).resize(N); // HACK this will destroy permanently the exterior ma_coords!
    }
    // compute bisector and filter .. rebuild kdtree .. compute lfs .. compute grid .. thin each cell
-
+   bool ma_coords_mask[N];
    VectorList ma_bisec(N);
    //madata.ma_bisec = &ma_bisec;
    for (int i = 0; i < N; i++) {
@@ -93,17 +93,17 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
       kdtree2::KDTreeResultVector result;
 #pragma omp parallel for private(result)
       for (int i = 0; i < N; i++) {
-         madata.mask[i] = false;
+         ma_coords_mask[i] = false;
          if (madata.ma_qidx[i] != -1) {
             kd_tree.n_nearest((*madata.ma_coords)[i], k, result);
 
             float bisec_angle = acos(ma_bisec[result[1].idx] * ma_bisec[i]);
             if (bisec_angle < bisec_threshold)
-               madata.mask[i] = true;
+               ma_coords_mask[i] = true;
          }
       }
       for (int i = 0; i < N; i++)
-         if (madata.mask[i])
+         if (ma_coords_mask[i])
             count++;
 
 #ifdef VERBOSEPRINT
@@ -115,7 +115,7 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
    PointList ma_coords_masked(count);
    int j = 0;
    for (int i = 0; i < N; i++) {
-      if (madata.mask[i])
+      if (ma_coords_mask[i])
          ma_coords_masked[j++] = (*madata.ma_coords)[i];
    }
 #ifdef VERBOSEPRINT
