@@ -175,45 +175,48 @@ ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree2
    return{ c, qidx };
 }
 
-void sb_points(ma_parameters &input_parameters, PointList &points, VectorList &normals, kdtree2::KDTree* kd_tree, PointList &ma_coords, int* ma_qidx, bool inner = 1)
+void sb_points(ma_parameters &input_parameters, ma_data &madata, bool inner = 1)
 {
    Point p;
    Vector n;
 
+   // outer mat should be written to second half of ma_coords/ma_qidx
+   unsigned int offset = 0;
+   if (inner == false)
+      offset = madata.m;
+      
 #pragma omp parallel for private(p, n)
-   for (int i = 0; i < points.size(); i++)
+   for (int i = 0; i < madata.coords->size(); i++)
    {
-      p = points[i];
+      p = (*madata.coords)[i];
       if (inner)
-         n = normals[i];
+         n = (*madata.normals)[i];
       else
-         n = -normals[i];
-      ma_result r = sb_point(input_parameters, p, n, kd_tree);
-      ma_coords[i] = r.c;
-      ma_qidx[i] = r.qidx;
+         n = -(*madata.normals)[i];
+      ma_result r = sb_point(input_parameters, p, n, madata.kdtree_coords);
+      (*madata.ma_coords)[i+offset] = r.c;
+      madata.ma_qidx[i+offset] = r.qidx;
    }
    // return ma_coords;
 }
-
-void compute_masb_points(ma_parameters &input_parameters, PointList &coords, VectorList &normals, 
-                         PointList &ma_coords_in, int* ma_qidx_in, PointList &ma_coords_out, int* ma_qidx_out)
+//PointList &coords, VectorList &normals,PointList &ma_coords_in, int* ma_qidx_in, PointList &ma_coords_out, int* ma_qidx_out
+void compute_masb_points(ma_parameters &input_parameters, ma_data &madata)
 {
-#ifdef VERBOSEPRINT
-   Misc::Timer t0;
-#endif
-   kdtree2::KDTree* kd_tree;
-   kd_tree = new kdtree2::KDTree(coords, input_parameters.kd_tree_reorder);
-   kd_tree->sort_results = true;
-#ifdef VERBOSEPRINT
-   t0.elapse();
-   std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
-#endif
-
-   // omp_set_num_threads(4);
-
+      #ifdef VERBOSEPRINT
+      Misc::Timer t0;
+      #endif
+      if (madata.kdtree_coords == NULL) {
+            madata.kdtree_coords = new kdtree2::KDTree((*madata.coords), input_parameters.kd_tree_reorder);
+            #ifdef VERBOSEPRINT
+            t0.elapse();
+            std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
+            #endif
+      }
+      madata.kdtree_coords->sort_results = true;
+      
    // Inside processing
    {
-      sb_points(input_parameters, coords, normals, kd_tree, ma_coords_in, ma_qidx_in, 1);
+      sb_points(input_parameters, madata, 1);
 #ifdef VERBOSEPRINT
       t0.elapse();
       std::cout << "Done shrinking interior balls, took " << t0.getTime()*1000.0 << " ms" << std::endl;
@@ -222,7 +225,7 @@ void compute_masb_points(ma_parameters &input_parameters, PointList &coords, Vec
 
    // Outside processing
    {
-      sb_points(input_parameters, coords, normals, kd_tree, ma_coords_out, ma_qidx_out, 0);
+      sb_points(input_parameters, madata, 0);
 #ifdef VERBOSEPRINT
       t0.elapse();
       std::cout << "Done shrinking exterior balls, took " << t0.getTime()*1000.0 << " ms" << std::endl;
@@ -230,7 +233,7 @@ void compute_masb_points(ma_parameters &input_parameters, PointList &coords, Vec
    }
 
    // Free memory
-   delete kd_tree; kd_tree = NULL;
+   delete madata.kdtree_coords; madata.kdtree_coords = NULL;
 }
 
 /*

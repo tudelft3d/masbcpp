@@ -92,57 +92,60 @@ int main(int argc, char **argv)
 
 	   	std::cout << "Parameters: denoise_preserve="<<denoise_preserveArg.getValue()<<", denoise_planar="<<denoise_planarArg.getValue()<<", initial_radius="<<input_parameters.initial_radius<<"\n";
 	    
+        ma_data madata = {};
+        
 	    cnpy::NpyArray coords_npy = cnpy::npy_load( input_coords_path.c_str() );
 	    float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
 
-	    unsigned int num_points = coords_npy.shape[0];
+	    madata.m = coords_npy.shape[0];
 	    unsigned int dim = coords_npy.shape[1];
-	    PointList coords(num_points);
-	    for ( unsigned int i=0; i<num_points; i++) coords[i] = Point(&coords_carray[i*3]);
+	    PointList coords(madata.m);
+	    for ( unsigned int i=0; i<madata.m; i++) coords[i] = Point(&coords_carray[i*3]);
 	    coords_npy.destruct();
 
 	    cnpy::NpyArray normals_npy = cnpy::npy_load( input_normals_path.c_str() );
 	    float* normals_carray = reinterpret_cast<float*>(normals_npy.data);
 	    VectorList normals(normals_npy.shape[0]);
-	    for ( unsigned int i=0; i<num_points; i++) normals[i] = Vector(&normals_carray[i*3]);
+	    for ( unsigned int i=0; i<madata.m; i++) normals[i] = Vector(&normals_carray[i*3]);
 	    normals_npy.destruct();
 
        // Storage space for our results:
-       PointList ma_coords_in(coords.size());
-       int* ma_qidx_in = new int[num_points];
-       PointList ma_coords_out(coords.size());
-       int* ma_qidx_out = new int[num_points];
+       PointList ma_coords(2*madata.m);
+       
+       madata.coords = &coords;
+       madata.normals = &normals;
+       madata.ma_coords = &ma_coords;
+       madata.ma_qidx = new int[2*madata.m];
 
        // Perform the actual processing
-       compute_masb_points(input_parameters, coords, normals, ma_coords_in, ma_qidx_in, ma_coords_out, ma_qidx_out);
+       compute_masb_points(input_parameters, madata);
 
        // Write out the results for the inside
-       Scalar* ma_coords_in_carray = new Scalar[num_points * 3];
-       for (int i = 0; i < ma_coords_in.size(); i++)
+       Scalar* ma_coords_in_carray = new Scalar[madata.m * 3];
+       for (int i = 0; i < madata.m; i++)
           for (int j = 0; j < 3; j++)
-             ma_coords_in_carray[i * 3 + j] = ma_coords_in[i][j];
+             ma_coords_in_carray[i * 3 + j] = ma_coords[i][j];
 
-       const unsigned int c_size_in = (unsigned int)ma_coords_in.size();
+       const unsigned int c_size_in = madata.m;
        const unsigned int shape_in[] = { c_size_in,3 };
        cnpy::npy_save(output_path_ma_in.c_str(), ma_coords_in_carray, shape_in, 2, "w");
        const unsigned int shape_in_[] = { c_size_in };
-       cnpy::npy_save(output_path_ma_q_in.c_str(), ma_qidx_in, shape_in_, 1, "w");
+       cnpy::npy_save(output_path_ma_q_in.c_str(), madata.ma_qidx, shape_in_, 1, "w");
 
        // Write out the results for the outside
-       Scalar* ma_coords_out_carray = new Scalar[num_points * 3];
-       for (int i = 0; i < ma_coords_out.size(); i++)
+       Scalar* ma_coords_out_carray = new Scalar[madata.m * 3];
+       for (int i = 0; i < madata.m; i++)
           for (int j = 0; j < 3; j++)
-             ma_coords_out_carray[i * 3 + j] = ma_coords_out[i][j];
+             ma_coords_out_carray[i * 3 + j] = ma_coords[i+madata.m][j];
 
-       const unsigned int c_size_out = (unsigned int)ma_coords_out.size();
+       const unsigned int c_size_out = madata.m;
        const unsigned int shape_out[] = { c_size_out,3 };
        cnpy::npy_save(output_path_ma_out.c_str(), ma_coords_out_carray, shape_in, 2, "w");
        const unsigned int shape_out_[] = { c_size_out };
-       cnpy::npy_save(output_path_ma_q_out.c_str(), ma_qidx_out, shape_out_, 1, "w");
+       cnpy::npy_save(output_path_ma_q_out.c_str(), &madata.ma_qidx[madata.m], shape_out_, 1, "w");
 
        // Free up memory
-       delete[] ma_qidx_in; ma_qidx_in = NULL;
-       delete[] ma_qidx_out; ma_qidx_out = NULL;
+       delete[] madata.ma_qidx; madata.ma_qidx = NULL;
 
 	} catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
 

@@ -38,8 +38,7 @@ struct ma_result {
 	int qidx;
 };
 
-void compute_masb_points(ma_parameters &input_parameters, PointList &coords, VectorList &normals,
-                         PointList &ma_coords_in, int* ma_qidx_in, PointList &ma_coords_out, int* ma_qidx_out);
+void compute_masb_points(ma_parameters &input_parameters, ma_data &madata);
 
 
 #endif

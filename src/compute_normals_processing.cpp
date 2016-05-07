@@ -78,23 +78,23 @@ void compute_normals(normals_parameters &input_parameters, ma_data &madata)
       #endif
       
       if (madata.kdtree_coords == NULL) {
-
             madata.kdtree_coords = new kdtree2::KDTree((*madata.coords), input_parameters.kd_tree_reorder);
-            madata.kdtree_coords->sort_results = false;
             #ifdef VERBOSEPRINT
             t0.elapse();
             std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
             #endif
       }
+      madata.kdtree_coords->sort_results = false;
 
-//    madata.normals = new VectorList(madata.coords->size());
       {
-
             estimate_normals(madata, input_parameters.k);
             #ifdef VERBOSEPRINT
             t0.elapse();
             std::cout << "Done estimating normals, took " << t0.getTime()*1000.0 << " ms" << std::endl;
             #endif
       }
+      
+      // Free memory
+      delete madata.kdtree_coords; madata.kdtree_coords = NULL;
 }
 
