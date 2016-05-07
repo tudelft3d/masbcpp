@@ -23,7 +23,9 @@ SOFTWARE.
 #ifndef SIMPLIFY_PROCESSING_
 #define SIMPLIFY_PROCESSING_
 
-#include "madata.h"
+#include "types.h"
+#include "compute_normals_processing.h"
+#include "compute_ma_processing.h"
 
 struct simplify_parameters {
    double epsilon;
@@ -34,6 +36,15 @@ struct simplify_parameters {
    bool only_inner;
 };
 
+
+// This version of simplify takes in an already calculated ma, etc.
 void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata);
+
+// This version of simplify takes in only the coords of the original point cloud.
+void simplify(normals_parameters &normals_params, 
+              ma_parameters &ma_params, 
+              simplify_parameters &simplify_params,
+              PointList &coords,
+              bool *mask); // mask *must* be allocated ahead of time to be an array of size "coords.size()".
 
 #endif

@@ -65,7 +65,7 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
       (*madata.ma_coords).resize(N); // HACK this will destroy permanently the exterior ma_coords!
    }
    // compute bisector and filter .. rebuild kdtree .. compute lfs .. compute grid .. thin each cell
-   bool ma_coords_mask[N];
+
    VectorList ma_bisec(N);
    //madata.ma_bisec = &ma_bisec;
    for (int i = 0; i < N; i++) {
@@ -93,17 +93,17 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
       kdtree2::KDTreeResultVector result;
 #pragma omp parallel for private(result)
       for (int i = 0; i < N; i++) {
-         ma_coords_mask[i] = false;
+         madata.mask[i] = false;
          if (madata.ma_qidx[i] != -1) {
             kd_tree.n_nearest((*madata.ma_coords)[i], k, result);
 
             float bisec_angle = acos(ma_bisec[result[1].idx] * ma_bisec[i]);
             if (bisec_angle < bisec_threshold)
-               ma_coords_mask[i] = true;
+               madata.mask[i] = true;
          }
       }
       for (int i = 0; i < N; i++)
-         if (ma_coords_mask[i])
+         if (madata.mask[i])
             count++;
 
 #ifdef VERBOSEPRINT
@@ -115,7 +115,7 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
    PointList ma_coords_masked(count);
    int j = 0;
    for (int i = 0; i < N; i++) {
-      if (ma_coords_mask[i])
+      if (madata.mask[i])
          ma_coords_masked[j++] = (*madata.ma_coords)[i];
    }
 #ifdef VERBOSEPRINT
@@ -255,5 +255,48 @@ void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata)
    // compute lfs, simplify
    compute_lfs(madata, input_parameters.bisec_threshold, input_parameters.only_inner);
    simplify(madata, input_parameters.cellsize, input_parameters.epsilon, input_parameters.dimension, input_parameters.elevation_threshold);
+}
+
+void simplify(normals_parameters &normals_params, 
+              ma_parameters &ma_params,
+              simplify_parameters &simplify_params,
+              PointList &coords, bool *mask) // mask *must* be allocated ahead of time to be an array of size "2*coords.size()".
+{
+   ///////////////////////////
+   // Step 0: prepare data struct:
+   ma_data madata = {};
+   madata.m = coords.size();
+   madata.coords = &coords; // don't own this memory
+   
+   ///////////////////////////
+   // Step 1: compute normals:
+   VectorList normals(madata.m);
+   madata.normals = &normals; // don't own this memory
+   compute_normals(normals_params, madata);
+
+
+   ///////////////////////////
+   // Step 2: compute ma
+   PointList ma_coords(2*madata.m);
+   madata.ma_coords = &ma_coords; // don't own this memory
+   madata.ma_qidx = new int[2*madata.m]; // don't own this memory
+   compute_masb_points(ma_params, madata);
+
+   delete madata.kdtree_coords; madata.kdtree_coords = NULL;
+
+   ///////////////////////////
+   // Step 3: Simplify
+   madata.bbox = Box(Point(coords[0]), Point(coords[0]));
+   for (int i = 0; i < madata.m; i++) {
+      madata.bbox.addPoint(coords[i]);
+   }
+
+   madata.mask = mask; // don't own this memory
+   madata.lfs = new float[madata.m];
+   void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata);
+
+   // Clean up unused memory here
+   delete[] madata.lfs; madata.lfs = NULL;
+   delete[] madata.ma_qidx; madata.ma_qidx = NULL;
 }
 
