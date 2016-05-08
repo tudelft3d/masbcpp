@@ -49,9 +49,9 @@ class kdtree {
                 uint32_t k,  
                 double distance_upper_bound=FLT_MAX, 
                 double eps=0);
+    float *points;
     
     private:
-    float *points;
     int8_t no_dims;
     uint32_t n;
     Tree_float* tree;

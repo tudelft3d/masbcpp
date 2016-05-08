@@ -15,27 +15,27 @@ endif()
 set(LINK_LIBS)
 set(COMPILE_OPTIONS "-funroll-loops -ffast-math")
 
-if(APPLE)
-	if(EXISTS "/usr/local/bin/clang-omp++")
-		message(STATUS "Building with OMP support")
+# if(APPLE)
+# 	if(EXISTS "/usr/local/bin/clang-omp++")
+# 		message(STATUS "Building with OMP support")
+# 		set(CMAKE_CXX_COMPILER "/usr/local/bin/clang-omp++" )
 
-		set(CMAKE_CXX_COMPILER "/usr/local/bin/clang-omp++" )
-		add_definitions(-DWITH_OPENMP)
-		#add_definitions(-DCLANG_OMP)
+# 		add_definitions(-DWITH_OPENMP)
+# 		#add_definitions(-DCLANG_OMP)
 
-		set(LINK_LIBS ${LINK_LIBS} -liomp5)
-		set(COMPILE_OPTIONS "${COMPILE_OPTIONS} -fopenmp")
-		include_directories(/usr/local/include/libiomp)
-		link_directories(/usr/local/lib)
-	endif()
-else()
-	find_package(OpenMP)
-	if(OPENMP_FOUND)
+# 		set(LINK_LIBS ${LINK_LIBS} -liomp5)
+# 		set(COMPILE_OPTIONS "${COMPILE_OPTIONS} -fopenmp")
+# 		include_directories(/usr/local/include/libiomp)
+# 		link_directories(/usr/local/lib)
+# 	endif()
+# else()
+# 	find_package(OpenMP)
+# 	if(OPENMP_FOUND)
 	
-		add_definitions(-DWITH_OPENMP)
-		set(COMPILE_OPTIONS "${COMPILE_OPTIONS} ${OpenMP_CXX_FLAGS}")
-	endif()
-endif()
+# 		add_definitions(-DWITH_OPENMP)
+# 		set(COMPILE_OPTIONS "${COMPILE_OPTIONS} ${OpenMP_CXX_FLAGS}")
+# 	endif()
+# endif()
 
 # enable verbose printing by default
 add_definitions(-DVERBOSEPRINT)
@@ -49,22 +49,23 @@ set_property(GLOBAL PROPERTY LINKER_LANGUAGE CXX)
 include_directories(${CMAKE_SOURCE_DIR}/thirdparty ${CMAKE_SOURCE_DIR}/thirdparty/vrui)
 
 # bundle all thirdparty stuff as a static library
-FILE(GLOB_RECURSE THIRDPARTY thirdparty/*.cpp)
+FILE(GLOB_RECURSE THIRDPARTY thirdparty/*.c*)
 add_library(thirdparty STATIC ${THIRDPARTY})
 
 # build a library from the masbpcpp processing functions
-add_library(libmasbcpp STATIC src/compute_ma_processing.cpp src/compute_normals_processing.cpp src/simplify_processing.cpp)
+# add_library(libmasbcpp STATIC src/compute_ma_processing.cpp src/compute_normals_processing.cpp src/simplify_processing.cpp)
+add_library(libmasbcpp STATIC src/compute_normals_processing.cpp src/compute_ma_processing.cpp)
 
 set(LINK_LIBS ${LINK_LIBS} thirdparty libmasbcpp)
 
 # set targets
 add_executable(compute_ma src/compute_ma.cpp)
 add_executable(compute_normals src/compute_normals.cpp)
-add_executable(simplify src/simplify.cpp)
+# add_executable(simplify src/simplify.cpp)
 
 # link targets
 target_link_libraries(compute_ma ${LINK_LIBS})
 target_link_libraries(compute_normals ${LINK_LIBS})
-target_link_libraries(simplify ${LINK_LIBS})
+# target_link_libraries(simplify ${LINK_LIBS})
 
-install(TARGETS compute_ma compute_normals simplify DESTINATION bin)
+install(TARGETS compute_normals DESTINATION bin)

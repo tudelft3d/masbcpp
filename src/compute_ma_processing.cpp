@@ -36,9 +36,6 @@ SOFTWARE.
 #include <iostream>
 #endif
 
-// kdtree2
-#include <kdtree2/kdtree2.hpp>
-
 // typedefs
 #include "compute_ma_processing.h"
 
@@ -71,7 +68,7 @@ inline Scalar cos_angle(Vector p, Vector q)
    return result;
 }
 
-ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree2::KDTree* kd_tree)
+ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree* kd_tree)
 {
    unsigned int j = 0;
    Scalar r, r_previous = 0;
@@ -88,11 +85,15 @@ ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree2
 // #endif
 
       // find closest point to c
-      kdtree2::KDTreeResultVector result;
-      kd_tree->n_nearest(c, 2, result);
+      kdtree_result result(2);
+      kd_tree->search(result, c.getComponents(), 1, 2);
+      // std::cout << "c = (" << c[0] << "," << c[1] << "," << c[2] << ")\n";
+      // std::cout << "rq = (" << result.idx[0] << "," << result.idx[1]  << ")\n";
+      // std::cout << "rqd = (" << result.dists[0] << "," << result.dists[1]  << ")\n";
 
-      qidx_next = result[0].idx;
-      q = kd_tree->the_data[qidx_next];
+      qidx_next = result.idx[0]*3;
+      q = Point( &(kd_tree->points[qidx_next]) );
+      // std::cout << "q = (" << q[0] << "," << q[1] << "," << q[2] << ")\n";
 
 // #ifdef VERBOSEPRINT
 //       std::cout << "q = (" << q[0] << "," << q[1] << "," << q[2] << ")\n";
@@ -110,8 +111,8 @@ ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree2
             // 2) otherwise just pick the second closest point
          }
          else {
-            qidx_next = result[1].idx;
-            q = kd_tree->the_data[qidx_next];
+            qidx_next = result.idx[1];
+            q = Point( &(kd_tree->points[qidx_next*3]) );
          }
       }
 
@@ -177,24 +178,24 @@ ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree2
 
 void sb_points(ma_parameters &input_parameters, ma_data &madata, bool inner = 1)
 {
-   Point p;
-   Vector n;
-
    // outer mat should be written to second half of ma_coords/ma_qidx
    unsigned int offset = 0;
    if (inner == false)
       offset = madata.m;
-      
-#pragma omp parallel for private(p, n)
-   for (int i = 0; i < madata.coords->size(); i++)
+   
+   Point p;
+   Vector n;
+      #ifdef WITH_OPENMP
+      omp_set_nested(0); // disable kdtree parallelism
+      #endif
+      #pragma omp parallel for private(p, n)
+   for (unsigned int i = 0; i < madata.m; i++)
    {
-      p = (*madata.coords)[i];
-      if (inner)
-         n = (*madata.normals)[i];
-      else
-         n = -(*madata.normals)[i];
+      p = Point(&madata.coords[3*i]);
+      n = Vector(&madata.normals[3*i]);
+      if (!inner) n *= -1;
       ma_result r = sb_point(input_parameters, p, n, madata.kdtree_coords);
-      (*madata.ma_coords)[i+offset] = r.c;
+      for(unsigned int j=0; j<3; j++) madata.ma_coords[3*i+offset+j] = r.c[j];
       madata.ma_qidx[i+offset] = r.qidx;
    }
    // return ma_coords;
@@ -206,13 +207,12 @@ void compute_masb_points(ma_parameters &input_parameters, ma_data &madata)
       Misc::Timer t0;
       #endif
       if (madata.kdtree_coords == NULL) {
-            madata.kdtree_coords = new kdtree2::KDTree((*madata.coords), input_parameters.kd_tree_reorder);
+            madata.kdtree_coords = new kdtree(madata.coords, 3, madata.m, 16);
             #ifdef VERBOSEPRINT
             t0.elapse();
             std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
             #endif
       }
-      madata.kdtree_coords->sort_results = true;
       
    // Inside processing
    {

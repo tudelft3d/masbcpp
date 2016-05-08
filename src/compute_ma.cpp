@@ -95,57 +95,44 @@ int main(int argc, char **argv)
         ma_data madata = {};
         
 	    cnpy::NpyArray coords_npy = cnpy::npy_load( input_coords_path.c_str() );
-	    float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
+	    float* coords = reinterpret_cast<float*>(coords_npy.data);
 
 	    madata.m = coords_npy.shape[0];
 	    unsigned int dim = coords_npy.shape[1];
-	    PointList coords(madata.m);
-	    for ( unsigned int i=0; i<madata.m; i++) coords[i] = Point(&coords_carray[i*3]);
-	    coords_npy.destruct();
 
 	    cnpy::NpyArray normals_npy = cnpy::npy_load( input_normals_path.c_str() );
-	    float* normals_carray = reinterpret_cast<float*>(normals_npy.data);
-	    VectorList normals(normals_npy.shape[0]);
-	    for ( unsigned int i=0; i<madata.m; i++) normals[i] = Vector(&normals_carray[i*3]);
-	    normals_npy.destruct();
-
+	    float* normals = reinterpret_cast<float*>(normals_npy.data);
+	    
        // Storage space for our results:
-       PointList ma_coords(2*madata.m);
+       // PointList ma_coords(2*madata.m);
        
-       madata.coords = &coords;
-       madata.normals = &normals;
-       madata.ma_coords = &ma_coords;
+       madata.coords = coords;
+       madata.normals = normals;
+       madata.ma_coords = new float[3*2*madata.m];
        madata.ma_qidx = new int[2*madata.m];
 
        // Perform the actual processing
        compute_masb_points(input_parameters, madata);
 
        // Write out the results for the inside
-       Scalar* ma_coords_in_carray = new Scalar[madata.m * 3];
-       for (int i = 0; i < madata.m; i++)
-          for (int j = 0; j < 3; j++)
-             ma_coords_in_carray[i * 3 + j] = ma_coords[i][j];
-
        const unsigned int c_size_in = madata.m;
        const unsigned int shape_in[] = { c_size_in,3 };
-       cnpy::npy_save(output_path_ma_in.c_str(), ma_coords_in_carray, shape_in, 2, "w");
+       cnpy::npy_save(output_path_ma_in.c_str(), madata.ma_coords, shape_in, 2, "w");
        const unsigned int shape_in_[] = { c_size_in };
        cnpy::npy_save(output_path_ma_q_in.c_str(), madata.ma_qidx, shape_in_, 1, "w");
 
        // Write out the results for the outside
-       Scalar* ma_coords_out_carray = new Scalar[madata.m * 3];
-       for (int i = 0; i < madata.m; i++)
-          for (int j = 0; j < 3; j++)
-             ma_coords_out_carray[i * 3 + j] = ma_coords[i+madata.m][j];
-
        const unsigned int c_size_out = madata.m;
        const unsigned int shape_out[] = { c_size_out,3 };
-       cnpy::npy_save(output_path_ma_out.c_str(), ma_coords_out_carray, shape_in, 2, "w");
+       cnpy::npy_save(output_path_ma_out.c_str(), &madata.ma_coords[madata.m], shape_in, 2, "w");
        const unsigned int shape_out_[] = { c_size_out };
        cnpy::npy_save(output_path_ma_q_out.c_str(), &madata.ma_qidx[madata.m], shape_out_, 1, "w");
 
        // Free up memory
        delete[] madata.ma_qidx; madata.ma_qidx = NULL;
+       delete[] madata.ma_coords; madata.ma_coords = NULL;
+       coords_npy.destruct();
+       normals_npy.destruct();
 
 	} catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
 
