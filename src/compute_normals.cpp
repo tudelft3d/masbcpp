@@ -84,29 +84,30 @@ int main(int argc, char **argv)
 
         madata.m = coords_npy.shape[0];
         unsigned int dim = coords_npy.shape[1];
-        PointList coords(madata.m);
-        for (unsigned int i=0; i<madata.m; i++) coords[i] = Point(&coords_carray[i*3]);
-        coords_npy.destruct();
+        // PointList coords(madata.m);
+        // for (unsigned int i=0; i<madata.m; i++) coords[i] = Point(&coords_carray[i*3]);
 
-        VectorList normals(madata.m);
-        madata.normals = &normals;
-        madata.coords = &coords;
+        // VectorList normals(madata.m);
+        Scalar* normals_carray = new Scalar[madata.m * 3];
+        madata.normals = normals_carray;
+        madata.coords = coords_carray;
 
         // Perform the actual processing
         compute_normals(input_parameters, madata);
 
         // Output results
-        Scalar* normals_carray = new Scalar[madata.m * 3];
-        for (int i = 0; i < normals.size(); i++)
-           for (int j = 0; j < 3; j++)
-              normals_carray[i * 3 + j] = normals[i][j];
+        // Scalar* normals_carray = new Scalar[madata.m * 3];
+        // for (int i = 0; i < normals.size(); i++)
+        //    for (int j = 0; j < 3; j++)
+        //       normals_carray[i * 3 + j] = normals[i][j];
 
-        const unsigned int c_size = (unsigned int) normals.size();
+        const unsigned int c_size = (unsigned int) madata.m;
         const unsigned int shape[] = { c_size,3 };
         cnpy::npy_save(output_path.c_str(), normals_carray, shape, 2, "w");
 
         // Free memory
         delete[] normals_carray; normals_carray = NULL;
+        coords_npy.destruct();
     } catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
 
     return 0;

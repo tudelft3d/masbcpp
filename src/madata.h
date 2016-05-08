@@ -25,21 +25,21 @@ SOFTWARE.
 
 // kdtree2
 #include "types.h"
-#include <kdtree2/kdtree2.hpp>
+#include <kdtree/kdtree.h>
 
 struct ma_data {
    unsigned int m;
    Box bbox;
 
-   PointList *coords; // don't own this memory
-   VectorList *normals; // don't own this memory
-   PointList *ma_coords; // don't own this memory
+   float *coords; // don't own this memory
+   float *normals; // don't own this memory
+   float *ma_coords; // don't own this memory
    int *ma_qidx;
 
    float *lfs;
    bool *mask;
    
-   kdtree2::KDTree* kdtree_coords;
+   kdtree* kdtree_coords;
 };
 
 #endif
