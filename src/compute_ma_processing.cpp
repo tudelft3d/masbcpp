@@ -91,8 +91,8 @@ ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree*
       // std::cout << "rq = (" << result.idx[0] << "," << result.idx[1]  << ")\n";
       // std::cout << "rqd = (" << result.dists[0] << "," << result.dists[1]  << ")\n";
 
-      qidx_next = result.idx[0]*3;
-      q = Point( &(kd_tree->points[qidx_next]) );
+      qidx_next = result.idx[0];
+      q = Point( &(kd_tree->points[qidx_next*3]) );
       // std::cout << "q = (" << q[0] << "," << q[1] << "," << q[2] << ")\n";
 
 // #ifdef VERBOSEPRINT
