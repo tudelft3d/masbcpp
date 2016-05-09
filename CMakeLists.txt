@@ -15,6 +15,8 @@ endif()
 set(LINK_LIBS)
 set(COMPILE_OPTIONS "-funroll-loops -ffast-math")
 
+# disable openmp with xcode, doesn't work
+if(NOT CMAKE_GENERATOR MATCHES "Xcode")
 if(APPLE)
 	if(EXISTS "/usr/local/bin/clang-omp++")
 		message(STATUS "Building with OMP support")
@@ -35,6 +37,7 @@ else()
 		add_definitions(-DWITH_OPENMP)
 		set(COMPILE_OPTIONS "${COMPILE_OPTIONS} ${OpenMP_CXX_FLAGS}")
 	endif()
+endif()
 endif()
 
 # enable verbose printing by default
