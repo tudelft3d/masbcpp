@@ -46,6 +46,7 @@ int main(int argc, char **argv)
         TCLAP::ValueArg<double> epsilonArg("e","epsilon","Control the degree of simplification, higher values mean more simplification. Typical values are in the range [0.01,0.6].",false,0.1,"double", cmd);
         TCLAP::ValueArg<double> cellsizeArg("c","cellsize","Cellsize used during grid-based lfs simplification (in units of your dataset). Large cellsize means faster processing, but potentially more noticable jumps in point density at cell boundaries.",false,1,"double", cmd);
         TCLAP::ValueArg<double> bisecArg("b","bisec","Bisector threshold used to clean the MAT points before LFS computation. With lower values more aggressive cleaning is performed which means more robustness to noise (in the MAT) but also less features will be detected. Typical range [0.1,10] (degrees).",false,1,"double", cmd);
+        TCLAP::ValueArg<double> maxdensArg("m","max","Upper bound point density in pts/unit^2",false,1,"double", cmd);
         
         TCLAP::ValueArg<double> fake3dArg("f","fake3d","Use 2D grid instead of 3D grid, intended for 2.5D datasets (eg. buildings without points only on the roof and not on the walls). In addition this mode will try to detect elevation jumps in the dataset (eg. where there should be a wall) and still try to preserve points around those areas, the value for this parameter is the threshold elevation difference (in units of your dataset) within one gridcell that will be used for the elevation jump detection function.",false,0.5,"double", cmd);
         
@@ -60,6 +61,7 @@ int main(int argc, char **argv)
         input_parameters.bisec_threshold = (bisecArg.getValue() / 180.0) * M_PI;
         
         input_parameters.elevation_threshold = fake3dArg.getValue();
+        input_parameters.maximum_density = maxdensArg.getValue();
         input_parameters.dimension = 3;
         input_parameters.only_inner = fake3dArg.isSet();
         if( input_parameters.only_inner )

@@ -155,7 +155,7 @@ inline int flatindex(int ind[], int size[], int dimension) {
    return ind[0] + size[0] * (ind[1] + ind[2] * size[1]);
 }
 
-void simplify(ma_data &madata, double cellsize, double epsilon, int dimension = 3, double elevation_threshold = 0.0) {
+void simplify(ma_data &madata, double cellsize, double epsilon, int dimension = 3, double elevation_threshold = 0.0, double maximum_density = 0) {
 #ifdef VERBOSEPRINT
    Misc::Timer t0;
 #endif
@@ -211,6 +211,7 @@ void simplify(ma_data &madata, double cellsize, double epsilon, int dimension = 
    std::mt19937 gen(rd());
    std::uniform_real_distribution<float> randu(0, 1);
 
+   double target_n_max = maximum_density * A;
    // parallelize?
    for (int i = 0; i < ncells; i++)
       if (grid[i] != NULL) {
@@ -232,6 +233,7 @@ void simplify(ma_data &madata, double cellsize, double epsilon, int dimension = 
 
 
          target_n = A / pow(epsilon*mean_lfs, 2);
+         if(target_n > target_n_max) target_n = target_n_max;
          for (auto j : *grid[i])
             madata.mask[j] = randu(gen) <= target_n / n;
       }
@@ -254,7 +256,7 @@ void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata)
 
    // compute lfs, simplify
    compute_lfs(madata, input_parameters.bisec_threshold, input_parameters.only_inner);
-   simplify(madata, input_parameters.cellsize, input_parameters.epsilon, input_parameters.dimension, input_parameters.elevation_threshold);
+   simplify(madata, input_parameters.cellsize, input_parameters.epsilon, input_parameters.dimension, input_parameters.elevation_threshold, input_parameters.maximum_density);
 }
 
 void simplify(normals_parameters &normals_params, 
