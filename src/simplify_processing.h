@@ -36,6 +36,7 @@ struct simplify_parameters {
    int dimension;
    bool only_inner;
    bool squared;
+   bool compute_lfs;
 };
 
 

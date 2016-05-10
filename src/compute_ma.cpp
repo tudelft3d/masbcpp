@@ -74,6 +74,10 @@ int main(int argc, char **argv)
         std::string output_path_ma_out = output_path+"/ma_coords_out.npy";
         std::string output_path_ma_q_in = output_path+"/ma_qidx_in.npy";
         std::string output_path_ma_q_out = output_path+"/ma_qidx_out.npy";
+
+        std::string output_path_metadata = output_path+"/compute_ma";
+        std::replace(output_path_metadata.begin(), output_path_metadata.end(), '\\', '/');
+        
         {
             std::ifstream infile(input_coords_path.c_str());
             if(!infile)
@@ -143,7 +147,16 @@ int main(int argc, char **argv)
        cnpy::npy_save(output_path_ma_out.c_str(), ma_coords_out_carray, shape_in, 2, "w");
        const unsigned int shape_out_[] = { c_size_out };
        cnpy::npy_save(output_path_ma_q_out.c_str(), &madata.ma_qidx[madata.m], shape_out_, 1, "w");
-
+        
+       {       
+        std::ofstream metadata(output_path_metadata.c_str());
+        metadata
+            << "initial_radius " << input_parameters.initial_radius << std::endl
+            << "nan_for_initr " << input_parameters.nan_for_initr << std::endl
+            << "denoise_preserve " << denoise_preserveArg.getValue() << std::endl
+            << "denoise_planar " << denoise_planarArg.getValue() << std::endl;
+        metadata.close();
+       }
        // Free up memory
        delete[] madata.ma_qidx; madata.ma_qidx = NULL;
 

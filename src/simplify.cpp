@@ -51,6 +51,7 @@ int main(int argc, char **argv)
         TCLAP::ValueArg<double> fake3dArg("f","fake3d","Use 2D grid instead of 3D grid, intended for 2.5D datasets (eg. buildings without points only on the roof and not on the walls). In addition this mode will try to detect elevation jumps in the dataset (eg. where there should be a wall) and still try to preserve points around those areas, the value for this parameter is the threshold elevation difference (in units of your dataset) within one gridcell that will be used for the elevation jump detection function.",false,0.5,"double", cmd);
         TCLAP::SwitchArg innerSwitch("i","inner","Compute LFS using only interior MAT points.", cmd, false);
         TCLAP::SwitchArg squaredSwitch("s","squared","Use squared LFS during simplification.", cmd, false);
+        TCLAP::SwitchArg nolfsSwitch("d","no-lfs","Don't recompute lfs.'", cmd, false);
         
         TCLAP::ValueArg<std::string> outputXYZArg("a","xyz","output filtered points to plain .xyz text file",false,"lfs_simp.xyz","string", cmd);
 
@@ -62,6 +63,7 @@ int main(int argc, char **argv)
         input_parameters.cellsize = cellsizeArg.getValue();
         input_parameters.bisec_threshold = (bisecArg.getValue() / 180.0) * M_PI;
         
+        input_parameters.compute_lfs = !nolfsSwitch.getValue();
         input_parameters.elevation_threshold = fake3dArg.getValue();
         input_parameters.maximum_density = maxdensArg.getValue();
         input_parameters.dimension = 3;
@@ -83,6 +85,7 @@ int main(int argc, char **argv)
         std::string input_path_ma_coords_out = input_path+"/ma_coords_out.npy";
         std::string input_path_ma_qidx_in = input_path+"/ma_qidx_in.npy";
         std::string input_path_ma_qidx_out = input_path+"/ma_qidx_out.npy";
+        std::string input_path_lfs = input_path+"/lfs.npy";
         std::string output_lfs = output_path+"/lfs.npy";
         std::string output_filtermask = output_path+"/decimate_lfs.npy";
         {
@@ -140,6 +143,13 @@ int main(int argc, char **argv)
         int* ma_qidx_out = reinterpret_cast<int*>(ma_qidx_out_npy.data);
         for ( int i=0; i<madata.m; i++) madata.ma_qidx[i+madata.m] = ma_qidx_out[i];
         ma_qidx_out_npy.destruct();
+
+        if(input_parameters.compute_lfs){
+            madata.lfs = new float[madata.m];
+        } else {
+            cnpy::NpyArray ma_lfs_npy = cnpy::npy_load( input_path_lfs.c_str() );
+            madata.lfs = reinterpret_cast<float*>(ma_lfs_npy.data);
+        }
 	    
         
         madata.coords = &coords; // don't own this memory
@@ -147,7 +157,6 @@ int main(int argc, char **argv)
         madata.ma_coords = &ma_coords; // don't own this memory
 
         madata.mask = new bool[madata.m];
-        madata.lfs = new float[madata.m];
 
 	    {
           // Perform the actual processing

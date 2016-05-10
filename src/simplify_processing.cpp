@@ -263,7 +263,8 @@ void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata)
 {
 
    // compute lfs, simplify
-   compute_lfs(madata, input_parameters.bisec_threshold, input_parameters.only_inner);
+   if (input_parameters.compute_lfs)
+      compute_lfs(madata, input_parameters.bisec_threshold, input_parameters.only_inner);
    simplify(madata, input_parameters.cellsize, 
                     input_parameters.epsilon, 
                     input_parameters.dimension, 
