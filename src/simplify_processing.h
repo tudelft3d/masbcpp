@@ -35,6 +35,7 @@ struct simplify_parameters {
    double maximum_density;
    int dimension;
    bool only_inner;
+   bool squared;
 };
 
 

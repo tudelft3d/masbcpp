@@ -155,7 +155,14 @@ inline int flatindex(int ind[], int size[], int dimension) {
    return ind[0] + size[0] * (ind[1] + ind[2] * size[1]);
 }
 
-void simplify(ma_data &madata, double cellsize, double epsilon, int dimension = 3, double elevation_threshold = 0.0, double maximum_density = 0) {
+void simplify(ma_data &madata, 
+             double cellsize, 
+             double epsilon, 
+             int dimension = 3, 
+             double elevation_threshold = 0.0, 
+             double maximum_density = 0,
+             bool squared = false) 
+{
 #ifdef VERBOSEPRINT
    Misc::Timer t0;
 #endif
@@ -228,12 +235,13 @@ void simplify(ma_data &madata, double cellsize, double epsilon, int dimension = 
 
          mean_lfs = sum / n;
 
+         if (squared) mean_lfs = pow(mean_lfs, 2);
          if (elevation_threshold != 0 && (max_z - min_z) > elevation_threshold)
-            mean_lfs /= 5;
-
+            // mean_lfs /= 5;
+            mean_lfs = 0.01;
 
          target_n = A / pow(epsilon*mean_lfs, 2);
-         if(target_n > target_n_max) target_n = target_n_max;
+         if(target_n_max != 0 && target_n > target_n_max) target_n = target_n_max;
          for (auto j : *grid[i])
             madata.mask[j] = randu(gen) <= target_n / n;
       }
@@ -256,7 +264,12 @@ void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata)
 
    // compute lfs, simplify
    compute_lfs(madata, input_parameters.bisec_threshold, input_parameters.only_inner);
-   simplify(madata, input_parameters.cellsize, input_parameters.epsilon, input_parameters.dimension, input_parameters.elevation_threshold, input_parameters.maximum_density);
+   simplify(madata, input_parameters.cellsize, 
+                    input_parameters.epsilon, 
+                    input_parameters.dimension, 
+                    input_parameters.elevation_threshold, 
+                    input_parameters.maximum_density,
+                    input_parameters.squared);
 }
 
 void simplify(normals_parameters &normals_params, 

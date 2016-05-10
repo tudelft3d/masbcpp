@@ -56,9 +56,9 @@ FILE(GLOB_RECURSE THIRDPARTY thirdparty/*.cpp)
 add_library(thirdparty STATIC ${THIRDPARTY})
 
 # build a library from the masbpcpp processing functions
-add_library(libmasbcpp STATIC src/compute_ma_processing.cpp src/compute_normals_processing.cpp src/simplify_processing.cpp)
+add_library(masbcpp STATIC src/compute_ma_processing.cpp src/compute_normals_processing.cpp src/simplify_processing.cpp)
 
-set(LINK_LIBS ${LINK_LIBS} thirdparty libmasbcpp)
+set(LINK_LIBS ${LINK_LIBS} thirdparty masbcpp)
 
 # set targets
 add_executable(compute_ma src/compute_ma.cpp)
