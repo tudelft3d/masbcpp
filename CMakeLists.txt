@@ -55,19 +55,21 @@ include_directories(${CMAKE_SOURCE_DIR}/thirdparty ${CMAKE_SOURCE_DIR}/thirdpart
 FILE(GLOB_RECURSE THIRDPARTY thirdparty/*.cpp)
 add_library(thirdparty STATIC ${THIRDPARTY})
 
+set(LINK_LIBS ${LINK_LIBS} thirdparty)
+
 # build a library from the masbpcpp processing functions
 add_library(masbcpp STATIC src/compute_ma_processing.cpp src/compute_normals_processing.cpp src/simplify_processing.cpp)
 
-set(LINK_LIBS ${LINK_LIBS} thirdparty masbcpp)
-
-# set targets
+# set excutables
 add_executable(compute_ma src/compute_ma.cpp)
 add_executable(compute_normals src/compute_normals.cpp)
 add_executable(simplify src/simplify.cpp)
 
 # link targets
-target_link_libraries(compute_ma ${LINK_LIBS})
-target_link_libraries(compute_normals ${LINK_LIBS})
-target_link_libraries(simplify ${LINK_LIBS})
+target_link_libraries(masbcpp ${LINK_LIBS})
+
+target_link_libraries(compute_ma masbcpp)
+target_link_libraries(compute_normals masbcpp)
+target_link_libraries(simplify masbcpp)
 
 install(TARGETS compute_ma compute_normals simplify DESTINATION bin)
