@@ -49,26 +49,48 @@ SOFTWARE.
 //==============================
 
 
-Vector estimate_normal(Point &p, kdtree2::KDTree* kd_tree, int k)
+normal_result estimate_normal(Point &p, kdtree2::KDTree* kd_tree, int k, double planefit_thres)
 {
    kdtree2::KDTreeResultVector result;
    kd_tree->n_nearest(p, k + 1, result);
 
    Geometry::PCACalculator<3> PCACalc;
-   for (int i = 0; i < k + 1; i++)
-      PCACalc.accumulatePoint(kd_tree->the_data[result[i].idx]);
+   Vector neighbor_mean = Vector(0);
+   for (int i = 1; i < k + 1; i++){
+      Point q = kd_tree->the_data[result[i].idx];
+      PCACalc.accumulatePoint(q);
+      neighbor_mean[0] = neighbor_mean[0] + q[0];
+      neighbor_mean[1] = neighbor_mean[1] + q[1];
+      neighbor_mean[2] = neighbor_mean[2] + q[2];
+   }
+   neighbor_mean = neighbor_mean/Scalar(k);
 
    double eigen_values[3];
    PCACalc.calcCovariance();
    PCACalc.calcEigenvalues(eigen_values);
-   return PCACalc.calcEigenvector(eigen_values[2]);
+   Vector n = PCACalc.calcEigenvector(eigen_values[2]); //it is normalised
+
+   double d, d_mean = 0; 
+   for (int i = 1; i < k + 1; i++){
+      Point q = kd_tree->the_data[result[i].idx];
+      d = fabs(n * (q-neighbor_mean));
+      d_mean += d;
+   }
+   d_mean /= k;
+   
+   d = fabs(n * (p-neighbor_mean));
+//    std::cout << (d / (d+d_mean) ) << std::endl;
+   return { n, (d / (d+d_mean) > planefit_thres) };
 }
 
-void estimate_normals(ma_data &madata, int k)
+void estimate_normals(ma_data &madata, int k, double planefit_thres)
 {
       #pragma omp parallel for
-      for (int i = 0; i < madata.coords->size(); i++)
-            (*madata.normals)[i] = estimate_normal((*madata.coords)[i], madata.kdtree_coords, k);
+      for (int i = 0; i < madata.coords->size(); i++){
+            normal_result r = estimate_normal((*madata.coords)[i], madata.kdtree_coords, k, planefit_thres);
+            (*madata.normals)[i] = r.n;
+            (madata.is_outlier)[i] = r.is_outlier;
+      }
 }
 
 void compute_normals(normals_parameters &input_parameters, ma_data &madata)
@@ -87,7 +109,8 @@ void compute_normals(normals_parameters &input_parameters, ma_data &madata)
       madata.kdtree_coords->sort_results = false;
 
       {
-            estimate_normals(madata, input_parameters.k);
+            // estimate_normals(madata, input_parameters.k, input_parameters.planefit_thres);
+            estimate_normals(madata, input_parameters.k, 0.8);
             #ifdef VERBOSEPRINT
             t0.elapse();
             std::cout << "Done estimating normals, took " << t0.getTime()*1000.0 << " ms" << std::endl;

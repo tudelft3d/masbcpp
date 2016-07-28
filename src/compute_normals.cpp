@@ -62,6 +62,7 @@ int main(int argc, char **argv)
         std::string input_coords_path = inputArg.getValue()+"/coords.npy";
         std::replace(input_coords_path.begin(), input_coords_path.end(), '\\', '/');
 
+        std::string output_is_outlier = output_path + "/is_outlier.npy";
         output_path += "/normals.npy";
         // check for proper in-output arguments
         {
@@ -91,19 +92,25 @@ int main(int argc, char **argv)
         VectorList normals(madata.m);
         madata.normals = &normals;
         madata.coords = &coords;
+        madata.is_outlier = new bool[madata.m];
 
         // Perform the actual processing
         compute_normals(input_parameters, madata);
 
         // Output results
         Scalar* normals_carray = new Scalar[madata.m * 3];
-        for (int i = 0; i < normals.size(); i++)
+        {for (int i = 0; i < normals.size(); i++)
            for (int j = 0; j < 3; j++)
               normals_carray[i * 3 + j] = normals[i][j];
 
         const unsigned int c_size = (unsigned int) normals.size();
         const unsigned int shape[] = { c_size,3 };
-        cnpy::npy_save(output_path.c_str(), normals_carray, shape, 2, "w");
+        cnpy::npy_save(output_path.c_str(), normals_carray, shape, 2, "w");}
+
+        // Output results
+        {const unsigned int c_size = madata.m;
+        const unsigned int shape[] = { c_size };
+        cnpy::npy_save(output_is_outlier.c_str(), madata.is_outlier, shape, 1, "w");}
 
         // Free memory
         delete[] normals_carray; normals_carray = NULL;

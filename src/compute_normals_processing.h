@@ -28,6 +28,12 @@ SOFTWARE.
 struct normals_parameters {
    int k;
    bool kd_tree_reorder;
+   double planefit_thres;
+};
+
+struct normal_result {
+	Vector n;
+	bool is_outlier;
 };
 
 void compute_normals(normals_parameters &input_parameters, ma_data &madata);

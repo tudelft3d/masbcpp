@@ -35,6 +35,7 @@ struct ma_data {
    VectorList *normals; // don't own this memory
    PointList *ma_coords; // don't own this memory
    int *ma_qidx;
+   bool *is_outlier;
 
    float *lfs;
    bool *mask;
