@@ -40,6 +40,11 @@ else()
 endif()
 endif()
 
+
+# Find eigen, should set EIGEN3_INCLUDE_DIR
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+find_package(Eigen3 REQUIRED)
+
 # enable verbose printing by default
 add_definitions(-DVERBOSEPRINT)
 
@@ -49,7 +54,7 @@ set(CMAKE_BUILD_TYPE Release)
 set_property(GLOBAL PROPERTY LINKER_LANGUAGE CXX)
 
 # include directories
-include_directories(${CMAKE_SOURCE_DIR}/thirdparty ${CMAKE_SOURCE_DIR}/thirdparty/vrui)
+include_directories(${CMAKE_SOURCE_DIR}/thirdparty ${CMAKE_SOURCE_DIR}/thirdparty/vrui EIGEN3_INCLUDE_DIR)
 
 # bundle all thirdparty stuff as a static library
 FILE(GLOB_RECURSE THIRDPARTY thirdparty/*.cpp)
