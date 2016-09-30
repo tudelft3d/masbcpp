@@ -31,9 +31,9 @@ struct ma_data {
    unsigned int m;
    Box bbox;
 
-   PointList *coords; // don't own this memory
-   VectorList *normals; // don't own this memory
-   PointList *ma_coords; // don't own this memory
+   ArrayX3 *coords; // don't own this memory
+   ArrayX3 *normals; // don't own this memory
+   ArrayX3 *ma_coords; // don't own this memory
    int *ma_qidx;
 
    float *lfs;
