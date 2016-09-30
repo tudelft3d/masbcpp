@@ -681,12 +681,12 @@ void search_tree_float(Tree_float *tree, float *pa, float *point_coords,
     Node_float *root = (Node_float *)tree->root;
 
     /* Queries are OpenMP enabled */
-    #pragma omp parallel
+    // #pragma omp parallel
     {
         /* The low chunk size is important to avoid L2 cache trashing  
            for spatial coherent query datasets
         */
-        #pragma omp for schedule(static, 100) nowait
+        // #pragma omp for schedule(static, 100) nowait
         for (uint32_t i = 0; i < num_points; i++)
         {
             for (uint32_t j = 0; j < k; j++)
@@ -1262,12 +1262,12 @@ void search_tree_double(Tree_double *tree, double *pa, double *point_coords,
     Node_double *root = (Node_double *)tree->root;
 
     /* Queries are OpenMP enabled */
-    #pragma omp parallel
+    // #pragma omp parallel
     {
         /* The low chunk size is important to avoid L2 cache trashing  
            for spatial coherent query datasets
         */
-        #pragma omp for schedule(static, 100) nowait
+        // #pragma omp for schedule(static, 100) nowait
         for (uint32_t i = 0; i < num_points; i++)
         {
             for (uint32_t j = 0; j < k; j++)

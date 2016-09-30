@@ -113,7 +113,13 @@ int main(int argc, char **argv)
 
        // Perform the actual processing
        compute_masb_points(input_parameters, madata);
-
+    //    for (int i=0; i<madata.m*2; i++){
+    //        for (int j=0; j<3; j++){
+    //         std::cout << madata.ma_coords[i*3+j];
+    //         if (j!=2) std::cout << ' ';
+    //        }
+    //        std::cout << std::endl;
+    //    }
        // Write out the results for the inside
        const unsigned int c_size_in = madata.m;
        const unsigned int shape_in[] = { c_size_in,3 };
@@ -124,7 +130,7 @@ int main(int argc, char **argv)
        // Write out the results for the outside
        const unsigned int c_size_out = madata.m;
        const unsigned int shape_out[] = { c_size_out,3 };
-       cnpy::npy_save(output_path_ma_out.c_str(), &madata.ma_coords[madata.m], shape_in, 2, "w");
+       cnpy::npy_save(output_path_ma_out.c_str(), &madata.ma_coords[madata.m*3], shape_out, 2, "w");
        const unsigned int shape_out_[] = { c_size_out };
        cnpy::npy_save(output_path_ma_q_out.c_str(), &madata.ma_qidx[madata.m], shape_out_, 1, "w");
 

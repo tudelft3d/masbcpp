@@ -185,17 +185,23 @@ void sb_points(ma_parameters &input_parameters, ma_data &madata, bool inner = 1)
    
    Point p;
    Vector n;
-      #ifdef WITH_OPENMP
-      omp_set_nested(0); // disable kdtree parallelism
-      #endif
-      #pragma omp parallel for private(p, n)
+   
+   #ifdef WITH_OPENMP
+   omp_set_nested(0); // disable kdtree parallelism
+   #endif
+   #pragma omp parallel for private(p, n)
    for (unsigned int i = 0; i < madata.m; i++)
    {
       p = Point(&madata.coords[3*i]);
-      n = Vector(&madata.normals[3*i]);
-      if (!inner) n *= -1;
+      if (inner) 
+         n = Vector(&madata.normals[3*i]);
+      else
+         n = -Vector(&madata.normals[3*i]);
+
       ma_result r = sb_point(input_parameters, p, n, madata.kdtree_coords);
-      for(unsigned int j=0; j<3; j++) madata.ma_coords[3*i+offset+j] = r.c[j];
+      for(unsigned int j=0; j<3; j++) { 
+         madata.ma_coords[3*(offset+i)+j] = r.c[j];
+      }
       madata.ma_qidx[i+offset] = r.qidx;
    }
    // return ma_coords;
@@ -216,7 +222,7 @@ void compute_masb_points(ma_parameters &input_parameters, ma_data &madata)
       
    // Inside processing
    {
-      sb_points(input_parameters, madata, 1);
+      sb_points(input_parameters, madata, 0);
 #ifdef VERBOSEPRINT
       t0.elapse();
       std::cout << "Done shrinking interior balls, took " << t0.getTime()*1000.0 << " ms" << std::endl;
@@ -225,7 +231,7 @@ void compute_masb_points(ma_parameters &input_parameters, ma_data &madata)
 
    // Outside processing
    {
-      sb_points(input_parameters, madata, 0);
+      sb_points(input_parameters, madata, 1);
 #ifdef VERBOSEPRINT
       t0.elapse();
       std::cout << "Done shrinking exterior balls, took " << t0.getTime()*1000.0 << " ms" << std::endl;

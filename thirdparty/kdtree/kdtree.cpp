@@ -28,8 +28,8 @@ kdtree::kdtree(float *pa, int8_t no_dims, uint32_t n, uint32_t bsp) : points(pa)
 
 void kdtree::search(kdtree_result &result,
                     float *query_points, 
-                    uint32_t num_points, 
-                    uint32_t k,  
+                    uint32_t num_points, // number of query points
+                    uint32_t k,  // k number of neighbours to find
                     double distance_upper_bound, 
                     double eps 
                     )
