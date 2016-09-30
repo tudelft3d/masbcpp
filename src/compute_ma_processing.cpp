@@ -213,7 +213,7 @@ void compute_masb_points(ma_parameters &input_parameters, ma_data &madata)
       Misc::Timer t0;
       #endif
       if (madata.kdtree_coords == NULL) {
-            madata.kdtree_coords = new kdtree(madata.coords, 3, madata.m, 16);
+            madata.kdtree_coords = new kdtree(madata.coords, 3, madata.m, 8);
             #ifdef VERBOSEPRINT
             t0.elapse();
             std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
