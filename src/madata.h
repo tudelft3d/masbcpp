@@ -42,4 +42,11 @@ struct ma_data {
    kdtree2::KDTree* kdtree_coords;
 };
 
+struct io_parameters {
+    bool coords;
+    bool normals;
+    bool ma_coords;
+    bool ma_qidx;
+}
+
 #endif

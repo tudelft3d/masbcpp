@@ -31,7 +31,9 @@ SOFTWARE.
 
 // typedefs
 #include "madata.h"
-#include "compute_normals_processing.h"
+
+#include "io.h"
+// #include "compute_normals_processing.h"
 
 int main(int argc, char **argv)
 {
@@ -53,60 +55,38 @@ int main(int argc, char **argv)
 
         input_parameters.kd_tree_reorder = reorder_kdtreeSwitch.getValue();
 
-        std::string output_path = inputArg.getValue();
+        std::string npy_path = inputArg.getValue();
         if(outputArg.isSet())
-            output_path = outputArg.getValue();
-        std::replace(output_path.begin(), output_path.end(), '\\', '/');
+            npy_path = outputArg.getValue();
 
-
-        std::string input_coords_path = inputArg.getValue()+"/coords.npy";
-        std::replace(input_coords_path.begin(), input_coords_path.end(), '\\', '/');
-
-        output_path += "/normals.npy";
         // check for proper in-output arguments
         {
-            std::ifstream infile(input_coords_path.c_str());
-            if(!infile)
-                throw TCLAP::ArgParseException("invalid filepath", inputArg.getValue());
-        }
-        {
-            std::ofstream outfile(output_path.c_str());    
+            std::ofstream outfile(npy_path.c_str());    
             if(!outfile)
-                throw TCLAP::ArgParseException("invalid filepath", output_path);
+                throw TCLAP::ArgParseException("invalid filepath", npy_path);
         }
 
         std::cout << "Parameters: k="<<input_parameters.k<<"\n";
         
-        ma_data madata = {};
-
-        cnpy::NpyArray coords_npy = cnpy::npy_load( input_coords_path.c_str() );
-        float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
-
-        madata.m = coords_npy.shape[0];
-        unsigned int dim = coords_npy.shape[1];
-        PointList coords(madata.m);
-        for (unsigned int i=0; i<madata.m; i++) coords[i] = Point(&coords_carray[i*3]);
-        coords_npy.destruct();
-
-        VectorList normals(madata.m);
-        madata.normals = &normals;
-        madata.coords = &coords;
+        io_parameters p = {}
+        p.coords = true;
+        ma_data madata = npy2madata(npy_path, p);
 
         // Perform the actual processing
-        compute_normals(input_parameters, madata);
+        // compute_normals(input_parameters, madata);
 
         // Output results
-        Scalar* normals_carray = new Scalar[madata.m * 3];
-        for (int i = 0; i < normals.size(); i++)
-           for (int j = 0; j < 3; j++)
-              normals_carray[i * 3 + j] = normals[i][j];
+        // Scalar* normals_carray = new Scalar[madata.m * 3];
+        // for (int i = 0; i < normals.size(); i++)
+        //    for (int j = 0; j < 3; j++)
+        //       normals_carray[i * 3 + j] = normals[i][j];
 
-        const unsigned int c_size = (unsigned int) normals.size();
-        const unsigned int shape[] = { c_size,3 };
-        cnpy::npy_save(output_path.c_str(), normals_carray, shape, 2, "w");
+        // const unsigned int c_size = (unsigned int) normals.size();
+        // const unsigned int shape[] = { c_size,3 };
+        // cnpy::npy_save(output_path.c_str(), normals_carray, shape, 2, "w");
 
-        // Free memory
-        delete[] normals_carray; normals_carray = NULL;
+        // // Free memory
+        // delete[] normals_carray; normals_carray = NULL;
     } catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
 
     return 0;

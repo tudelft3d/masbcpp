@@ -20,17 +20,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef MASBCPP_TYPES_
-#define MASBCPP_TYPES_
+#include <iostream>
+#include <fstream>
+#include <string>
 
-#include <vector>
-#include <Eigen/Core>
+// cnpy
+#include <cnpy/cnpy.h>
 
-typedef Eigen::Vector3f Vector3f; // Type for 3D float points
-typedef Eigen::ArrayX3f ArrayX3f; // Type for 3D float arrays
-typedef Eigen::Array<int,X> ArrayXi; // Type for 1D int arrays
-typedef Eigen::Array<bool,X> ArrayXb; // Type for 1D bool arrays
+// typedefs
+#include "madata.h"
 
-typedef Geometry::Box<Scalar,3> Box; // Type for 3D Box
+template <typename T_read, typename T_return> 
+T_return read_npyarray(std::string input_file_path);
 
-#endif
+ma_data npy2madata(std::string input_dir_path, io_parameters p);
