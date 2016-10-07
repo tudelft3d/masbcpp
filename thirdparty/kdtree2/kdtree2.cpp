@@ -74,8 +74,8 @@ namespace kdtree2 {
     // constructor
     KDTree::KDTree(KDTreeArray& data_in,bool rearrange_in,int dim_in)
     : the_data(data_in),
-    N  ( data_in.size() ),
-    dim( 3 ),
+    N  ( data_in.rows() ),
+    dim( data_in.cols() ),
     sort_results(false),
     rearrange(rearrange_in),
     root(NULL),
@@ -91,20 +91,21 @@ namespace kdtree2 {
         
         build_tree();
         
-        if (rearrange) {
-            // if we have a rearranged tree.
-            // allocate the memory for it.
-            // printf("rearranging\n");
-            rearranged_data.reserve(N);
+        // disable this stuff I never use it anyway
+        // if (rearrange) {
+        //     // if we have a rearranged tree.
+        //     // allocate the memory for it.
+        //     // printf("rearranging\n");
+        //     rearranged_data.reserve(N);
             
-            // permute the data for it.
-            for (int i=0; i<N; i++) {
-                rearranged_data.push_back(the_data[ind[i]]);
-            }
-            data = &rearranged_data;
-        } else {
+        //     // permute the data for it.
+        //     for (int i=0; i<N; i++) {
+        //         rearranged_data.push_back(the_data[ind[i]]);
+        //     }
+        //     data = &rearranged_data;
+        // } else {
             data = &the_data;
-        }
+        // }
     }
     
     
@@ -184,7 +185,7 @@ namespace kdtree2 {
                 if (true) {
                     sum = 0.0;
                     for (int k=l; k <= u; k++) {
-                        sum += the_data[ind[k]][c];
+                        sum += the_data(ind[k],c);
                     }
                     average = sum / static_cast<float> (u-l+1);
                 } else {
@@ -245,14 +246,14 @@ namespace kdtree2 {
         float lmin, lmax;
         int i;
         
-        smin = the_data[ind[l]][c];
+        smin = the_data(ind[l], c);
         smax = smin;
         
         
         // process two at a time.
         for (i=l+2; i<= u; i+=2) {
-            lmin = the_data[ind[i-1]] [c];
-            lmax = the_data[ind[i]  ] [c];
+            lmin = the_data(ind[i-1], c);
+            lmax = the_data(ind[i], c);
             
             if (lmin > lmax) {
                 swap(lmin,lmax);
@@ -266,7 +267,7 @@ namespace kdtree2 {
         }
         // is there one more element?
         if (i == u+1) {
-            float last = the_data[ind[u]] [c];
+            float last = the_data(ind[u], c);
             if (smin>last) smin = last;
             if (smax<last) smax = last;
         }
@@ -286,7 +287,7 @@ namespace kdtree2 {
             int m = l;
             
             for (int i=l+1; i<=u; i++) {
-                if ( the_data[ ind[i] ] [c] < the_data[t][c]) {
+                if ( the_data(ind[i], c) < the_data(t,c)) {
                     m++;
                     swap(ind[i],ind[m]);
                 }
@@ -307,7 +308,7 @@ namespace kdtree2 {
         int lb = l, ub = u;
         
         while (lb < ub) {
-            if (the_data[ind[lb]][c] <= alpha) {
+            if (the_data(ind[lb],c) <= alpha) {
                 lb++; // good where it is.
             } else {
                 swap(ind[lb],ind[ub]);
@@ -316,7 +317,7 @@ namespace kdtree2 {
         }
         
         // here ub=lb
-        if (the_data[ind[lb]][c] <= alpha)
+        if (the_data(ind[lb],c) <= alpha)
             return(lb);
         else
             return(lb-1);
@@ -335,7 +336,7 @@ namespace kdtree2 {
     //   for (int i=0; i<upper1; i++) {
     //     printf("the_data[%d][*]=",i);
     //     for (int j=0; j<upper2; j++)
-    //       printf("%f,",the_data[i][j]);
+    //       printf("%f,",the_data(i,j);
     //     printf("\n");
     //   }
     //   for (int i=0; i<upper1; i++)
@@ -367,7 +368,7 @@ namespace kdtree2 {
         friend class KDTree;
         friend class KDTreeNode;
         
-        Point& qv;
+        Vector3& qv;
         int dim;
         bool rearrange;
         unsigned int nn; // , nfound;
@@ -380,7 +381,7 @@ namespace kdtree2 {
         // constructor
         
     public:
-        SearchRecord(Point& qv_in, KDTree& tree_in,
+        SearchRecord(Vector3& qv_in, KDTree& tree_in,
                      KDTreeResultVector& result_in) :
         qv(qv_in),
         result(result_in),
@@ -396,7 +397,7 @@ namespace kdtree2 {
     };
     
     
-    void KDTree::n_nearest_brute_force(Point& qv, int nn, KDTreeResultVector& result) {
+    void KDTree::n_nearest_brute_force(Vector3& qv, int nn, KDTreeResultVector& result) {
         
         result.clear();
         
@@ -404,7 +405,7 @@ namespace kdtree2 {
             float dis = 0.0;
             KDTreeResult e;
             for (int j=0; j<dim; j++) {
-                dis += squared( the_data[i][j] - qv[j]);
+                dis += squared( the_data(i,j) - qv[j]);
             }
             e.dis = dis;
             e.idx = i;
@@ -415,9 +416,9 @@ namespace kdtree2 {
     }
     
     
-    void KDTree::n_nearest(Point& qv, int nn, KDTreeResultVector& result) {
+    void KDTree::n_nearest(Vector3& qv, int nn, KDTreeResultVector& result) {
         SearchRecord sr(qv,*this,result);
-        // Point vdiff(dim,0.0);
+        // Vector3 vdiff(dim,0.0);
         
         result.clear();
         
@@ -435,12 +436,12 @@ namespace kdtree2 {
     
     void KDTree::n_nearest_around_point(int idxin, int correltime, int nn,
                                         KDTreeResultVector& result) {
-        Point qv;  //  query vector
+        Vector3 qv;  //  query vector
         
         result.clear();
         
         for (int i=0; i<dim; i++) {
-            qv[i] = the_data[idxin][i];
+            qv[i] = the_data(idxin,i);
         }
         // copy the query vector.
         
@@ -458,10 +459,10 @@ namespace kdtree2 {
     }
     
     
-    void KDTree::r_nearest(Point& qv, float r2, KDTreeResultVector& result) {
+    void KDTree::r_nearest(Vector3& qv, float r2, KDTreeResultVector& result) {
         // search for all within a ball of a certain radius
         SearchRecord sr(qv,*this,result);
-        // Point vdiff(dim,0.0);
+        // Vector3 vdiff(dim,0.0);
         
         result.clear();
         
@@ -476,7 +477,7 @@ namespace kdtree2 {
         
     }
     
-    int KDTree::r_count(Point& qv, float r2) {
+    int KDTree::r_count(Vector3& qv, float r2) {
         // search for all within a ball of a certain radius
         {
             KDTreeResultVector result;
@@ -496,12 +497,12 @@ namespace kdtree2 {
     
     void KDTree::r_nearest_around_point(int idxin, int correltime, float r2,
                                         KDTreeResultVector& result) {
-        Point qv;  //  query vector
+        Vector3 qv;  //  query vector
         
         result.clear();
         
         for (int i=0; i<dim; i++) {
-            qv[i] = the_data[idxin][i];
+            qv[i] = the_data(idxin,i);
         }
         // copy the query vector.
         
@@ -522,11 +523,11 @@ namespace kdtree2 {
     
     int KDTree::r_count_around_point(int idxin, int correltime, float r2)
     {
-        Point qv;  //  query vector
+        Vector3 qv;  //  query vector
         
         
         for (int i=0; i<dim; i++) {
-            qv[i] = the_data[idxin][i];
+            qv[i] = the_data(idxin,i);
         }
         // copy the query vector.
         
@@ -672,7 +673,7 @@ namespace kdtree2 {
                 early_exit = false;
                 dis = 0.0;
                 for (int k=0; k<dim; k++) {
-                    dis += squared(data[i][k] - sr.qv[k]);
+                    dis += squared(data(i,k) - sr.qv[k]);
                     if (dis > ballsize) {
                         early_exit=true; 
                         break;
@@ -694,7 +695,7 @@ namespace kdtree2 {
                 early_exit = false;
                 dis = 0.0;
                 for (int k=0; k<dim; k++) {
-                    dis += squared(data[indexofi][k] - sr.qv[k]);
+                    dis += squared(data(indexofi,k) - sr.qv[k]);
                     if (dis > ballsize) {
                         early_exit= true; 
                         break;
@@ -762,7 +763,7 @@ namespace kdtree2 {
                 early_exit = false;
                 dis = 0.0;
                 for (int k=0; k<dim; k++) {
-                    dis += squared(data[i][k] - sr.qv[k]);
+                    dis += squared(data(i,k) - sr.qv[k]);
                     if (dis > ballsize) {
                         early_exit=true; 
                         break;
@@ -784,7 +785,7 @@ namespace kdtree2 {
                 early_exit = false;
                 dis = 0.0;
                 for (int k=0; k<dim; k++) {
-                    dis += squared(data[indexofi][k] - sr.qv[k]);
+                    dis += squared(data(indexofi,k) - sr.qv[k]);
                     if (dis > ballsize) {
                         early_exit= true; 
                         break;

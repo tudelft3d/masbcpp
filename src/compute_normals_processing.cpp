@@ -28,9 +28,9 @@ SOFTWARE.
 #endif
 
 // Vrui
-#include <vrui/Geometry/ComponentArray.h>
-#include <vrui/Math/Math.h>
-#include <vrui/Geometry/PCACalculator.h>
+// #include <vrui/Geometry/ComponentArray.h>
+// #include <vrui/Math/Math.h>
+// #include <vrui/Geometry/PCACalculator.h>
 
 #ifdef VERBOSEPRINT
 #include <vrui/Misc/Timer.h>
@@ -40,8 +40,8 @@ SOFTWARE.
 // typedefs
 #include "compute_normals_processing.h"
 
-
-
+// Eigen
+#include <Eigen/SVD>
 
 
 //==============================
@@ -49,26 +49,35 @@ SOFTWARE.
 //==============================
 
 
-Vector estimate_normal(Point &p, kdtree2::KDTree* kd_tree, int k)
+Vector3 estimate_normal(Vector3 p, kdtree2::KDTree* kd_tree, int k)
 {
    kdtree2::KDTreeResultVector result;
-   kd_tree->n_nearest(p, k + 1, result);
+   kd_tree->n_nearest(p, k+1, result);
 
-   Geometry::PCACalculator<3> PCACalc;
+   ArrayX3 nn_result(k+1,3);
    for (int i = 0; i < k + 1; i++)
-      PCACalc.accumulatePoint(kd_tree->the_data[result[i].idx]);
+      nn_result.row(i) = kd_tree->the_data.row(result[i].idx);
+   std::cout << "obtained nn result: " << std::endl << nn_result << std::endl;
 
-   double eigen_values[3];
-   PCACalc.calcCovariance();
-   PCACalc.calcEigenvalues(eigen_values);
-   return PCACalc.calcEigenvector(eigen_values[2]);
+   nn_result.rowwise() -= nn_result.colwise().mean();
+   std::cout << "centered nn result: " << std::endl << nn_result << std::endl;
+
+   Eigen::JacobiSVD< ArrayX3 > svd(nn_result, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    std::cout << "SVD:" << svd.matrixU() << std::endl;
+   Vector3 n = svd.matrixU().rightCols(1);
+
+   return n;
 }
 
 void estimate_normals(ma_data &madata, int k)
 {
-      #pragma omp parallel for
-      for (int i = 0; i < madata.coords->size(); i++)
-            (*madata.normals)[i] = estimate_normal((*madata.coords)[i], madata.kdtree_coords, k);
+      // #pragma omp parallel for
+      for (int i = 0; i < madata.coords.rows(); i++){
+            std::cout << "Computing normal for point " << i << std::endl;
+            Vector3 p = madata.coords.row(i);
+            Vector3 result = estimate_normal(p, madata.kdtree_coords, k);
+//          madata.normals.row(i) = result;
+      }
 }
 
 void compute_normals(normals_parameters &input_parameters, ma_data &madata)
@@ -78,7 +87,7 @@ void compute_normals(normals_parameters &input_parameters, ma_data &madata)
       #endif
       
       if (madata.kdtree_coords == NULL) {
-            madata.kdtree_coords = new kdtree2::KDTree((*madata.coords), input_parameters.kd_tree_reorder);
+            madata.kdtree_coords = new kdtree2::KDTree(madata.coords, input_parameters.kd_tree_reorder);
             #ifdef VERBOSEPRINT
             t0.elapse();
             std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;

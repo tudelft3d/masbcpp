@@ -54,7 +54,7 @@ const unsigned int iteration_limit = 30;
 const Point nanPoint(std::numeric_limits<Scalar>::quiet_NaN());
 
 
-inline Scalar compute_radius(Point &p, Vector &n, Point &q)
+inline Scalar compute_radius(Vector3 &p, Vector3 &n, Vector3 &q)
 {
    // this is basic goniometry
    double d = Geometry::mag(p - q);

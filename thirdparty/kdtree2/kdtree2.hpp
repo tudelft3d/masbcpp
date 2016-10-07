@@ -22,7 +22,7 @@
 #include "../../src/types.h"
 
 namespace kdtree2 {
-    typedef PointList KDTreeArray;
+    typedef ArrayX3 KDTreeArray;
     
     
     typedef struct {
@@ -114,11 +114,11 @@ namespace kdtree2 {
     public:
         // search routines
         
-        void n_nearest_brute_force(Point& qv, int nn, KDTreeResultVector& result);
+        void n_nearest_brute_force(Vector3& qv, int nn, KDTreeResultVector& result);
         // search for n nearest to a given query vector 'qv' usin
         // exhaustive slow search.  For debugging, usually.
         
-        void n_nearest(Point& qv, int nn, KDTreeResultVector& result);
+        void n_nearest(Vector3& qv, int nn, KDTreeResultVector& result);
         // search for n nearest to a given query vector 'qv'.
         
         void n_nearest_around_point(int idxin, int correltime, int nn,
@@ -126,7 +126,7 @@ namespace kdtree2 {
         // search for 'nn' nearest to point [idxin] of the input data, excluding
         // neighbors within correltime
         
-        void r_nearest(Point& qv, float r2,KDTreeResultVector& result);
+        void r_nearest(Vector3& qv, float r2,KDTreeResultVector& result);
         // search for all neighbors in ball of size (square Euclidean distance)
         // r2.   Return number of neighbors in 'result.size()',
         
@@ -135,7 +135,7 @@ namespace kdtree2 {
         // like 'r_nearest', but around existing point, with decorrelation
         // interval.
         
-        int r_count(Point& qv, float r2);
+        int r_count(Vector3& qv, float r2);
         // count number of neighbors within square distance r2.
         int r_count_around_point(int idxin, int correltime, float r2);
         // like r_count, c

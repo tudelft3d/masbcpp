@@ -54,7 +54,7 @@ set(CMAKE_BUILD_TYPE Release)
 set_property(GLOBAL PROPERTY LINKER_LANGUAGE CXX)
 
 # include directories
-include_directories(${CMAKE_SOURCE_DIR}/thirdparty ${CMAKE_SOURCE_DIR}/thirdparty/vrui EIGEN3_INCLUDE_DIR)
+include_directories(${CMAKE_SOURCE_DIR}/thirdparty ${CMAKE_SOURCE_DIR}/thirdparty/vrui ${EIGEN3_INCLUDE_DIR})
 
 # bundle all thirdparty stuff as a static library
 FILE(GLOB_RECURSE THIRDPARTY thirdparty/*.cpp)
@@ -63,18 +63,19 @@ add_library(thirdparty STATIC ${THIRDPARTY})
 set(LINK_LIBS ${LINK_LIBS} thirdparty)
 
 # build a library from the masbpcpp processing functions
-add_library(masbcpp STATIC src/compute_ma_processing.cpp src/compute_normals_processing.cpp src/simplify_processing.cpp)
+# add_library(masbcpp STATIC src/compute_ma_processing.cpp src/compute_normals_processing.cpp src/simplify_processing.cpp)
+add_library(masbcpp STATIC src/compute_normals_processing.cpp src/io.cpp)
 
 # set excutables
-add_executable(compute_ma src/compute_ma.cpp)
+# add_executable(compute_ma src/compute_ma.cpp)
 add_executable(compute_normals src/compute_normals.cpp)
-add_executable(simplify src/simplify.cpp)
+# add_executable(simplify src/simplify.cpp)
 
 # link targets
 target_link_libraries(masbcpp ${LINK_LIBS})
 
-target_link_libraries(compute_ma masbcpp)
+# target_link_libraries(compute_ma masbcpp)
 target_link_libraries(compute_normals masbcpp)
-target_link_libraries(simplify masbcpp)
+# target_link_libraries(simplify masbcpp)
 
-install(TARGETS compute_ma compute_normals simplify DESTINATION bin)
+# install(TARGETS compute_ma compute_normals simplify DESTINATION bin)

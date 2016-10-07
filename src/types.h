@@ -26,11 +26,19 @@ SOFTWARE.
 #include <vector>
 #include <Eigen/Core>
 
-typedef Eigen::Vector3f Vector3f; // Type for 3D float points
-typedef Eigen::ArrayX3f ArrayX3f; // Type for 3D float arrays
-typedef Eigen::Array<int,X> ArrayXi; // Type for 1D int arrays
-typedef Eigen::Array<bool,X> ArrayXb; // Type for 1D bool arrays
+typedef float Scalar;
+typedef Eigen::Matrix<Scalar,1,3> Vector3; // Type for 3D float points
+typedef Eigen::Matrix<Scalar,Eigen::Dynamic,3> ArrayX3; // Type for 3D float arrays
+typedef Eigen::Matrix<int,Eigen::Dynamic,1> ArrayXi; // Type for 1D int arrays
+typedef Eigen::Matrix<bool,Eigen::Dynamic,1> ArrayXb; // Type for 1D bool arrays
 
-typedef Geometry::Box<Scalar,3> Box; // Type for 3D Box
+// #include <vrui/Geometry/Vector.h>
+// #include <vrui/Geometry/Point.h>
+// #include <vrui/Geometry/Box.h>
 
+// typedef Geometry::Point<Scalar,3> Point; // Type for 3D points
+// typedef std::vector<Point> PointList; // Type for 3D points
+// typedef Geometry::Vector<Scalar,3> Vector; // Type for 3D vectors
+// typedef std::vector<Vector> VectorList; // Type for 3D vectors
+// typedef Geometry::Box<Scalar,3> Box; // Type for 3D Box
 #endif

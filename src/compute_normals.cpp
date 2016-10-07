@@ -33,7 +33,7 @@ SOFTWARE.
 #include "madata.h"
 
 #include "io.h"
-// #include "compute_normals_processing.h"
+#include "compute_normals_processing.h"
 
 int main(int argc, char **argv)
 {
@@ -56,24 +56,22 @@ int main(int argc, char **argv)
         input_parameters.kd_tree_reorder = reorder_kdtreeSwitch.getValue();
 
         std::string npy_path = inputArg.getValue();
+        std::string npy_path_coords = npy_path + "/coords.npy";
         if(outputArg.isSet())
             npy_path = outputArg.getValue();
 
-        // check for proper in-output arguments
-        {
-            std::ofstream outfile(npy_path.c_str());    
-            if(!outfile)
-                throw TCLAP::ArgParseException("invalid filepath", npy_path);
-        }
-
         std::cout << "Parameters: k="<<input_parameters.k<<"\n";
         
-        io_parameters p = {}
+        io_parameters p = {};
         p.coords = true;
         ma_data madata = npy2madata(npy_path, p);
 
+        // for (unsigned int i=0; i<madata.coords.rows(); i++)
+        //     for (unsigned int j=0; i<madata.coords.cols(); j++)
+        // std::cout << madata.coords <<std::endl;
+
         // Perform the actual processing
-        // compute_normals(input_parameters, madata);
+        compute_normals(input_parameters, madata);
 
         // Output results
         // Scalar* normals_carray = new Scalar[madata.m * 3];

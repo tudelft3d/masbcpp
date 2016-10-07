@@ -29,15 +29,15 @@ SOFTWARE.
 
 struct ma_data {
    unsigned int m;
-   Box bbox;
+//    Box bbox;
 
-   ArrayX3 *coords; // don't own this memory
-   ArrayX3 *normals; // don't own this memory
-   ArrayX3 *ma_coords; // don't own this memory
-   int *ma_qidx;
+   ArrayX3 coords; // don't own this memory
+   ArrayX3 normals; // don't own this memory
+   ArrayX3 ma_coords; // don't own this memory
+   int ma_qidx;
 
-   float *lfs;
-   bool *mask;
+   float lfs;
+   bool mask;
    
    kdtree2::KDTree* kdtree_coords;
 };
@@ -47,6 +47,6 @@ struct io_parameters {
     bool normals;
     bool ma_coords;
     bool ma_qidx;
-}
+};
 
 #endif

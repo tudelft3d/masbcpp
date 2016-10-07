@@ -32,27 +32,45 @@ SOFTWARE.
 
 template <typename T_read, typename T_return> 
 T_return read_npyarray(std::string input_file_path) {
+    // windows fix
     std::replace(input_file_path.begin(), input_file_path.end(), '\\', '/');
 
+    // check if file exists
+    {
+        std::ifstream infile(input_file_path.c_str());    
+        if(!infile){
+            std::cerr << "Invalid file path " << input_file_path << std::endl;
+            exit(1);
+        }
+    }
+
+    // std::cout << "Reading array from " << input_file_path <<std::endl;
     cnpy::NpyArray npy_array = cnpy::npy_load( input_file_path.c_str() );
     T_read* coords_carray = reinterpret_cast<T_read*>(npy_array.data);
+    // std::cout << "Got c-style array" <<std::endl;
+
     T_return result(npy_array.shape[0], npy_array.shape[1]);
+    // std::cout << "Created Eigen array of shape " << result.rows() << ", " << result.cols() <<std::endl;
     for (unsigned int i=0; i<result.rows(); i++)
-        for (unsigned int j=0; i<result.cols(); j++)
-            result[i,j] = coords_carray[i*result.cols()+j];
+        for (unsigned int j=0; j<result.cols(); j++){
+            // std::cout << "Copying element " << i << ", " << j <<std::endl;
+            result(i,j) = coords_carray[i*result.cols()+j];
+        }
     npy_array.destruct();
     return result;
 }
 
 ma_data npy2madata(std::string input_dir_path, io_parameters p) {
-    madata ma_data = {};
+    ma_data madata = {};
 
-    if (p.coords) {
-        madata.coords = read_npyarray<float, ArrayX3f>(input_dir_path+"/coords.npy");
-        madata.m = madata.coords.rows()
-    }
+    // if (p.coords) {
+    std::cout << "Reading coords array..." <<std::endl;
+    madata.coords = read_npyarray<float, ArrayX3>(input_dir_path+"/coords.npy");
+    madata.m = madata.coords.rows();
+    // }
     if (p.normals) {
-        madata.normals = read_npyarray<float, ArrayX3f>(input_dir_path+"/normals.npy");
+        std::cout << "Reading normals array..." <<std::endl;
+        madata.normals = read_npyarray<float, ArrayX3>(input_dir_path+"/normals.npy");
     }
-
+    return madata;
 }
