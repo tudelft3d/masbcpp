@@ -34,3 +34,4 @@ template <typename T_read, typename T_return>
 T_return read_npyarray(std::string input_file_path);
 
 ma_data npy2madata(std::string input_dir_path, io_parameters p);
+void madata2npy(ma_data madata, std::string npy_path, io_parameters p);

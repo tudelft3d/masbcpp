@@ -60,28 +60,27 @@ int main(int argc, char **argv)
         if(outputArg.isSet())
             npy_path = outputArg.getValue();
 
-        std::cout << "Parameters: k="<<input_parameters.k<<"\n";
+        std::cout << "Parameters: k="<<input_parameters.k<< std::endl;
         
         io_parameters p = {};
         p.coords = true;
         ma_data madata = npy2madata(npy_path, p);
+
+        std::cout << "Point count: " << madata.m << std::endl;
 
         // for (unsigned int i=0; i<madata.coords.rows(); i++)
         //     for (unsigned int j=0; i<madata.coords.cols(); j++)
         // std::cout << madata.coords <<std::endl;
 
         // Perform the actual processing
+        madata.normals = ArrayX3(madata.m, 3);
         compute_normals(input_parameters, madata);
 
-        // Output results
-        // Scalar* normals_carray = new Scalar[madata.m * 3];
-        // for (int i = 0; i < normals.size(); i++)
-        //    for (int j = 0; j < 3; j++)
-        //       normals_carray[i * 3 + j] = normals[i][j];
+        p.coords = false;
+        p.normals = true;
+        madata2npy(madata, npy_path, p);
+        
 
-        // const unsigned int c_size = (unsigned int) normals.size();
-        // const unsigned int shape[] = { c_size,3 };
-        // cnpy::npy_save(output_path.c_str(), normals_carray, shape, 2, "w");
 
         // // Free memory
         // delete[] normals_carray; normals_carray = NULL;

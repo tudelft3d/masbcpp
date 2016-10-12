@@ -30,6 +30,8 @@ SOFTWARE.
 // typedefs
 #include "madata.h"
 
+#include "io.h"
+
 template <typename T_read, typename T_return> 
 T_return read_npyarray(std::string input_file_path) {
     // windows fix
@@ -73,4 +75,13 @@ ma_data npy2madata(std::string input_dir_path, io_parameters p) {
         madata.normals = read_npyarray<float, ArrayX3>(input_dir_path+"/normals.npy");
     }
     return madata;
+}
+
+void madata2npy(ma_data madata, std::string npy_path, io_parameters p) {
+    if (p.normals) {
+        std::cout << "Writing normals array..." <<std::endl;
+    }
+    // const unsigned int c_size = (unsigned int) normals.size();
+     const unsigned int shape[] = { static_cast<unsigned int>(madata.normals.rows()),static_cast<unsigned int>(madata.normals.cols()) };
+     cnpy::npy_save(npy_path+"/normals.npy", madata.normals.data(), shape, 2, "w");
 }
