@@ -45,8 +45,10 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Eigen3 REQUIRED)
 
+find_package(PCL 1.8 REQUIRED COMPONENTS common)
+
 # enable verbose printing by default
-add_definitions(-DVERBOSEPRINT)
+add_definitions(${PCL_DEFINITIONS} -DVERBOSEPRINT)
 
 # global
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${COMPILE_OPTIONS}")
@@ -54,13 +56,14 @@ set(CMAKE_BUILD_TYPE Release)
 set_property(GLOBAL PROPERTY LINKER_LANGUAGE CXX)
 
 # include directories
-include_directories(${CMAKE_SOURCE_DIR}/thirdparty ${CMAKE_SOURCE_DIR}/thirdparty/vrui ${EIGEN3_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/thirdparty ${CMAKE_SOURCE_DIR}/thirdparty/vrui ${PCL_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
+link_directories(${PCL_LIBRARY_DIRS})
 
 # bundle all thirdparty stuff as a static library
 FILE(GLOB_RECURSE THIRDPARTY thirdparty/*.cpp)
 add_library(thirdparty STATIC ${THIRDPARTY})
 
-set(LINK_LIBS ${LINK_LIBS} thirdparty)
+set(LINK_LIBS ${LINK_LIBS} thirdparty ${PCL_COMMON_LIBRARIES})
 
 # build a library from the masbpcpp processing functions
 # add_library(masbcpp STATIC src/compute_ma_processing.cpp src/compute_normals_processing.cpp src/simplify_processing.cpp)
