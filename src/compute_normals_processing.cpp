@@ -40,33 +40,29 @@
 // typedefs
 #include "compute_normals_processing.h"
 
-// Eigen
-#include <Eigen/SVD>
-
 
 //==============================
 //   COMPUTE NORMALS
 //==============================
 
 
-Vector3 estimate_normal(Vector3 p, kdtree2::KDTree* kd_tree, int k)
+inline Vector3 estimate_normal(Vector3 p, kdtree2::KDTree* kd_tree, int k)
 {
     kdtree2::KDTreeResultVector result;
     kd_tree->n_nearest(p, k+1, result);
     
     
-    Array3X nn_result(3, k+1);
-    for (int i = 0; i < k + 1; i++)
-        nn_result.col(i) = kd_tree->the_data.row(result[i].idx).transpose();
-//    std::cout << "obtained nn result: " << std::endl << nn_result << std::endl;
-
-    nn_result.colwise() -= nn_result.rowwise().mean();
-//    std::cout << "centered nn result: " << std::endl << nn_result << std::endl;
+    ArrayX3 nn_result(k+1,3);
+    for (size_t i = 0; i < k + 1; i++)
+        nn_result.row(i) = kd_tree->the_data.row(result[i].idx);
     
-    Eigen::JacobiSVD< Array3X > svd(nn_result, Eigen::ComputeThinU | Eigen::ComputeThinV);
-//    std::cout << "SVD:" << svd.matrixU() << std::endl;
-    Vector3 n = svd.matrixU().rightCols(1).transpose();
+    const Eigen::Matrix3f covariance_matrix;
+    computeMeanAndCovarianceMatrix(nn_result, covariance_matrix);
+    Scalar nx,ny,nz;
+    solvePlaneParameters(covariance_matrix, nx,ny,nz);
     
+    Vector3 n;
+    n << nx,ny,nz;
     return n;
 }
 

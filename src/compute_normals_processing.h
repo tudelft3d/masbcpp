@@ -32,5 +32,55 @@ struct normals_parameters {
 
 void compute_normals(normals_parameters &input_parameters, ma_data &madata);
 
+// based on pcl https://github.com/PointCloudLibrary/pcl/blob/46cb8fe5589e88e36d79f9b8b8e5f4ff4fceb5de/common/include/pcl/common/impl/centroid.hpp#L488
+void computeMeanAndCovarianceMatrix (ArrayX3 &cloud,
+                                     Eigen::Matrix3f &covariance_matrix)
+{
+  // create the buffer on the stack which is much faster than using cloud[indices[i]] and centroid as a buffer
+  Eigen::Matrix<Scalar, 1, 9, Eigen::RowMajor> accu = Eigen::Matrix<Scalar, 1, 9, Eigen::RowMajor>::Zero ();
+  size_t point_count;
+
+    point_count = cloud.rows ();
+    // For each point in the cloud
+    for (size_t i = 0; i < point_count; ++i)
+    {
+        accu [0] += cloud(i,0) * cloud(i,0);
+        accu [1] += cloud(i,0) * cloud(i,1);
+        accu [2] += cloud(i,0) * cloud(i,2);
+        accu [3] += cloud(i,1) * cloud(i,1); // 4
+        accu [4] += cloud(i,1) * cloud(i,2); // 5
+        accu [5] += cloud(i,2) * cloud(i,2); // 8
+        accu [6] += cloud(i,0);
+        accu [7] += cloud(i,1);
+        accu [8] += cloud(i,2);
+    }
+
+    accu /= static_cast<Scalar> (point_count);
+
+    covariance_matrix.coeffRef (0) = accu [0] - accu [6] * accu [6];
+    covariance_matrix.coeffRef (1) = accu [1] - accu [6] * accu [7];
+    covariance_matrix.coeffRef (2) = accu [2] - accu [6] * accu [8];
+    covariance_matrix.coeffRef (4) = accu [3] - accu [7] * accu [7];
+    covariance_matrix.coeffRef (5) = accu [4] - accu [7] * accu [8];
+    covariance_matrix.coeffRef (8) = accu [5] - accu [8] * accu [8];
+    covariance_matrix.coeffRef (3) = covariance_matrix.coeff (1);
+    covariance_matrix.coeffRef (6) = covariance_matrix.coeff (2);
+    covariance_matrix.coeffRef (7) = covariance_matrix.coeff (5);
+}
+
+// based on pcl https://github.com/PointCloudLibrary/pcl/blob/46cb8fe5589e88e36d79f9b8b8e5f4ff4fceb5de/features/include/pcl/features/impl/feature.hpp
+inline void
+solvePlaneParameters (const Eigen::Matrix3f &covariance_matrix,
+                           Scalar &nx, Scalar &ny, Scalar &nz)
+{
+  // Extract the smallest eigenvalue and its eigenvector
+  EIGEN_ALIGN16 Eigen::Vector3f::Scalar eigen_value;
+  EIGEN_ALIGN16 Eigen::Vector3f eigen_vector;
+  pcl::eigen33 (covariance_matrix, eigen_value, eigen_vector);
+
+  nx = eigen_vector [0];
+  ny = eigen_vector [1];
+  nz = eigen_vector [2];
+}
 
 #endif
