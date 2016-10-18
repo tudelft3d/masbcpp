@@ -45,10 +45,11 @@ endif()
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Eigen3 REQUIRED)
 
-find_package(PCL 1.8 REQUIRED COMPONENTS common)
+find_package(PCL 1.8 REQUIRED COMPONENTS common search features)
 
 # enable verbose printing by default
-add_definitions(${PCL_DEFINITIONS} -DVERBOSEPRINT)
+# PCL_NO_PRECOMPILE is needed to make the pcl::NormalEstimationOMP work properly
+add_definitions(${PCL_DEFINITIONS} -DVERBOSEPRINT -DPCL_NO_PRECOMPILE)
 
 # global
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${COMPILE_OPTIONS}")
@@ -63,7 +64,7 @@ link_directories(${PCL_LIBRARY_DIRS})
 FILE(GLOB_RECURSE THIRDPARTY thirdparty/*.cpp)
 add_library(thirdparty STATIC ${THIRDPARTY})
 
-set(LINK_LIBS ${LINK_LIBS} thirdparty ${PCL_COMMON_LIBRARIES})
+set(LINK_LIBS ${LINK_LIBS} thirdparty ${PCL_COMMON_LIBRARIES} ${PCL_SEARCH_LIBRARIES} ${PCL_FEATURES_LIBRARIES})
 
 # build a library from the masbpcpp processing functions
 # add_library(masbcpp STATIC src/compute_ma_processing.cpp src/compute_normals_processing.cpp src/simplify_processing.cpp)

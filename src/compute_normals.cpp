@@ -64,26 +64,26 @@ int main(int argc, char **argv)
         
         io_parameters p = {};
         p.coords = true;
-        ma_data madata = npy2madata(npy_path, p);
+        ma_data madata = {};
+        
+        PointCloud::Ptr coords (new PointCloud);
+        madata.coords = coords;
+        NormalCloud::Ptr normals (new NormalCloud);
+        madata.normals = normals;
+
+        npy2madata(npy_path, madata, p);
 
         std::cout << "Point count: " << madata.m << std::endl;
 
-        // for (unsigned int i=0; i<madata.coords.rows(); i++)
-        //     for (unsigned int j=0; i<madata.coords.cols(); j++)
-        // std::cout << madata.coords <<std::endl;
-
         // Perform the actual processing
-        madata.normals = ArrayX3(madata.m, 3);
         compute_normals(input_parameters, madata);
+        for (size_t i = 0; i < madata.m; i++)
+            std::cout << madata.normals->points[i] << std::endl;
 
         p.coords = false;
         p.normals = true;
-        madata2npy(madata, npy_path, p);
+        madata2npy(npy_path, madata, p);
         
-
-
-        // // Free memory
-        // delete[] normals_carray; normals_carray = NULL;
     } catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
 
     return 0;

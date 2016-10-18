@@ -32,11 +32,9 @@ SOFTWARE.
 
 #include "io.h"
 
-template <typename T_read, typename T_return> 
-T_return read_npyarray(std::string input_file_path) {
+inline cnpy::NpyArray read_npyarray(std::string input_file_path) {
     // windows fix
     std::replace(input_file_path.begin(), input_file_path.end(), '\\', '/');
-
     // check if file exists
     {
         std::ifstream infile(input_file_path.c_str());    
@@ -45,43 +43,46 @@ T_return read_npyarray(std::string input_file_path) {
             exit(1);
         }
     }
-
     // std::cout << "Reading array from " << input_file_path <<std::endl;
     cnpy::NpyArray npy_array = cnpy::npy_load( input_file_path.c_str() );
-    T_read* coords_carray = reinterpret_cast<T_read*>(npy_array.data);
-    // std::cout << "Got c-style array" <<std::endl;
-
-    T_return result(npy_array.shape[0], npy_array.shape[1]);
-    // std::cout << "Created Eigen array of shape " << result.rows() << ", " << result.cols() <<std::endl;
-    for (unsigned int i=0; i<result.rows(); i++)
-        for (unsigned int j=0; j<result.cols(); j++){
-            // std::cout << "Copying element " << i << ", " << j <<std::endl;
-            result(i,j) = coords_carray[i*result.cols()+j];
-        }
-    npy_array.destruct();
-    return result;
+    return npy_array;
 }
 
-ma_data npy2madata(std::string input_dir_path, io_parameters p) {
-    ma_data madata = {};
+void npy2madata(std::string input_dir_path, ma_data &madata, io_parameters &p) {
 
-    // if (p.coords) {
     std::cout << "Reading coords array..." <<std::endl;
-    madata.coords = read_npyarray<float, ArrayX3>(input_dir_path+"/coords.npy");
-    madata.m = madata.coords.rows();
+    cnpy::NpyArray npy_array = read_npyarray(input_dir_path+"/coords.npy");
+    float* coords_carray = reinterpret_cast<float*>(npy_array.data);
+    size_t m = npy_array.shape[0];
+    for (size_t i=0; i<m; i++)
+        madata.coords->push_back(Point(
+            coords_carray[i*3+0],
+            coords_carray[i*3+1],
+            coords_carray[i*3+2]
+        ));
+    npy_array.destruct();
+
+    madata.m = m;
+
+    // if (p.normals) {
+    //     std::cout << "Reading normals array..." <<std::endl;
+    //     madata.normals = read_npyarray<float, ArrayX3>(input_dir_path+"/normals.npy");
     // }
-    if (p.normals) {
-        std::cout << "Reading normals array..." <<std::endl;
-        madata.normals = read_npyarray<float, ArrayX3>(input_dir_path+"/normals.npy");
-    }
-    return madata;
 }
 
-void madata2npy(ma_data madata, std::string npy_path, io_parameters p) {
+void madata2npy(std::string npy_path, ma_data &madata, io_parameters &p) {
     if (p.normals) {
         std::cout << "Writing normals array..." <<std::endl;
-    }
-    // const unsigned int c_size = (unsigned int) normals.size();
-     const unsigned int shape[] = { static_cast<unsigned int>(madata.normals.rows()),static_cast<unsigned int>(madata.normals.cols()) };
-     cnpy::npy_save(npy_path+"/normals.npy", madata.normals.data(), shape, 2, "w");
+
+        const unsigned int c_size = (unsigned int) madata.m;
+        const unsigned int shape[] = { c_size, 3 };
+              // Output results
+        float* normals_carray = new float[c_size * 3];
+        for (size_t i = 0; i < c_size; i++){
+            normals_carray[i * 3 + 0] = madata.normals->points[i].normal_x;
+            normals_carray[i * 3 + 1] = madata.normals->points[i].normal_y;
+            normals_carray[i * 3 + 2] = madata.normals->points[i].normal_z;
+        }
+        cnpy::npy_save(npy_path+"/normals.npy", normals_carray, shape, 2, "w");
+     }
 }

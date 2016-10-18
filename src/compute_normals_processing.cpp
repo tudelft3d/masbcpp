@@ -40,40 +40,39 @@
 // typedefs
 #include "compute_normals_processing.h"
 
+#include <pcl/features/normal_3d_omp.h>
 
 //==============================
 //   COMPUTE NORMALS
 //==============================
 
 
-inline Vector3 estimate_normal(Vector3 p, kdtree2::KDTree* kd_tree, int k)
-{
-    kdtree2::KDTreeResultVector result;
-    kd_tree->n_nearest(p, k+1, result);
-    
-    
-    ArrayX3 nn_result(k+1,3);
-    for (size_t i = 0; i < k + 1; i++)
-        nn_result.row(i) = kd_tree->the_data.row(result[i].idx);
-    
-    const Eigen::Matrix3f covariance_matrix;
-    computeMeanAndCovarianceMatrix(nn_result, covariance_matrix);
-    Scalar nx,ny,nz;
-    solvePlaneParameters(covariance_matrix, nx,ny,nz);
-    
-    Vector3 n;
-    n << nx,ny,nz;
-    return n;
-}
-
 void estimate_normals(ma_data &madata, int k)
 {
     // #pragma omp parallel for
-    for (int i = 0; i < madata.coords.rows(); i++){
-       std::cout << "Computing normal for point " << i << std::endl;
-        Vector3 p = madata.coords.row(i);
-        madata.normals.row(i) = estimate_normal(p, madata.kdtree_coords, k);
-    }
+
+    // pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
+
+    // for (int i = 0; i < madata.coords.rows(); i++)
+    //     cloud->push_back(pcl::PointXYZ(madata.coords(i,0), madata.coords(i,1), madata.coords(i,2)));
+
+    // Create the normal estimation class, and pass the input dataset to it
+    pcl::NormalEstimationOMP<Point, Normal> ne;
+    ne.setInputCloud (madata.coords);
+
+    // Create an empty kdtree representation, and pass it to the normal estimation object.
+    // Its content will be filled inside the object, based on the given input dataset (as no other search surface is given).
+    pcl::search::KdTree<Point>::Ptr tree (new pcl::search::KdTree<Point> ());
+    ne.setSearchMethod (tree);
+
+    // Output datasets
+    // pcl::PointCloud<pcl::Normal>::Ptr cloud_normals (new pcl::PointCloud<pcl::Normal>);
+
+    // Use all neighbors in a sphere of radius 3cm
+    ne.setKSearch(k+1);
+
+    // Compute the features
+    ne.compute (*madata.normals);
 }
 
 void compute_normals(normals_parameters &input_parameters, ma_data &madata)
@@ -82,14 +81,14 @@ void compute_normals(normals_parameters &input_parameters, ma_data &madata)
     Misc::Timer t0;
 #endif
     
-    if (madata.kdtree_coords == NULL) {
-        madata.kdtree_coords = new kdtree2::KDTree(madata.coords, input_parameters.kd_tree_reorder);
-#ifdef VERBOSEPRINT
-        t0.elapse();
-        std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
-#endif
-    }
-    madata.kdtree_coords->sort_results = false;
+//     if (madata.kdtree_coords == NULL) {
+//         madata.kdtree_coords = new kdtree2::KDTree(madata.coords, input_parameters.kd_tree_reorder);
+// #ifdef VERBOSEPRINT
+//         t0.elapse();
+//         std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
+// #endif
+//     }
+//     madata.kdtree_coords->sort_results = false;
     
     {
         estimate_normals(madata, input_parameters.k);
@@ -100,6 +99,6 @@ void compute_normals(normals_parameters &input_parameters, ma_data &madata)
     }
     
     // Free memory
-    delete madata.kdtree_coords; madata.kdtree_coords = NULL;
+    // delete madata.kdtree_coords; madata.kdtree_coords = NULL;
 }
 

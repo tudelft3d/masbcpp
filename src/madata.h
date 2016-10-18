@@ -31,9 +31,9 @@ struct ma_data {
    unsigned int m;
 //    Box bbox;
 
-   ArrayX3 coords; // don't own this memory
-   ArrayX3 normals; // don't own this memory
-   ArrayX3 ma_coords; // don't own this memory
+   PointCloud::Ptr coords; // don't own this memory
+   NormalCloud::Ptr normals; // don't own this memory
+   PointCloud::Ptr ma_coords; // don't own this memory
    int ma_qidx;
 
    float lfs;
