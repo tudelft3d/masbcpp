@@ -74,7 +74,7 @@ void estimate_normals(ma_data &madata, int k)
 {
     // #pragma omp parallel for
     for (int i = 0; i < madata.coords.rows(); i++){
-       std::cout << "Computing normal for point " << i << std::endl;
+    //    std::cout << "Computing normal for point " << i << std::endl;
         Vector3 p = madata.coords.row(i);
         madata.normals.row(i) = estimate_normal(p, madata.kdtree_coords, k);
     }
