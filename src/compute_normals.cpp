@@ -77,8 +77,6 @@ int main(int argc, char **argv)
 
         // Perform the actual processing
         compute_normals(input_parameters, madata);
-        for (size_t i = 0; i < madata.m; i++)
-            std::cout << madata.normals->points[i] << std::endl;
 
         p.coords = false;
         p.normals = true;
