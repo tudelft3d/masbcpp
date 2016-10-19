@@ -24,65 +24,61 @@ SOFTWARE.
 #include <fstream>
 #include <string>
 
-// cnpy
-#include <cnpy/cnpy.h>
-// tclap
 #include <tclap/CmdLine.h>
 
-// typedefs
-#include "madata.h"
-
-#include "io.h"
 #include "compute_normals_processing.h"
+#include "io.h"
+#include "madata.h"
+#include "types.h"
 
-int main(int argc, char **argv)
-{
-    // parse command line arguments
-    try {
-        TCLAP::CmdLine cmd("Estimates normals using PCA, see also https://github.com/tudelft3d/masbcpp", ' ', "0.1");
+int main(int argc, char **argv) {
+   // parse command line arguments
+   try {
+      TCLAP::CmdLine cmd("Estimates normals using PCA, see also https://github.com/tudelft3d/masbcpp", ' ', "0.1");
 
-        TCLAP::UnlabeledValueArg<std::string> inputArg( "input", "path to directory with inside it a 'coords.npy' file; a Nx3 float array where N is the number of input points.", true, "", "input dir", cmd);
-        TCLAP::UnlabeledValueArg<std::string> outputArg( "output", "path to output directory. Estimated normals are written to the file 'normals.npy'.", false, "", "output dir", cmd);
+      TCLAP::UnlabeledValueArg<std::string> inputArg("input", "path to directory with inside it a 'coords.npy' file; a Nx3 float array where N is the number of input points.", true, "", "input dir", cmd);
+      TCLAP::UnlabeledValueArg<std::string> outputArg("output", "path to output directory. Estimated normals are written to the file 'normals.npy'.", false, "", "output dir", cmd);
 
-        TCLAP::ValueArg<int> kArg("k","kneighbours","number of nearest neighbours to use for PCA",false,10,"int", cmd);
+      TCLAP::ValueArg<int> kArg("k", "kneighbours", "number of nearest neighbours to use for PCA", false, 10, "int", cmd);
 
-        TCLAP::SwitchArg reorder_kdtreeSwitch("N","no-kdtree-reorder","Don't reorder kd-tree points: slower computation but lower memory use", cmd, true);
-        
-        cmd.parse(argc,argv);
-        
-        normals_parameters input_parameters;
-        input_parameters.k = kArg.getValue();
+      TCLAP::SwitchArg reorder_kdtreeSwitch("N", "no-kdtree-reorder", "Don't reorder kd-tree points: slower computation but lower memory use", cmd, true);
 
-        input_parameters.kd_tree_reorder = reorder_kdtreeSwitch.getValue();
+      cmd.parse(argc, argv);
 
-        std::string npy_path = inputArg.getValue();
-        std::string npy_path_coords = npy_path + "/coords.npy";
-        if(outputArg.isSet())
-            npy_path = outputArg.getValue();
+      normals_parameters input_parameters;
+      input_parameters.k = kArg.getValue();
 
-        std::cout << "Parameters: k="<<input_parameters.k<< std::endl;
-        
-        io_parameters p = {};
-        p.coords = true;
-        ma_data madata = {};
-        
-        PointCloud::Ptr coords (new PointCloud);
-        madata.coords = coords;
-        NormalCloud::Ptr normals (new NormalCloud);
-        madata.normals = normals;
+      input_parameters.kd_tree_reorder = reorder_kdtreeSwitch.getValue();
 
-        npy2madata(npy_path, madata, p);
+      std::string npy_path = inputArg.getValue();
+      std::string npy_path_coords = npy_path + "/coords.npy";
+      if (outputArg.isSet())
+         npy_path = outputArg.getValue();
 
-        std::cout << "Point count: " << madata.m << std::endl;
+      std::cout << "Parameters: k=" << input_parameters.k << std::endl;
 
-        // Perform the actual processing
-        compute_normals(input_parameters, madata);
+      io_parameters p = {};
+      p.coords = true;
+      ma_data madata = {};
 
-        p.coords = false;
-        p.normals = true;
-        madata2npy(npy_path, madata, p);
-        
-    } catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
+      PointCloud::Ptr coords(new PointCloud);
+      madata.coords = coords;
+      NormalCloud::Ptr normals(new NormalCloud);
+      madata.normals = normals;
 
-    return 0;
+      npy2madata(npy_path, madata, p);
+
+      std::cout << "Point count: " << madata.m << std::endl;
+
+      // Perform the actual processing
+      compute_normals(input_parameters, madata);
+
+      p.coords = false;
+      p.normals = true;
+      madata2npy(npy_path, madata, p);
+
+   }
+   catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
+
+   return 0;
 }

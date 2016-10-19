@@ -23,12 +23,10 @@ SOFTWARE.
 #ifndef MASBCPP_MADATA_
 #define MASBCPP_MADATA_
 
-// kdtree2
 #include "types.h"
 
 struct ma_data {
    unsigned int m;
-//    Box bbox;
 
    PointCloud::Ptr coords; // don't own this memory
    NormalCloud::Ptr normals; // don't own this memory
@@ -37,15 +35,15 @@ struct ma_data {
 
    float lfs;
    bool mask;
-   
-   //kdtree2::KDTree* kdtree_coords;
+
+   // kdtree2::KDTree* kdtree_coords;
 };
 
 struct io_parameters {
-    bool coords;
-    bool normals;
-    bool ma_coords;
-    bool ma_qidx;
+   bool coords;
+   bool normals;
+   bool ma_coords;
+   bool ma_qidx;
 };
 
 #endif

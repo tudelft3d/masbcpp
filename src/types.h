@@ -24,31 +24,21 @@ SOFTWARE.
 #define MASBCPP_TYPES_
 
 #include <vector>
-#include <Eigen/Core>
 
+#include <Eigen/Core>
 #include <pcl/point_types.h>
 #include <pcl/features/normal_3d_omp.h>
 
 typedef float Scalar;
-typedef Eigen::Matrix<Scalar,1,3> Vector3; // Type for 3D float points
-typedef Eigen::Matrix<Scalar,Eigen::Dynamic,3, Eigen::RowMajor> ArrayX3; // Type for 3D float arrays
+typedef Eigen::Matrix<Scalar, 1, 3> Vector3; // Type for 3D float points
+typedef Eigen::Matrix<Scalar, Eigen::Dynamic, 3, Eigen::RowMajor> ArrayX3; // Type for 3D float arrays
 typedef Eigen::Matrix<Scalar, 3, Eigen::Dynamic> Array3X;
-typedef Eigen::Matrix<int,Eigen::Dynamic,1> ArrayXi; // Type for 1D int arrays
-typedef Eigen::Matrix<bool,Eigen::Dynamic,1> ArrayXb; // Type for 1D bool arrays
+typedef Eigen::Matrix<int, Eigen::Dynamic, 1> ArrayXi; // Type for 1D int arrays
+typedef Eigen::Matrix<bool, Eigen::Dynamic, 1> ArrayXb; // Type for 1D bool arrays
 
 typedef pcl::PointXYZ Point;
 typedef pcl::Normal Normal;
 typedef pcl::PointCloud<Point> PointCloud;
 typedef pcl::PointCloud<Normal> NormalCloud;
 
-
-// #include <vrui/Geometry/Vector.h>
-// #include <vrui/Geometry/Point.h>
-// #include <vrui/Geometry/Box.h>
-
-// typedef Geometry::Point<Scalar,3> Point; // Type for 3D points
-// typedef std::vector<Point> PointList; // Type for 3D points
-// typedef Geometry::Vector<Scalar,3> Vector; // Type for 3D vectors
-// typedef std::vector<Vector> VectorList; // Type for 3D vectors
-// typedef Geometry::Box<Scalar,3> Box; // Type for 3D Box
 #endif
