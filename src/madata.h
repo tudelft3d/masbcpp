@@ -25,7 +25,6 @@ SOFTWARE.
 
 // kdtree2
 #include "types.h"
-#include <kdtree2/kdtree2.hpp>
 
 struct ma_data {
    unsigned int m;
@@ -39,7 +38,7 @@ struct ma_data {
    float lfs;
    bool mask;
    
-   kdtree2::KDTree* kdtree_coords;
+   //kdtree2::KDTree* kdtree_coords;
 };
 
 struct io_parameters {

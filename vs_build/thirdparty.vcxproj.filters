@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -13,12 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\kdtree">
-      <UniqueIdentifier>{acca108a-2c36-41ee-984b-422dd314ed4f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\vrui">
-      <UniqueIdentifier>{cc0fb598-e5ab-4bc9-9045-aeab2ce708a8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\cnpy">
       <UniqueIdentifier>{e211ef40-8e4b-456d-aa38-7e98ea59815f}</UniqueIdentifier>
     </Filter>
@@ -27,51 +21,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\thirdparty\kdtree2\kdtree2.hpp">
-      <Filter>Source Files\kdtree</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\vrui\Misc\Timer.h">
-      <Filter>Source Files\vrui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\vrui\Misc\Utility.h">
-      <Filter>Source Files\vrui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\vrui\Math\Constants.h">
-      <Filter>Source Files\vrui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\vrui\Math\Math.h">
-      <Filter>Source Files\vrui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\vrui\Geometry\Box.h">
-      <Filter>Source Files\vrui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\vrui\Geometry\ComponentArray.h">
-      <Filter>Source Files\vrui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\vrui\Geometry\HitResult.h">
-      <Filter>Source Files\vrui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\vrui\Geometry\Matrix.h">
-      <Filter>Source Files\vrui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\vrui\Geometry\MatrixHelperFunctions.h">
-      <Filter>Source Files\vrui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\vrui\Geometry\PCACalculator.h">
-      <Filter>Source Files\vrui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\vrui\Geometry\Point.h">
-      <Filter>Source Files\vrui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\vrui\Geometry\Ray.h">
-      <Filter>Source Files\vrui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\vrui\Geometry\SolidHitResult.h">
-      <Filter>Source Files\vrui</Filter>
-    </ClInclude>
-    <ClInclude Include="..\thirdparty\vrui\Geometry\Vector.h">
-      <Filter>Source Files\vrui</Filter>
-    </ClInclude>
     <ClInclude Include="..\thirdparty\cnpy\cnpy.h">
       <Filter>Source Files\cnpy</Filter>
     </ClInclude>
@@ -149,53 +98,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\thirdparty\kdtree2\kdtree2.cpp">
-      <Filter>Source Files\kdtree</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\vrui\Misc\Timer.cpp">
-      <Filter>Source Files\vrui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\vrui\Math\Constants.cpp">
-      <Filter>Source Files\vrui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\vrui\Geometry\Box.cpp">
-      <Filter>Source Files\vrui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\vrui\Geometry\ComponentArray.cpp">
-      <Filter>Source Files\vrui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\vrui\Geometry\Matrix.cpp">
-      <Filter>Source Files\vrui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\vrui\Geometry\PCACalculator.cpp">
-      <Filter>Source Files\vrui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\vrui\Geometry\Point.cpp">
-      <Filter>Source Files\vrui</Filter>
-    </ClCompile>
-    <ClCompile Include="..\thirdparty\vrui\Geometry\Vector.cpp">
-      <Filter>Source Files\vrui</Filter>
-    </ClCompile>
     <ClCompile Include="..\thirdparty\cnpy\cnpy.cpp">
       <Filter>Source Files\cnpy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\thirdparty\vrui\Geometry\Box.icpp">
-      <Filter>Source Files\vrui</Filter>
-    </None>
-    <None Include="..\thirdparty\vrui\Geometry\ComponentArray.icpp">
-      <Filter>Source Files\vrui</Filter>
-    </None>
-    <None Include="..\thirdparty\vrui\Geometry\Matrix.icpp">
-      <Filter>Source Files\vrui</Filter>
-    </None>
-    <None Include="..\thirdparty\vrui\Geometry\Point.icpp">
-      <Filter>Source Files\vrui</Filter>
-    </None>
-    <None Include="..\thirdparty\vrui\Geometry\Vector.icpp">
-      <Filter>Source Files\vrui</Filter>
-    </None>
     <None Include="..\thirdparty\tclap\COPYING">
       <Filter>Source Files\tclap</Filter>
     </None>

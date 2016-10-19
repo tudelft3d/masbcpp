@@ -40,7 +40,6 @@ else()
 endif()
 endif()
 
-
 # Find eigen, should set EIGEN3_INCLUDE_DIR
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 find_package(Eigen3 REQUIRED)
@@ -57,7 +56,7 @@ set(CMAKE_BUILD_TYPE Release)
 set_property(GLOBAL PROPERTY LINKER_LANGUAGE CXX)
 
 # include directories
-include_directories(${CMAKE_SOURCE_DIR}/thirdparty ${CMAKE_SOURCE_DIR}/thirdparty/vrui ${PCL_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
+include_directories(${CMAKE_SOURCE_DIR}/thirdparty ${PCL_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIR})
 link_directories(${PCL_LIBRARY_DIRS})
 
 # bundle all thirdparty stuff as a static library
