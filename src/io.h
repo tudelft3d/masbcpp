@@ -29,6 +29,13 @@ SOFTWARE.
 
 #include "madata.h"
 
+struct io_parameters {
+   bool coords;
+   bool normals;
+   bool ma_coords;
+   bool ma_qidx;
+};
+
 void npy2madata(std::string input_dir_path, ma_data &madata, io_parameters &p);
 void madata2npy(std::string npy_path, ma_data &madata, io_parameters &p);
 

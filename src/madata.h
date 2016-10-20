@@ -35,15 +35,6 @@ struct ma_data {
 
    float lfs;
    bool mask;
-
-   // kdtree2::KDTree* kdtree_coords;
-};
-
-struct io_parameters {
-   bool coords;
-   bool normals;
-   bool ma_coords;
-   bool ma_qidx;
 };
 
 #endif
