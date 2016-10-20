@@ -23,18 +23,22 @@ SOFTWARE.
 #ifndef MASBCPP_MADATA_
 #define MASBCPP_MADATA_
 
+#include <vector>
+
 #include "types.h"
 
 struct ma_data {
    unsigned int m;
 
-   PointCloud::Ptr coords; // don't own this memory
-   NormalCloud::Ptr normals; // don't own this memory
-   PointCloud::Ptr ma_coords; // don't own this memory
-   int ma_qidx;
+   PointCloud::Ptr coords;
+   NormalCloud::Ptr normals;
+   PointCloud::Ptr ma_coords;
+   std::vector<int> ma_qidx;
 
    float lfs;
    bool mask;
+
+   pcl::search::KdTree<Point>::Ptr kd_tree;
 };
 
 #endif

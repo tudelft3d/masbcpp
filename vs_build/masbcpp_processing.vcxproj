@@ -195,12 +195,14 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\compute_ma_processing.h" />
     <ClInclude Include="..\src\io.h" />
     <ClInclude Include="..\src\madata.h" />
     <ClInclude Include="..\src\types.h" />
     <ClInclude Include="..\src\compute_normals_processing.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\compute_ma_processing.cpp" />
     <ClCompile Include="..\src\compute_normals_processing.cpp" />
     <ClCompile Include="..\src\io.cpp" />
   </ItemGroup>

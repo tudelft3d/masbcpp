@@ -27,7 +27,6 @@ SOFTWARE.
 
 struct normals_parameters {
    int k;
-   bool kd_tree_reorder;
 };
 
 void compute_normals(normals_parameters &input_parameters, ma_data &madata);

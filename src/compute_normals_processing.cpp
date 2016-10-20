@@ -46,8 +46,7 @@ void estimate_normals(ma_data &madata, int k) {
 
    // Create an empty kdtree representation, and pass it to the normal estimation object.
    // Its content will be filled inside the object, based on the given input dataset (as no other search surface is given).
-   pcl::search::KdTree<Point>::Ptr tree(new pcl::search::KdTree<Point>());
-   estimation.setSearchMethod(tree);
+   estimation.setSearchMethod(madata.kd_tree);
 
    // Use all neighbors in a sphere of radius 3cm
    estimation.setKSearch(k + 1);
@@ -60,6 +59,16 @@ void compute_normals(normals_parameters &input_parameters, ma_data &madata) {
 #ifdef VERBOSEPRINT
    auto start_time = Clock::now();
 #endif
+
+   if (!madata.kd_tree) {
+      madata.kd_tree.reset(new pcl::search::KdTree<Point>());
+      madata.kd_tree->setInputCloud(madata.coords);
+#ifdef VERBOSEPRINT
+      auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
+      std::cout << "Constructed kd-tree in " << elapsed_time.count() << " ms" << std::endl;
+      start_time = Clock::now();
+#endif
+   }
 
    estimate_normals(madata, input_parameters.k);
 

@@ -30,7 +30,6 @@ struct ma_parameters {
    bool nan_for_initr;
    double denoise_preserve;
    double denoise_planar;
-   bool kd_tree_reorder;
 };
 
 struct ma_result {

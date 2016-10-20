@@ -41,13 +41,10 @@ int main(int argc, char **argv) {
 
       TCLAP::ValueArg<int> kArg("k", "kneighbours", "number of nearest neighbours to use for PCA", false, 10, "int", cmd);
 
-      TCLAP::SwitchArg reorder_kdtreeSwitch("N", "no-kdtree-reorder", "Don't reorder kd-tree points: slower computation but lower memory use", cmd, true);
-
       cmd.parse(argc, argv);
 
       normals_parameters normal_params;
       normal_params.k = kArg.getValue();
-      normal_params.kd_tree_reorder = reorder_kdtreeSwitch.getValue();
 
       std::string npy_path = inputArg.getValue();
       std::string npy_path_coords = npy_path + "/coords.npy";
