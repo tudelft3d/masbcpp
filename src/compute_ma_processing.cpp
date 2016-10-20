@@ -54,16 +54,14 @@ const unsigned int iteration_limit = 30;
 const Point nanPoint(std::numeric_limits<Scalar>::quiet_NaN());
 
 
-inline Scalar compute_radius(Vector3 &p, Vector3 &n, Vector3 &q)
-{
+inline Scalar compute_radius(Vector3 &p, Vector3 &n, Vector3 &q) {
    // this is basic goniometry
    double d = Geometry::mag(p - q);
    Scalar cos_theta = float((n * (p - q)) / d);
    return float(d / (2 * cos_theta));
 }
 
-inline Scalar cos_angle(Vector p, Vector q)
-{
+inline Scalar cos_angle(Vector p, Vector q) {
    // Calculate the cosine of angle between vector p and q, see http://en.wikipedia.org/wiki/Law_of_cosines#Vector_formulation
    Scalar result = float(p*q / (Geometry::mag(p) * Geometry::mag(q)));
    if (result > 1) return 1;
@@ -71,21 +69,20 @@ inline Scalar cos_angle(Vector p, Vector q)
    return result;
 }
 
-ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree2::KDTree* kd_tree)
-{
+ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree2::KDTree* kd_tree) {
    unsigned int j = 0;
    Scalar r, r_previous = 0;
    Point q, c_next;
    int qidx = -1, qidx_next;
    Point c = p - n * input_parameters.initial_radius;
 
-   while (1)
-   {
-// #ifdef VERBOSEPRINT
-//       std::cout << "\nloop iteration: " << j << ", p = (" << p[0] << "," << p[1] << "," << p[2] << ", n = (" << n[0] << "," << n[1] << "," << n[2] << ") \n";
-
-//       std::cout << "c = (" << c[0] << "," << c[1] << "," << c[2] << ")\n";
-// #endif
+   while (1) {
+      /*
+#ifdef VERBOSEPRINT
+      std::cout << "\nloop iteration: " << j << ", p = (" << p[0] << "," << p[1] << "," << p[2] << ", n = (" << n[0] << "," << n[1] << "," << n[2] << ") \n";
+      std::cout << "c = (" << c[0] << "," << c[1] << "," << c[2] << ")\n";
+#endif
+      */
 
       // find closest point to c
       kdtree2::KDTreeResultVector result;
@@ -94,16 +91,16 @@ ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree2
       qidx_next = result[0].idx;
       q = kd_tree->the_data[qidx_next];
 
-// #ifdef VERBOSEPRINT
-//       std::cout << "q = (" << q[0] << "," << q[1] << "," << q[2] << ")\n";
-// #endif
+      /*
+#ifdef VERBOSEPRINT
+      std::cout << "q = (" << q[0] << "," << q[1] << "," << q[2] << ")\n";
+#endif
+      */
 
       // handle case when q==p
-      if (q == p)
-      {
+      if (q == p) {
          // 1) if r_previous==SuperR, apparantly no other points on the halfspace spanned by -n => that's an infinite ball
-         if (r_previous == input_parameters.initial_radius)
-         {
+         if (r_previous == input_parameters.initial_radius) {
             r = input_parameters.initial_radius;
             c = input_parameters.nan_for_initr ? nanPoint : p - n * r;
             break;
@@ -118,16 +115,17 @@ ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree2
       // compute radius
       r = compute_radius(p, n, q);
 
-// #ifdef VERBOSEPRINT
-//       std::cout << "r = " << r << "\n";
-// #endif
+      /*
+#ifdef VERBOSEPRINT
+      std::cout << "r = " << r << "\n";
+#endif
+      */
 
       // if r < 0 closest point was on the wrong side of plane with normal n => start over with SuperRadius on the right side of that plane
       if (r < 0)
          r = input_parameters.initial_radius;
       // if r > SuperR, stop now because otherwise in case of planar surface point configuration, we end up in an infinite loop
-      else if (r > input_parameters.initial_radius)
-      {
+      else if (r > input_parameters.initial_radius) {
          r = input_parameters.initial_radius;
          c = input_parameters.nan_for_initr ? nanPoint : p - n * r;
          break;
@@ -137,20 +135,17 @@ ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree2
       c_next = p - n * r;
 
       // denoising
-      if (input_parameters.denoise_preserve || input_parameters.denoise_planar)
-      {
+      if (input_parameters.denoise_preserve || input_parameters.denoise_planar) {
          Scalar a = cos_angle(p - c_next, q - c_next);
          Scalar separation_angle = Math::acos(a);
 
-         if (input_parameters.denoise_preserve && (separation_angle < input_parameters.denoise_preserve && j>0 && r > Geometry::mag(q - p)))
-         {
+         if (input_parameters.denoise_preserve && (separation_angle < input_parameters.denoise_preserve && j>0 && r > Geometry::mag(q - p))) {
             // keep previous radius:
             r = r_previous;
             // qidx = qidx_next;
             break;
          }
-         if (input_parameters.denoise_planar && (separation_angle < input_parameters.denoise_planar && j == 0))
-         {
+         if (input_parameters.denoise_planar && (separation_angle < input_parameters.denoise_planar && j == 0)) {
             r = input_parameters.initial_radius;
             c = input_parameters.nan_for_initr ? nanPoint : p - n * r;
             // qidx = qidx_next;
@@ -175,8 +170,7 @@ ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree2
    return{ c, qidx };
 }
 
-void sb_points(ma_parameters &input_parameters, ma_data &madata, bool inner = 1)
-{
+void sb_points(ma_parameters &input_parameters, ma_data &madata, bool inner = 1) {
    Point p;
    Vector n;
 
@@ -184,36 +178,34 @@ void sb_points(ma_parameters &input_parameters, ma_data &madata, bool inner = 1)
    unsigned int offset = 0;
    if (inner == false)
       offset = madata.m;
-      
+
 #pragma omp parallel for private(p, n)
-   for (int i = 0; i < madata.coords->size(); i++)
-   {
+   for (int i = 0; i < madata.coords->size(); i++) {
       p = (*madata.coords)[i];
       if (inner)
          n = (*madata.normals)[i];
       else
          n = -(*madata.normals)[i];
       ma_result r = sb_point(input_parameters, p, n, madata.kdtree_coords);
-      (*madata.ma_coords)[i+offset] = r.c;
-      madata.ma_qidx[i+offset] = r.qidx;
+      (*madata.ma_coords)[i + offset] = r.c;
+      madata.ma_qidx[i + offset] = r.qidx;
    }
-   // return ma_coords;
 }
+
 //PointList &coords, VectorList &normals,PointList &ma_coords_in, int* ma_qidx_in, PointList &ma_coords_out, int* ma_qidx_out
-void compute_masb_points(ma_parameters &input_parameters, ma_data &madata)
-{
-      #ifdef VERBOSEPRINT
-      Misc::Timer t0;
-      #endif
-      if (madata.kdtree_coords == NULL) {
-            madata.kdtree_coords = new kdtree2::KDTree((*madata.coords), input_parameters.kd_tree_reorder);
-            #ifdef VERBOSEPRINT
-            t0.elapse();
-            std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
-            #endif
-      }
-      madata.kdtree_coords->sort_results = true;
-      
+void compute_masb_points(ma_parameters &input_parameters, ma_data &madata) {
+#ifdef VERBOSEPRINT
+   Misc::Timer t0;
+#endif
+   if (madata.kdtree_coords == NULL) {
+      madata.kdtree_coords = new kdtree2::KDTree((*madata.coords), input_parameters.kd_tree_reorder);
+#ifdef VERBOSEPRINT
+      t0.elapse();
+      std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
+#endif
+   }
+   madata.kdtree_coords->sort_results = true;
+
    // Inside processing
    {
       sb_points(input_parameters, madata, 1);
@@ -237,7 +229,6 @@ void compute_masb_points(ma_parameters &input_parameters, ma_data &madata)
 }
 
 /*
-
 void convertNPYtoXYZ(std::string inFile, std::string outFile)
 {
    // Read in the data:
@@ -265,6 +256,4 @@ void convertNPYtoXYZ(std::string inFile, std::string outFile)
    }
    coords_npy.destruct();
 }
-
 */
-
