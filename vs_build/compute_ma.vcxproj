@@ -97,7 +97,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\thirdparty</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\thirdparty;..\..\eigen;..\..\pcl\include;..\..\pcl\3rdParty\Boost\include\boost-1_60;..\..\pcl\3rdParty\FLANN\include;..\..\pcl\3rdParty\OpenNI2\include;..\..\pcl\3rdParty\Qhull\include;..\..\pcl\3rdParty\VTK\include\vtk-7.0</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
@@ -105,7 +105,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Boost\lib\$(PlatformTarget)\libboost_system-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_filesystem-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_thread-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_date_time-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_iostreams-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_serialization-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_chrono-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_atomic-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_regex-vc140-mt-1_60.lib;OpenNI2\lib\$(PlatformTarget)\OpenNI2.lib;pcl_common_release.lib;pcl_search_release.lib;pcl_features_release.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\pcl\3rdParty;..\..\pcl\bin\$(PlatformTarget)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -115,7 +116,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\thirdparty</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\thirdparty;..\..\eigen;..\..\pcl\include;..\..\pcl\3rdParty\Boost\include\boost-1_60;..\..\pcl\3rdParty\FLANN\include;..\..\pcl\3rdParty\OpenNI2\include;..\..\pcl\3rdParty\Qhull\include;..\..\pcl\3rdParty\VTK\include\vtk-7.0</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
@@ -123,7 +124,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Boost\lib\$(PlatformTarget)\libboost_system-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_filesystem-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_thread-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_date_time-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_iostreams-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_serialization-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_chrono-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_atomic-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_regex-vc140-mt-1_60.lib;OpenNI2\lib\$(PlatformTarget)\OpenNI2.lib;pcl_common_release.lib;pcl_search_release.lib;pcl_features_release.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\pcl\3rdParty;..\..\pcl\bin\$(PlatformTarget)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -135,7 +137,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\thirdparty</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\thirdparty;..\..\eigen;..\..\pcl\include;..\..\pcl\3rdParty\Boost\include\boost-1_60;..\..\pcl\3rdParty\FLANN\include;..\..\pcl\3rdParty\OpenNI2\include;..\..\pcl\3rdParty\Qhull\include;..\..\pcl\3rdParty\VTK\include\vtk-7.0</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
@@ -145,7 +147,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Boost\lib\$(PlatformTarget)\libboost_system-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_filesystem-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_thread-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_date_time-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_iostreams-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_serialization-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_chrono-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_atomic-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_regex-vc140-mt-1_60.lib;OpenNI2\lib\$(PlatformTarget)\OpenNI2.lib;pcl_common_release.lib;pcl_search_release.lib;pcl_features_release.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\pcl\3rdParty;..\..\pcl\bin\$(PlatformTarget)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -157,7 +160,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\thirdparty</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\thirdparty;..\..\eigen;..\..\pcl\include;..\..\pcl\3rdParty\Boost\include\boost-1_60;..\..\pcl\3rdParty\FLANN\include;..\..\pcl\3rdParty\OpenNI2\include;..\..\pcl\3rdParty\Qhull\include;..\..\pcl\3rdParty\VTK\include\vtk-7.0</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
@@ -167,7 +170,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;Boost\lib\$(PlatformTarget)\libboost_system-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_filesystem-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_thread-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_date_time-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_iostreams-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_serialization-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_chrono-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_atomic-vc140-mt-1_60.lib;Boost\lib\$(PlatformTarget)\libboost_regex-vc140-mt-1_60.lib;OpenNI2\lib\$(PlatformTarget)\OpenNI2.lib;pcl_common_release.lib;pcl_search_release.lib;pcl_features_release.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\pcl\3rdParty;..\..\pcl\bin\$(PlatformTarget)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
