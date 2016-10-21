@@ -46,34 +46,25 @@ int main(int argc, char **argv) {
       normals_parameters normal_params;
       normal_params.k = kArg.getValue();
 
-      std::string npy_path = inputArg.getValue();
-      std::string npy_path_coords = npy_path + "/coords.npy";
-
-      if (outputArg.isSet()) {
-         npy_path = outputArg.getValue();
-      }
+      std::string output_path = outputArg.isSet() ? outputArg.getValue() : inputArg.getValue();
 
       std::cout << "Parameters: k=" << normal_params.k << std::endl;
 
       io_parameters io_params = {};
       io_params.coords = true;
+
       ma_data madata = {};
-
-      PointCloud::Ptr coords(new PointCloud);
-      madata.coords = coords;
-      NormalCloud::Ptr normals(new NormalCloud);
-      madata.normals = normals;
-
-      npy2madata(npy_path, madata, io_params);
+      npy2madata(inputArg.getValue(), madata, io_params);
 
       std::cout << "Point count: " << madata.m << std::endl;
 
       // Perform the actual processing
+      madata.normals.reset(new NormalCloud);
       compute_normals(normal_params, madata);
 
       io_params.coords = false;
       io_params.normals = true;
-      madata2npy(npy_path, madata, io_params);
+      madata2npy(output_path, madata, io_params);
    }
    catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
 

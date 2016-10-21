@@ -54,56 +54,21 @@ int main(int argc, char **argv) {
       input_parameters.denoise_planar = (M_PI / 180.0) * denoise_planarArg.getValue();
       input_parameters.nan_for_initr = nan_for_initrSwitch.getValue();
 
-      std::string output_path = inputArg.getValue();
-      if (outputArg.isSet())
-         output_path = outputArg.getValue();
-      std::replace(output_path.begin(), output_path.end(), '\\', '/');
-
-      // check for proper in-output arguments and set in and output filepath strings
-      std::string input_coords_path = inputArg.getValue() + "/coords.npy";
-      std::replace(input_coords_path.begin(), input_coords_path.end(), '\\', '/');
-      std::string input_normals_path = inputArg.getValue() + "/normals.npy";
-      std::replace(input_normals_path.begin(), input_normals_path.end(), '\\', '/');
-      std::string output_path_ma_in = output_path + "/ma_coords_in.npy";
-      std::string output_path_ma_out = output_path + "/ma_coords_out.npy";
-      std::string output_path_ma_q_in = output_path + "/ma_qidx_in.npy";
-      std::string output_path_ma_q_out = output_path + "/ma_qidx_out.npy";
-
-      std::string output_path_metadata = output_path + "/compute_ma";
-      std::replace(output_path_metadata.begin(), output_path_metadata.end(), '\\', '/');
-
-      {
-         std::ifstream infile(input_coords_path.c_str());
-         if (!infile)
-            throw TCLAP::ArgParseException("invalid filepath", inputArg.getValue());
-      }
-      {
-         std::ifstream infile(input_normals_path.c_str());
-         if (!infile)
-            throw TCLAP::ArgParseException("invalid filepath", inputArg.getValue());
-      }
-      {
-         std::ofstream outfile(output_path_ma_in.c_str());
-         if (!outfile)
-            throw TCLAP::ArgParseException("invalid filepath", output_path);
-      }
+      std::string output_path = outputArg.isSet() ? outputArg.getValue() : inputArg.getValue();
 
       std::cout << "Parameters: denoise_preserve=" << denoise_preserveArg.getValue() << ", denoise_planar=" << denoise_planarArg.getValue() << ", initial_radius=" << input_parameters.initial_radius << "\n";
 
       io_parameters io_params = {};
       io_params.coords = true;
       io_params.normals = true;
+
       ma_data madata = {};
-
-      madata.coords = PointCloud::Ptr(new PointCloud);
-      madata.normals = NormalCloud::Ptr(new NormalCloud);
-      madata.ma_coords = PointCloud::Ptr(new PointCloud);
-
       npy2madata(inputArg.getValue(), madata, io_params);
 
-      madata.ma_qidx.resize(2 * madata.m);
-
       // Perform the actual processing
+      madata.ma_coords.reset(new PointCloud);
+      madata.ma_coords->resize(2 * madata.m);
+      madata.ma_qidx.resize(2 * madata.m);
       compute_masb_points(input_parameters, madata);
 
       io_params.coords = false;
@@ -111,6 +76,23 @@ int main(int argc, char **argv) {
       io_params.ma_coords = true;
       io_params.ma_qidx = true;
       madata2npy(output_path, madata, io_params);
+
+      {
+         std::string output_path_metadata = output_path + "/compute_ma";
+         std::replace(output_path_metadata.begin(), output_path_metadata.end(), '\\', '/');
+
+         std::ofstream metadata(output_path_metadata.c_str());
+         if (!metadata) {
+            throw TCLAP::ArgParseException("invalid filepath", output_path);
+         }
+
+         metadata
+            << "initial_radius " << input_parameters.initial_radius << std::endl
+            << "nan_for_initr " << input_parameters.nan_for_initr << std::endl
+            << "denoise_preserve " << denoise_preserveArg.getValue() << std::endl
+            << "denoise_planar " << denoise_planarArg.getValue() << std::endl;
+         metadata.close();
+      }
    }
    catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
 
