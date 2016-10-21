@@ -20,14 +20,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef COMPUTE_NORMALS_PROCESSING_
-#define COMPUTE_NORMALS_PROCESSING_
+#ifndef MASBCPP_COMPUTE_NORMALS_PROCESSING_
+#define MASBCPP_COMPUTE_NORMALS_PROCESSING_
 
 #include "madata.h"
 
 struct normals_parameters {
    int k;
-   bool kd_tree_reorder;
 };
 
 void compute_normals(normals_parameters &input_parameters, ma_data &madata);

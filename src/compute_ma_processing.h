@@ -20,8 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#ifndef COMPUTE_MA_PROCESSING_
-#define COMPUTE_MA_PROCESSING_
+#ifndef MASBCPP_COMPUTE_MA_PROCESSING_
+#define MASBCPP_COMPUTE_MA_PROCESSING_
 
 #include "madata.h"
 
@@ -30,15 +30,13 @@ struct ma_parameters {
    bool nan_for_initr;
    double denoise_preserve;
    double denoise_planar;
-   bool kd_tree_reorder;
 };
 
 struct ma_result {
-	Point c;
-	int qidx;
+   Point c;
+   int qidx;
 };
 
 void compute_masb_points(ma_parameters &input_parameters, ma_data &madata);
-
 
 #endif
