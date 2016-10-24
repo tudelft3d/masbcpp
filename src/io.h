@@ -34,6 +34,8 @@ struct io_parameters {
    bool normals;
    bool ma_coords;
    bool ma_qidx;
+   bool lfs;
+   bool mask;
 };
 
 void npy2madata(std::string input_dir_path, ma_data &madata, io_parameters &p);

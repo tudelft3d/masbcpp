@@ -35,8 +35,8 @@ struct ma_data {
    PointCloud::Ptr ma_coords;
    std::vector<int> ma_qidx;
 
-   float lfs;
-   bool mask;
+   std::vector<float> lfs;
+   std::vector<bool> mask;
 
    pcl::search::KdTree<Point>::Ptr kd_tree;
 };

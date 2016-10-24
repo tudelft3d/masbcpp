@@ -24,13 +24,12 @@ SOFTWARE.
 #include <fstream>
 #include <string>
 
-// cnpy
-#include <cnpy/cnpy.h>
 // tclap
 #include <tclap/CmdLine.h>
 
 // typedefs
 #include "simplify_processing.h"
+#include "io.h"
 
 
 
@@ -66,97 +65,34 @@ int main(int argc, char **argv)
         input_parameters.compute_lfs = !nolfsSwitch.getValue();
         input_parameters.elevation_threshold = fake3dArg.getValue();
         input_parameters.maximum_density = maxdensArg.getValue();
-        input_parameters.dimension = 3;
+        input_parameters.true_z_dim = true;
         input_parameters.only_inner = innerSwitch.getValue();
         input_parameters.squared = squaredSwitch.getValue();
         if( fake3dArg.isSet() )
-           input_parameters.dimension = 2;
+           input_parameters.true_z_dim = false;
 
         std::string output_path = inputArg.getValue();
         if(outputArg.isSet())
             output_path = outputArg.getValue();
         std::replace(output_path.begin(), output_path.end(), '\\', '/');
 
-        // check for proper in-output arguments and set in and output filepath strings
-        std::string input_path = inputArg.getValue();
-        std::replace(input_path.begin(), input_path.end(), '\\', '/');
-        std::string input_coords_path = input_path+"/coords.npy";
-        std::string input_path_ma_coords_in = input_path+"/ma_coords_in.npy";
-        std::string input_path_ma_coords_out = input_path+"/ma_coords_out.npy";
-        std::string input_path_ma_qidx_in = input_path+"/ma_qidx_in.npy";
-        std::string input_path_ma_qidx_out = input_path+"/ma_qidx_out.npy";
-        std::string input_path_lfs = input_path+"/lfs.npy";
-        std::string output_lfs = output_path+"/lfs.npy";
-        std::string output_filtermask = output_path+"/decimate_lfs.npy";
-        {
-            std::ifstream infile(input_coords_path.c_str());
-            if(!infile)
-                throw TCLAP::ArgParseException("invalid filepath", inputArg.getValue());
-        }
-        {
-            std::ifstream infile(input_path_ma_coords_in.c_str());
-            if(!infile)
-                throw TCLAP::ArgParseException("invalid filepath", inputArg.getValue());
-        }
-        {
-            std::ofstream outfile(output_filtermask.c_str());    
-            if(!outfile)
-                throw TCLAP::ArgParseException("invalid filepath", output_path);
-        }
 
         ma_data madata = {};
-	    
-	    cnpy::NpyArray coords_npy = cnpy::npy_load( input_coords_path.c_str() );
-	    float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
-
-	    madata.m = coords_npy.shape[0];
-	    unsigned int dim = coords_npy.shape[1];
-	    PointList coords(madata.m);
-        madata.bbox = Box(Point(&coords_carray[0]), Point(&coords_carray[0]));
-	    for ( int i=0; i<madata.m; i++){ 
-            coords[i] = Point(&coords_carray[i*3]);
-            madata.bbox.addPoint(coords[i]);
+        io_parameters input_params = {};
+        input_params.coords = true;
+        input_params.ma_coords = true;
+        input_params.ma_qidx = true;
+        if(!input_parameters.compute_lfs){
+           input_params.lfs = true;
         }
-	    coords_npy.destruct();
-        // std::cout << "bbox: " << madata.bbox.min[0] << " " << madata.bbox.min[1] << " " << madata.bbox.min[2] << " " << madata.bbox.max[0] << " " << madata.bbox.max[1] << " " << madata.bbox.max[2] << std::endl;
-
-        PointList ma_coords(2*madata.m);
-
-        cnpy::NpyArray ma_coords_in_npy = cnpy::npy_load( input_path_ma_coords_in.c_str() );
-        float* ma_coords_in_carray = reinterpret_cast<float*>(ma_coords_in_npy.data);
-        for ( int i=0; i<madata.m; i++) ma_coords[i] = Point(&ma_coords_in_carray[i*3]);
-        ma_coords_in_npy.destruct();    
-        
-        cnpy::NpyArray ma_coords_out_npy = cnpy::npy_load( input_path_ma_coords_out.c_str() );
-        float* ma_coords_out_carray = reinterpret_cast<float*>(ma_coords_out_npy.data);
-        for ( int i=0; i<madata.m; i++) ma_coords[i+madata.m] = Point(&ma_coords_out_carray[i*3]);
-        ma_coords_out_npy.destruct();
-
-        
-        madata.ma_qidx = new int[2*madata.m];
-        cnpy::NpyArray ma_qidx_in_npy = cnpy::npy_load( input_path_ma_qidx_in.c_str() );
-        int* ma_qidx_in = reinterpret_cast<int*>(ma_qidx_in_npy.data);
-        for ( int i=0; i<madata.m; i++) madata.ma_qidx[i] = ma_qidx_in[i];
-        ma_qidx_in_npy.destruct();
-
-        cnpy::NpyArray ma_qidx_out_npy = cnpy::npy_load( input_path_ma_qidx_out.c_str() );
-        int* ma_qidx_out = reinterpret_cast<int*>(ma_qidx_out_npy.data);
-        for ( int i=0; i<madata.m; i++) madata.ma_qidx[i+madata.m] = ma_qidx_out[i];
-        ma_qidx_out_npy.destruct();
-
-        if(input_parameters.compute_lfs){
-            madata.lfs = new float[madata.m];
-        } else {
-            cnpy::NpyArray ma_lfs_npy = cnpy::npy_load( input_path_lfs.c_str() );
-            madata.lfs = reinterpret_cast<float*>(ma_lfs_npy.data);
+        else
+        {
+           madata.lfs.resize(madata.m);
         }
-	    
-        
-        madata.coords = &coords; // don't own this memory
-        // madata.normals = &normals;
-        madata.ma_coords = &ma_coords; // don't own this memory
 
-        madata.mask = new bool[madata.m];
+        npy2madata(inputArg.getValue(), madata, input_params);
+
+        madata.mask.resize(madata.m);
 
 	    {
           // Perform the actual processing
@@ -169,13 +105,14 @@ int main(int argc, char **argv)
           std::cout << cnt << " out of " << madata.m << " points remaining [" << int(100*float(cnt)/madata.m) << "%]" << std::endl;
 
           // Output results
-          const unsigned int c_size = madata.m;
-          const unsigned int shape[] = { c_size };
-          cnpy::npy_save(output_filtermask.c_str(), madata.mask, shape, 1, "w");
-          cnpy::npy_save(output_lfs.c_str(), madata.lfs, shape, 1, "w");
+          io_parameters output_params = {};
+          output_params.lfs = true;
+          output_params.mask = true;
+          madata2npy(output_path, madata, output_params);
         }
 
         if( outputXYZArg.isSet() ){
+            /*
             std::string outFile_bounds = outputXYZArg.getValue();
             outFile_bounds.append(".bounds");
             std::replace(outFile_bounds.begin(), outFile_bounds.end(), '\\', '/');
@@ -186,32 +123,27 @@ int main(int argc, char **argv)
              std::endl << madata.bbox.min[2] << std::endl << madata.bbox.max[2] << std::endl;
             
             ofs_bounds.close();
-            
-            outFile_bounds = outputXYZArg.getValue();
-            std::replace(outFile_bounds.begin(), outFile_bounds.end(), '\\', '/');
-            std::ofstream ofs(outFile_bounds.c_str());
-            ofs <<std::setprecision(2)<<std::fixed;
+            */
+
+            std::string outFile_xyz = outputXYZArg.getValue();
+            std::replace(outFile_xyz.begin(), outFile_xyz.end(), '\\', '/');
+            std::ofstream ofs(outFile_xyz.c_str());
+            //ofs <<std::setprecision(2)<<std::fixed;
             
             // many pointcloud xyz readers prefer a "header" line.
             ofs << "x y z" << std::endl;
 
             for( int i=0; i<madata.m; i++ ) {
                 if( madata.mask[i] ){
-                    ofs << (*madata.coords)[i][0];
-                    ofs << " " << (*madata.coords)[i][1];
-                    ofs << " " << (*madata.coords)[i][2];
+                    ofs << (*madata.coords)[i].x;
+                    ofs << " " << (*madata.coords)[i].y;
+                    ofs << " " << (*madata.coords)[i].z;
                 ofs << std::endl;
                 }
             }
             
             ofs.close();
         }
-
-        // Free memory
-        delete[] madata.mask; madata.mask = NULL;
-        delete[] madata.lfs; madata.lfs = NULL;
-        delete[] madata.ma_qidx; madata.ma_qidx = NULL;
-
 	} catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
 
     return 0;

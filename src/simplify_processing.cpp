@@ -23,22 +23,34 @@ SOFTWARE.
 #include <limits>
 #include <random>
 
+#include <pcl/common/common.h>
+
+#ifdef VERBOSEPRINT
+#include <chrono>
+#include <iostream>
+#endif
+
 // OpenMP
 #ifdef WITH_OPENMP
 #include <omp.h>
 #endif
 
+#ifdef VERBOSEPRINT
+typedef std::chrono::high_resolution_clock Clock;
+#endif
+
+/*
 // Vrui
 #include <vrui/Geometry/ComponentArray.h>
 #include <vrui/Math/Math.h>
 
 #ifdef VERBOSEPRINT
 #include <vrui/Misc/Timer.h>
-#include <iostream>
 #endif
 
 // kdtree2
 #include <kdtree2/kdtree2.hpp>
+*/
 
 // typedefs
 #include "simplify_processing.h"
@@ -56,7 +68,7 @@ SOFTWARE.
 void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true)
 {
 #ifdef VERBOSEPRINT
-   Misc::Timer t0;
+   auto start_time = Clock::now();
 #endif
 
    int N = 2 * madata.m;
@@ -66,38 +78,43 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
    }
    // compute bisector and filter .. rebuild kdtree .. compute lfs .. compute grid .. thin each cell
 
-   VectorList ma_bisec(N);
+   Vector3List ma_bisec(N);
    //madata.ma_bisec = &ma_bisec;
    for (int i = 0; i < N; i++) {
       if (madata.ma_qidx[i] != -1) {
-         Vector f1_in = (*madata.coords)[i%madata.m] - (*madata.ma_coords)[i];
-         Vector f2_in = (*madata.coords)[madata.ma_qidx[i]] - (*madata.ma_coords)[i];
+         Vector3 f1_in = (*madata.coords)[i%madata.m].getVector3fMap() - (*madata.ma_coords)[i].getVector3fMap();
+         Vector3 f2_in = (*madata.coords)[madata.ma_qidx[i]].getVector3fMap() - (*madata.ma_coords)[i].getVector3fMap();
 
-         ma_bisec[i] = (f1_in + f2_in).normalize();
+         ma_bisec[i] = (f1_in + f2_in).normalized();
       }
    }
 #ifdef VERBOSEPRINT
-   t0.elapse();
-   std::cout << "Computed bisectors in " << t0.getTime()*1000.0 << " ms" << std::endl;
+   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
+   std::cout << "Computed bisectors in " << elapsed_time.count() << " ms" << std::endl;
+   start_time = Clock::now();
 #endif
 
    int k = 2, count = 0;
    {
-      kdtree2::KDTree kd_tree(*madata.ma_coords, true);
-      kd_tree.sort_results = true;
+      pcl::search::KdTree<Point>::Ptr kd_tree(new pcl::search::KdTree<Point>());
+      madata.kd_tree->setInputCloud(madata.ma_coords);
 #ifdef VERBOSEPRINT
-      t0.elapse();
-      std::cout << "Constructed kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
+      auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
+      std::cout << "Constructed kd-tree in " << elapsed_time.count() << " ms" << std::endl;
+      start_time = Clock::now();
 #endif
 
-      kdtree2::KDTreeResultVector result;
-#pragma omp parallel for private(result)
+      // Results from our search
+      std::vector<int> k_indices(k);
+      std::vector<Scalar> k_distances(k);
+
+#pragma omp parallel for shared(k_indices)
       for (int i = 0; i < N; i++) {
          madata.mask[i] = false;
          if (madata.ma_qidx[i] != -1) {
-            kd_tree.n_nearest((*madata.ma_coords)[i], k, result);
+            kd_tree->nearestKSearch((*madata.ma_coords)[i], k, k_indices, k_distances); // find closest point to c
 
-            float bisec_angle = acos(ma_bisec[result[1].idx] * ma_bisec[i]);
+            float bisec_angle = std::acos(ma_bisec[k_indices[1]].dot(ma_bisec[i]));
             if (bisec_angle < bisec_threshold)
                madata.mask[i] = true;
          }
@@ -107,50 +124,58 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
             count++;
 
 #ifdef VERBOSEPRINT
-      t0.elapse();
-      std::cout << "Cleaned MA points in " << t0.getTime()*1000.0 << " ms" << std::endl;
+      elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
+      std::cout << "Cleaned MA points in " << elapsed_time.count() << " ms" << std::endl;
+      start_time = Clock::now();
 #endif
    }
    // mask and copy pointlist ma_coords
-   PointList ma_coords_masked(count);
-   int j = 0;
+   PointCloud::Ptr ma_coords_masked(new PointCloud);
+   ma_coords_masked->reserve(count);
+
    for (int i = 0; i < N; i++) {
       if (madata.mask[i])
-         ma_coords_masked[j++] = (*madata.ma_coords)[i];
+         ma_coords_masked->push_back((*madata.ma_coords)[i]);
    }
 #ifdef VERBOSEPRINT
-   t0.elapse();
-   std::cout << "Copied cleaned MA points in " << t0.getTime()*1000.0 << " ms" << std::endl;
+   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
+   std::cout << "Copied cleaned MA points in " << elapsed_time.count() << " ms" << std::endl;
+   start_time = Clock::now();
 #endif
 
    k = 1;
    {
       // rebuild kd-tree
-      kdtree2::KDTree kd_tree(ma_coords_masked, true);
+      pcl::search::KdTree<Point>::Ptr kd_tree(new pcl::search::KdTree<Point>());
+      madata.kd_tree->setInputCloud(ma_coords_masked);
       // kd_tree = new kdtree2::KDTree;
-      kd_tree.sort_results = true;
 #ifdef VERBOSEPRINT
-      t0.elapse();
-      std::cout << "Constructed cleaned kd-tree in " << t0.getTime()*1000.0 << " ms" << std::endl;
+      elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
+      std::cout << "Constructed cleaned kd-tree in " << elapsed_time.count() << " ms" << std::endl;
+      start_time = Clock::now();
 #endif
 
-      kdtree2::KDTreeResultVector result;
-#pragma omp parallel for private(result)
+      // Results from our search
+      std::vector<int> k_indices(k);
+      std::vector<Scalar> k_distances(k);
+
+#pragma omp parallel for shared(k_distances)
       for (int i = 0; i < madata.m; i++) {
-         kd_tree.n_nearest((*madata.coords)[i], k, result);
-         madata.lfs[i] = sqrt(result[0].dis);
+         kd_tree->nearestKSearch((*madata.coords)[i], k, k_indices, k_distances); // find closest point to c
+         madata.lfs[i] = std::sqrt(k_distances[0]);
       }
 #ifdef VERBOSEPRINT
-      t0.elapse();
-      std::cout << "Computed LFS in " << t0.getTime()*1000.0 << " ms" << std::endl;
+      elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
+      std::cout << "Computed LFS in " << elapsed_time.count() << " ms" << std::endl;
+      start_time = Clock::now();
 #endif
    }
 
 
 }
 
-inline int flatindex(int ind[], int size[], int dimension) {
-   if (dimension == 2)
+inline int flatindex(int ind[], int size[], bool true_z_dim) {
+   if (!true_z_dim)
       return ind[0] + size[0] * ind[1];
    return ind[0] + size[0] * (ind[1] + ind[2] * size[1]);
 }
@@ -158,49 +183,68 @@ inline int flatindex(int ind[], int size[], int dimension) {
 void simplify(ma_data &madata, 
              double cellsize, 
              double epsilon, 
-             int dimension = 3, 
+             bool true_z_dim = true, 
              double elevation_threshold = 0.0, 
              double maximum_density = 0,
              bool squared = false) 
 {
 #ifdef VERBOSEPRINT
-   Misc::Timer t0;
+   auto start_time = Clock::now();
 #endif
 
-   Box::Size size = madata.bbox.getSize();
-   Point origin = Point(madata.bbox.min);
+   Point minPt;
+   Point maxPt;
+   pcl::getMinMax3D(*(madata.coords), minPt, maxPt);
+   float size[3];
+   size[0] = maxPt.x - minPt.x;
+   size[1] = maxPt.y - minPt.y;
+   if (true_z_dim)
+      size[2] = maxPt.z - minPt.z;
+   Point origin = minPt;
 
-   int* resolution = new int[dimension];
+   //Box::Size size = madata.bbox.getSize();
+   //Point origin = Point(madata.bbox.min);
+
+   int* resolution = new int[3];
 
    #ifdef VERBOSEPRINT
    std::cout << "Grid resolution: ";
    #endif
-   for (int i = 0; i < dimension; i++) {
-      resolution[i] = int(size[i] / cellsize) + 1;
-      #ifdef VERBOSEPRINT
-      std::cout << resolution[i] << " ";
-      #endif
-   }
+
+   // x, y, z - resolution
+   resolution[0] = int(size[0] / cellsize) + 1;
+   resolution[1] = int(size[1] / cellsize) + 1;
+   if (true_z_dim)
+      resolution[2] = int(size[2] / cellsize) + 1;
+
    #ifdef VERBOSEPRINT
+   std::cout << resolution[0] << " ";
+   std::cout << resolution[1] << " ";
+   if (true_z_dim)
+      std::cout << resolution[2] << " ";
    std::cout << std::endl;
    #endif
 
    int ncells = 1;
-   for (int i = 0; i < dimension; i++)
-      ncells *= resolution[i];
+   ncells *= resolution[0];
+   ncells *= resolution[1];
+   if (true_z_dim)
+      ncells *= resolution[2];
 
    intList** grid = new intList*[ncells];
    for (int i = 0; i < ncells; i++) {
       grid[i] = NULL;
    }
 
-   int* idx = new int[dimension];
+   int* idx = new int[3];
    int index;
    for (int i = 0; i < madata.m; i++) {
-      for (int j = 0; j < dimension; j++) {
-         idx[j] = int(((*madata.coords)[i][j] - origin[j]) / cellsize);
-      }
-      index = flatindex(idx, resolution, dimension);
+      idx[0] = int(((*madata.coords)[i].x - origin.x) / cellsize);
+      idx[1] = int(((*madata.coords)[i].y - origin.y) / cellsize);
+      if (true_z_dim)
+         idx[2] = int(((*madata.coords)[i].z - origin.z) / cellsize);
+
+      index = flatindex(idx, resolution, true_z_dim);
 
       if (grid[index] == NULL) {
          intList *ilist = new intList;
@@ -224,11 +268,11 @@ void simplify(ma_data &madata,
       if (grid[i] != NULL) {
          size_t n = grid[i]->size();
          float sum = 0, max_z, min_z;
-         max_z = min_z = (*madata.coords)[(*grid[i])[0]][2];
+         max_z = min_z = (*madata.coords)[(*grid[i])[0]].z;
 
          for (auto j : *grid[i]) {
             sum += madata.lfs[j];
-            float z = (*madata.coords)[j][2];
+            float z = (*madata.coords)[j].z;
             if (z > max_z) max_z = z;
             if (z < min_z) min_z = z;
          }
@@ -246,8 +290,9 @@ void simplify(ma_data &madata,
             madata.mask[j] = randu(gen) <= target_n / n;
       }
 #ifdef VERBOSEPRINT
-   t0.elapse();
-   std::cout << "Performed grid simplification in " << t0.getTime()*1000.0 << " ms" << std::endl;
+   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
+   std::cout << "Performed grid simplification in " << elapsed_time.count() << " ms" << std::endl;
+   start_time = Clock::now();
 #endif
 
 
@@ -267,7 +312,7 @@ void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata)
       compute_lfs(madata, input_parameters.bisec_threshold, input_parameters.only_inner);
    simplify(madata, input_parameters.cellsize, 
                     input_parameters.epsilon, 
-                    input_parameters.dimension, 
+                    input_parameters.true_z_dim, 
                     input_parameters.elevation_threshold, 
                     input_parameters.maximum_density,
                     input_parameters.squared);
@@ -276,43 +321,48 @@ void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata)
 void simplify(normals_parameters &normals_params, 
               ma_parameters &ma_params,
               simplify_parameters &simplify_params,
-              PointList &coords, bool *mask) // mask *must* be allocated ahead of time to be an array of size "2*coords.size()".
+              PointCloud::Ptr coords, bool *mask) // mask *must* be allocated ahead of time to be an array of size "2*coords.size()".
 {
    ///////////////////////////
    // Step 0: prepare data struct:
    ma_data madata = {};
-   madata.m = coords.size();
-   madata.coords = &coords; // don't own this memory
+   madata.m = coords->size();
+   madata.coords = coords; // add to the reference count
    
+
    ///////////////////////////
    // Step 1: compute normals:
-   VectorList normals(madata.m);
-   madata.normals = &normals; // don't own this memory
+   NormalCloud::Ptr normals(new NormalCloud);
+   normals->resize(madata.m);
+   madata.normals = normals; // add to the reference count
    compute_normals(normals_params, madata);
 
 
    ///////////////////////////
    // Step 2: compute ma
-   PointList ma_coords(2*madata.m);
-   madata.ma_coords = &ma_coords; // don't own this memory
-   madata.ma_qidx = new int[2*madata.m]; // don't own this memory
+   PointCloud::Ptr ma_coords(new PointCloud);
+   ma_coords->resize(2*madata.m);
+   madata.ma_coords = ma_coords; // add to the reference count
+   madata.ma_qidx.resize(2 * madata.m);
    compute_masb_points(ma_params, madata);
 
-   delete madata.kdtree_coords; madata.kdtree_coords = NULL;
+   //delete madata.kdtree_coords; madata.kdtree_coords = NULL;
+
 
    ///////////////////////////
    // Step 3: Simplify
-   madata.bbox = Box(Point(coords[0]), Point(coords[0]));
-   for (int i = 0; i < madata.m; i++) {
-      madata.bbox.addPoint(coords[i]);
-   }
+//    madata.bbox = Box(Point(coords[0]), Point(coords[0]));
+//    for (int i = 0; i < madata.m; i++) {
+//       madata.bbox.addPoint(coords[i]);
+//    }
 
-   madata.mask = mask; // don't own this memory
-   madata.lfs = new float[madata.m];
+   madata.mask.resize(madata.m);
+   madata.lfs.resize(madata.m);
    void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata);
 
-   // Clean up unused memory here
-   delete[] madata.lfs; madata.lfs = NULL;
-   delete[] madata.ma_qidx; madata.ma_qidx = NULL;
+   ///////////////////////////
+   // Pass back the results in a safe way.
+   std::copy(madata.mask.begin(), madata.mask.end(), mask);
+   //memcpy(mask, &madata.mask[0], madata.mask.size() * sizeof(bool));
 }
 

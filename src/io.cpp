@@ -158,6 +158,24 @@ void npy2madata(std::string input_dir_path, ma_data &madata, io_parameters &para
          madata.ma_qidx.push_back(out_qidx_carray[i]);
       out_npy_array.destruct();
    }
+
+   if (params.lfs) {
+      std::cout << "Reading lfs array..." << std::endl;
+
+      cnpy::NpyArray npy_array = read_npyarray(input_dir_path + "/lfs.npy");
+      float* lfs_carray = reinterpret_cast<float*>(npy_array.data);
+
+      if (npy_array.shape[0] != madata.m) {
+         std::cerr << "Mismatched number of coords and normals" << std::endl;
+         exit(1);
+      }
+
+      madata.lfs.reserve(madata.m);
+
+      for (size_t i = 0; i < madata.m; i++)
+         madata.lfs.push_back(lfs_carray[i]);
+      npy_array.destruct();
+   }
 }
 
 void madata2npy(std::string npy_path, ma_data &madata, io_parameters &params) {
@@ -220,5 +238,19 @@ void madata2npy(std::string npy_path, ma_data &madata, io_parameters &params) {
 
       cnpy::npy_save(npy_path + "/ma_qidx_in.npy", &madata.ma_qidx[0], shape, 1, "w");
       cnpy::npy_save(npy_path + "/ma_qidx_out.npy", &madata.ma_qidx[madata.m], shape, 1, "w");
+   }
+
+   if (params.lfs) {
+      std::cout << "Writing lfs array..." << std::endl;
+
+      const unsigned int shape[] = { madata.m };
+      cnpy::npy_save(npy_path + "/lsf.npy", &madata.lfs[0], shape, 1, "w");
+   }
+
+   if (params.mask) {
+      std::cout << "Writing mask array..." << std::endl;
+
+      const unsigned int shape[] = { madata.m };
+      cnpy::npy_save(npy_path + "/decimate_lfs.npy", &madata.mask[0], shape, 1, "w");
    }
 }

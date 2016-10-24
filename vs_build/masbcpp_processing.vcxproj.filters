@@ -30,6 +30,9 @@
     <ClInclude Include="..\src\compute_ma_processing.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\simplify_processing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\io.cpp">
@@ -39,6 +42,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\compute_ma_processing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\simplify_processing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

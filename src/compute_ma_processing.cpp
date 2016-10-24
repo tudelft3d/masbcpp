@@ -69,6 +69,7 @@ ma_result sb_point(const ma_parameters &input_parameters, const Vector3 &p, cons
    int qidx = -1, qidx_next;
    Point c; c.getVector3fMap() = p - n * input_parameters.initial_radius;
 
+   // Results from our search
    std::vector<int> k_indices(2);
    std::vector<Scalar> k_distances(2);
 

@@ -33,7 +33,7 @@ struct simplify_parameters {
    double bisec_threshold;
    double elevation_threshold;
    double maximum_density;
-   int dimension;
+   bool true_z_dim;
    bool only_inner;
    bool squared;
    bool compute_lfs;
@@ -47,7 +47,7 @@ void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata);
 void simplify(normals_parameters &normals_params, 
               ma_parameters &ma_params, 
               simplify_parameters &simplify_params,
-              PointList &coords,
+              PointCloud::Ptr coords,
               bool *mask); // mask *must* be allocated ahead of time to be an array of size "coords.size()".
 
 #endif

@@ -97,7 +97,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\thirdparty</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\thirdparty;..\..\zlib\include;..\..\eigen\eigen_DO_NOT_INCLUDE\;..\..\pcl\src\include;..\..\pcl\src\3rdParty\Boost\include\boost-1_60;..\..\pcl\src\3rdParty\FLANN\include;..\..\pcl\src\3rdParty\OpenNI2\include;..\..\pcl\src\3rdParty\Qhull\include;..\..\pcl\src\3rdParty\VTK\include\vtk-7.0</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
@@ -115,7 +115,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\thirdparty</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\thirdparty;..\..\zlib\include;..\..\eigen\eigen_DO_NOT_INCLUDE\;..\..\pcl\src\include;..\..\pcl\src\3rdParty\Boost\include\boost-1_60;..\..\pcl\src\3rdParty\FLANN\include;..\..\pcl\src\3rdParty\OpenNI2\include;..\..\pcl\src\3rdParty\Qhull\include;..\..\pcl\src\3rdParty\VTK\include\vtk-7.0</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
@@ -135,7 +135,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\thirdparty</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\thirdparty;..\..\zlib\include;..\..\eigen\eigen_DO_NOT_INCLUDE\;..\..\pcl\src\include;..\..\pcl\src\3rdParty\Boost\include\boost-1_60;..\..\pcl\src\3rdParty\FLANN\include;..\..\pcl\src\3rdParty\OpenNI2\include;..\..\pcl\src\3rdParty\Qhull\include;..\..\pcl\src\3rdParty\VTK\include\vtk-7.0</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
@@ -157,7 +157,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WITH_OPENMP;WIN32;_USE_MATH_DEFINES;NOMINMAX;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\thirdparty</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\thirdparty;..\..\zlib\include;..\..\eigen\eigen_DO_NOT_INCLUDE\;..\..\pcl\src\include;..\..\pcl\src\3rdParty\Boost\include\boost-1_60;..\..\pcl\src\3rdParty\FLANN\include;..\..\pcl\src\3rdParty\OpenNI2\include;..\..\pcl\src\3rdParty\Qhull\include;..\..\pcl\src\3rdParty\VTK\include\vtk-7.0</AdditionalIncludeDirectories>
       <OpenMPSupport>true</OpenMPSupport>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
