@@ -85,21 +85,21 @@ int main(int argc, char **argv)
         if(!input_parameters.compute_lfs){
            input_params.lfs = true;
         }
-        else
-        {
-           madata.lfs.resize(madata.coords->size());
-        }
 
         npy2madata(inputArg.getValue(), madata, input_params);
 
-        madata.mask.resize(madata.coords->size());
+        if(input_parameters.compute_lfs)
+        {
+           madata.lfs.resize(madata.coords->size());
+        }
+        madata.mask.resize(2*madata.coords->size());
 
 	    {
           // Perform the actual processing
           simplify_lfs(input_parameters, madata);
           
           // count number of remaining points
-          unsigned int cnt;
+          unsigned int cnt(0);
           for( int i=0; i<madata.coords->size(); i++ )
                 if( madata.mask[i] ) cnt++;
           std::cout << cnt << " out of " << madata.coords->size() << " points remaining [" << int(100*float(cnt)/madata.coords->size()) << "%]" << std::endl;
@@ -111,7 +111,7 @@ int main(int argc, char **argv)
           madata2npy(output_path, madata, output_params);
         }
 
-        if( outputXYZArg.isSet() ){
+        if( true || outputXYZArg.isSet() ){
             /*
             std::string outFile_bounds = outputXYZArg.getValue();
             outFile_bounds.append(".bounds");
