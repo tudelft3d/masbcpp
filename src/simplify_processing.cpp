@@ -97,7 +97,7 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
    int k = 2, count = 0;
    {
       pcl::search::KdTree<Point>::Ptr kd_tree(new pcl::search::KdTree<Point>());
-      madata.kd_tree->setInputCloud(madata.ma_coords);
+      kd_tree->setInputCloud(madata.ma_coords);
 #ifdef VERBOSEPRINT
       auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
       std::cout << "Constructed kd-tree in " << elapsed_time.count() << " ms" << std::endl;
