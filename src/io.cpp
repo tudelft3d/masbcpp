@@ -251,6 +251,6 @@ void madata2npy(std::string npy_path, ma_data &madata, io_parameters &params) {
       std::cout << "Writing mask array..." << std::endl;
 
       const unsigned int shape[] = { madata.m };
-      cnpy::npy_save(npy_path + "/decimate_lfs.npy", &madata.mask[0], shape, 1, "w");
+//      cnpy::npy_save(npy_path + "/decimate_lfs.npy", &madata.mask[0], shape, 1, "w");
    }
 }
