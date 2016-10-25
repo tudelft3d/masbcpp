@@ -53,12 +53,11 @@ void npy2madata(std::string input_dir_path, ma_data &madata, io_parameters &para
 
       cnpy::NpyArray npy_array = read_npyarray(input_dir_path + "/coords.npy");
       float* coords_carray = reinterpret_cast<float*>(npy_array.data);
-      madata.m = npy_array.shape[0];
 
       madata.coords.reset(new PointCloud);
-      madata.coords->reserve(madata.m);
+      madata.coords->reserve(npy_array.shape[0]);
 
-      for (size_t i = 0; i < madata.m; i++)
+      for (size_t i = 0; i < npy_array.shape[0]; i++)
          madata.coords->push_back(Point(
             coords_carray[i * 3 + 0],
             coords_carray[i * 3 + 1],
@@ -73,15 +72,15 @@ void npy2madata(std::string input_dir_path, ma_data &madata, io_parameters &para
       cnpy::NpyArray npy_array = read_npyarray(input_dir_path + "/normals.npy");
       float* normals_carray = reinterpret_cast<float*>(npy_array.data);
 
-      if (npy_array.shape[0] != madata.m) {
+      if (npy_array.shape[0] != madata.coords->size()) {
          std::cerr << "Mismatched number of coords and normals" << std::endl;
          exit(1);
       }
 
       madata.normals.reset(new NormalCloud);
-      madata.normals->reserve(madata.m);
+      madata.normals->reserve(madata.coords->size());
 
-      for (size_t i = 0; i < madata.m; i++)
+      for (size_t i = 0; i < madata.coords->size(); i++)
          madata.normals->push_back(Normal(
             normals_carray[i * 3 + 0],
             normals_carray[i * 3 + 1],
@@ -96,7 +95,7 @@ void npy2madata(std::string input_dir_path, ma_data &madata, io_parameters &para
       cnpy::NpyArray in_npy_array = read_npyarray(input_dir_path + "/ma_coords_in.npy");
       float* in_ma_coords_carray = reinterpret_cast<float*>(in_npy_array.data);
 
-      if (in_npy_array.shape[0] != madata.m) {
+      if (in_npy_array.shape[0] != madata.coords->size()) {
          std::cerr << "Mismatched number of coords and inner ma coords" << std::endl;
          exit(1);
       }
@@ -104,15 +103,15 @@ void npy2madata(std::string input_dir_path, ma_data &madata, io_parameters &para
       cnpy::NpyArray out_npy_array = read_npyarray(input_dir_path + "/ma_coords_out.npy");
       float* out_ma_coords_carray = reinterpret_cast<float*>(out_npy_array.data);
 
-      if (out_npy_array.shape[0] != madata.m) {
+      if (out_npy_array.shape[0] != madata.coords->size()) {
          std::cerr << "Mismatched number of coords and outer ma coords" << std::endl;
          exit(1);
       }
 
       madata.ma_coords.reset(new PointCloud);
-      madata.ma_coords->reserve(2 * madata.m);
+      madata.ma_coords->reserve(2 * madata.coords->size());
 
-      for (size_t i = 0; i < madata.m; i++)
+      for (size_t i = 0; i < madata.coords->size(); i++)
          madata.ma_coords->push_back(Point(
             in_ma_coords_carray[i * 3 + 0],
             in_ma_coords_carray[i * 3 + 1],
@@ -120,7 +119,7 @@ void npy2madata(std::string input_dir_path, ma_data &madata, io_parameters &para
          ));
       in_npy_array.destruct();
 
-      for (size_t i = 0; i < madata.m; i++)
+      for (size_t i = 0; i < madata.coords->size(); i++)
          madata.ma_coords->push_back(Point(
             out_ma_coords_carray[i * 3 + 0],
             out_ma_coords_carray[i * 3 + 1],
@@ -135,7 +134,7 @@ void npy2madata(std::string input_dir_path, ma_data &madata, io_parameters &para
       cnpy::NpyArray in_npy_array = read_npyarray(input_dir_path + "/ma_qidx_in.npy");
       int* in_qidx_carray = reinterpret_cast<int*>(in_npy_array.data);
 
-      if (in_npy_array.shape[0] != madata.m) {
+      if (in_npy_array.shape[0] != madata.coords->size()) {
          std::cerr << "Mismatched number of coords and inner q indices" << std::endl;
          exit(1);
       }
@@ -143,18 +142,18 @@ void npy2madata(std::string input_dir_path, ma_data &madata, io_parameters &para
       cnpy::NpyArray out_npy_array = read_npyarray(input_dir_path + "/ma_qidx_out.npy");
       int* out_qidx_carray = reinterpret_cast<int*>(out_npy_array.data);
 
-      if (out_npy_array.shape[0] != madata.m) {
+      if (out_npy_array.shape[0] != madata.coords->size()) {
          std::cerr << "Mismatched number of coords and outer q indices" << std::endl;
          exit(1);
       }
 
-      madata.ma_qidx.reserve(2 * madata.m);
+      madata.ma_qidx.reserve(2 * madata.coords->size());
 
-      for (size_t i = 0; i < madata.m; i++)
+      for (size_t i = 0; i < madata.coords->size(); i++)
          madata.ma_qidx.push_back(in_qidx_carray[i]);
       in_npy_array.destruct();
 
-      for (size_t i = 0; i < madata.m; i++)
+      for (size_t i = 0; i < madata.coords->size(); i++)
          madata.ma_qidx.push_back(out_qidx_carray[i]);
       out_npy_array.destruct();
    }
@@ -165,14 +164,14 @@ void npy2madata(std::string input_dir_path, ma_data &madata, io_parameters &para
       cnpy::NpyArray npy_array = read_npyarray(input_dir_path + "/lfs.npy");
       float* lfs_carray = reinterpret_cast<float*>(npy_array.data);
 
-      if (npy_array.shape[0] != madata.m) {
-         std::cerr << "Mismatched number of coords and normals" << std::endl;
+      if (npy_array.shape[0] != madata.coords->size()) {
+         std::cerr << "Mismatched number of coords and lfs" << std::endl;
          exit(1);
       }
 
-      madata.lfs.reserve(madata.m);
+      madata.lfs.reserve(madata.coords->size());
 
-      for (size_t i = 0; i < madata.m; i++)
+      for (size_t i = 0; i < madata.coords->size(); i++)
          madata.lfs.push_back(lfs_carray[i]);
       npy_array.destruct();
    }
@@ -182,9 +181,9 @@ void madata2npy(std::string npy_path, ma_data &madata, io_parameters &params) {
    if (params.coords) {
       std::cout << "Writing coords array..." << std::endl;
 
-      const unsigned int shape[] = { madata.m, 3 };
-      float* coords_carray = new float[madata.m * 3];
-      for (size_t i = 0; i < madata.m; i++) {
+      const unsigned int shape[] = { madata.coords->size(), 3 };
+      float* coords_carray = new float[madata.coords->size() * 3];
+      for (size_t i = 0; i < madata.coords->size(); i++) {
          coords_carray[i * 3 + 0] = madata.coords->at(i).x;
          coords_carray[i * 3 + 1] = madata.coords->at(i).y;
          coords_carray[i * 3 + 2] = madata.coords->at(i).z;
@@ -196,9 +195,9 @@ void madata2npy(std::string npy_path, ma_data &madata, io_parameters &params) {
    if (params.normals) {
       std::cout << "Writing normals array..." << std::endl;
 
-      const unsigned int shape[] = { madata.m, 3 };
-      float* normals_carray = new float[madata.m * 3];
-      for (size_t i = 0; i < madata.m; i++) {
+      const unsigned int shape[] = { madata.coords->size(), 3 };
+      float* normals_carray = new float[madata.coords->size() * 3];
+      for (size_t i = 0; i < madata.coords->size(); i++) {
          normals_carray[i * 3 + 0] = madata.normals->at(i).normal_x;
          normals_carray[i * 3 + 1] = madata.normals->at(i).normal_y;
          normals_carray[i * 3 + 2] = madata.normals->at(i).normal_z;
@@ -210,10 +209,10 @@ void madata2npy(std::string npy_path, ma_data &madata, io_parameters &params) {
    if (params.ma_coords) {
       std::cout << "Writing ma coords arrays..." << std::endl;
 
-      const unsigned int shape[] = { madata.m, 3 };
+      const unsigned int shape[] = { madata.coords->size(), 3 };
 
-      float* in_ma_coords_carray = new float[madata.m * 3];
-      for (size_t i = 0; i < madata.m; i++) {
+      float* in_ma_coords_carray = new float[madata.coords->size() * 3];
+      for (size_t i = 0; i < madata.coords->size(); i++) {
          in_ma_coords_carray[i * 3 + 0] = madata.ma_coords->at(i).x;
          in_ma_coords_carray[i * 3 + 1] = madata.ma_coords->at(i).y;
          in_ma_coords_carray[i * 3 + 2] = madata.ma_coords->at(i).z;
@@ -221,11 +220,11 @@ void madata2npy(std::string npy_path, ma_data &madata, io_parameters &params) {
       cnpy::npy_save(npy_path + "/ma_coords_in.npy", in_ma_coords_carray, shape, 2, "w");
       delete[] in_ma_coords_carray; in_ma_coords_carray = nullptr;
 
-      float* out_ma_coords_carray = new float[madata.m * 3];
-      for (size_t i = 0; i < madata.m; i++) {
-         out_ma_coords_carray[i * 3 + 0] = madata.ma_coords->at(i + madata.m).x;
-         out_ma_coords_carray[i * 3 + 1] = madata.ma_coords->at(i + madata.m).y;
-         out_ma_coords_carray[i * 3 + 2] = madata.ma_coords->at(i + madata.m).z;
+      float* out_ma_coords_carray = new float[madata.coords->size() * 3];
+      for (size_t i = 0; i < madata.coords->size(); i++) {
+         out_ma_coords_carray[i * 3 + 0] = madata.ma_coords->at(i + madata.coords->size()).x;
+         out_ma_coords_carray[i * 3 + 1] = madata.ma_coords->at(i + madata.coords->size()).y;
+         out_ma_coords_carray[i * 3 + 2] = madata.ma_coords->at(i + madata.coords->size()).z;
       }
       cnpy::npy_save(npy_path + "/ma_coords_out.npy", out_ma_coords_carray, shape, 2, "w");
       delete[] out_ma_coords_carray; out_ma_coords_carray = nullptr;
@@ -234,25 +233,25 @@ void madata2npy(std::string npy_path, ma_data &madata, io_parameters &params) {
    if (params.ma_qidx) {
       std::cout << "Writing q index arrays..." << std::endl;
 
-      const unsigned int shape[] = { madata.m };
+      const unsigned int shape[] = { madata.coords->size() };
 
       cnpy::npy_save(npy_path + "/ma_qidx_in.npy", &madata.ma_qidx[0], shape, 1, "w");
-      cnpy::npy_save(npy_path + "/ma_qidx_out.npy", &madata.ma_qidx[madata.m], shape, 1, "w");
+      cnpy::npy_save(npy_path + "/ma_qidx_out.npy", &madata.ma_qidx[madata.coords->size()], shape, 1, "w");
    }
 
    if (params.lfs) {
       std::cout << "Writing lfs array..." << std::endl;
 
-      const unsigned int shape[] = { madata.m };
+      const unsigned int shape[] = { madata.coords->size() };
       cnpy::npy_save(npy_path + "/lsf.npy", &madata.lfs[0], shape, 1, "w");
    }
 
    if (params.mask) {
       std::cout << "Writing mask array..." << std::endl;
 
-      const unsigned int shape[] = { madata.m };
-      float* out_mask_carray = new float[madata.m];
-      for (size_t i = 0; i < madata.m; i++) {
+      const unsigned int shape[] = { madata.coords->size() };
+      float* out_mask_carray = new float[madata.coords->size()];
+      for (size_t i = 0; i < madata.coords->size(); i++) {
          out_mask_carray[i] = madata.mask[i];
       }
       cnpy::npy_save(npy_path + "/decimate_lfs.npy", out_mask_carray, shape, 1, "w");

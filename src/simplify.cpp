@@ -87,12 +87,12 @@ int main(int argc, char **argv)
         }
         else
         {
-           madata.lfs.resize(madata.m);
+           madata.lfs.resize(madata.coords->size());
         }
 
         npy2madata(inputArg.getValue(), madata, input_params);
 
-        madata.mask.resize(madata.m);
+        madata.mask.resize(madata.coords->size());
 
 	    {
           // Perform the actual processing
@@ -100,9 +100,9 @@ int main(int argc, char **argv)
           
           // count number of remaining points
           unsigned int cnt;
-          for( int i=0; i<madata.m; i++ )
+          for( int i=0; i<madata.coords->size(); i++ )
                 if( madata.mask[i] ) cnt++;
-          std::cout << cnt << " out of " << madata.m << " points remaining [" << int(100*float(cnt)/madata.m) << "%]" << std::endl;
+          std::cout << cnt << " out of " << madata.coords->size() << " points remaining [" << int(100*float(cnt)/madata.coords->size()) << "%]" << std::endl;
 
           // Output results
           io_parameters output_params = {};
@@ -133,7 +133,7 @@ int main(int argc, char **argv)
             // many pointcloud xyz readers prefer a "header" line.
             ofs << "x y z" << std::endl;
 
-            for( int i=0; i<madata.m; i++ ) {
+            for( int i=0; i<madata.coords->size(); i++ ) {
                 if( madata.mask[i] ){
                     ofs << (*madata.coords)[i].x;
                     ofs << " " << (*madata.coords)[i].y;

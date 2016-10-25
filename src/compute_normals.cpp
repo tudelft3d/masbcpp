@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
       ma_data madata = {};
       npy2madata(inputArg.getValue(), madata, io_params);
 
-      std::cout << "Point count: " << madata.m << std::endl;
+      std::cout << "Point count: " << madata.coords->size() << std::endl;
 
       // Perform the actual processing
       madata.normals.reset(new NormalCloud);

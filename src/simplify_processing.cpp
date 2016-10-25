@@ -71,9 +71,9 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
    auto start_time = Clock::now();
 #endif
 
-   int N = 2 * madata.m;
+   int N = 2 * madata.coords->size();
    if (only_inner) {
-      N = madata.m;
+      N = madata.coords->size();
       (*madata.ma_coords).resize(N); // HACK this will destroy permanently the exterior ma_coords!
    }
    // compute bisector and filter .. rebuild kdtree .. compute lfs .. compute grid .. thin each cell
@@ -82,7 +82,7 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
    //madata.ma_bisec = &ma_bisec;
    for (int i = 0; i < N; i++) {
       if (madata.ma_qidx[i] != -1) {
-         Vector3 f1_in = (*madata.coords)[i%madata.m].getVector3fMap() - (*madata.ma_coords)[i].getVector3fMap();
+         Vector3 f1_in = (*madata.coords)[i%madata.coords->size()].getVector3fMap() - (*madata.ma_coords)[i].getVector3fMap();
          Vector3 f2_in = (*madata.coords)[madata.ma_qidx[i]].getVector3fMap() - (*madata.ma_coords)[i].getVector3fMap();
 
          ma_bisec[i] = (f1_in + f2_in).normalized();
@@ -160,7 +160,7 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
       std::vector<Scalar> k_distances(k);
 
 #pragma omp parallel for shared(k_distances)
-      for (int i = 0; i < madata.m; i++) {
+      for (int i = 0; i < madata.coords->size(); i++) {
          kd_tree->nearestKSearch((*madata.coords)[i], k, k_indices, k_distances); // find closest point to c
          madata.lfs[i] = std::sqrt(k_distances[0]);
       }
@@ -238,7 +238,7 @@ void simplify(ma_data &madata,
 
    int* idx = new int[3];
    int index;
-   for (int i = 0; i < madata.m; i++) {
+   for (int i = 0; i < madata.coords->size(); i++) {
       idx[0] = int(((*madata.coords)[i].x - origin.x) / cellsize);
       idx[1] = int(((*madata.coords)[i].y - origin.y) / cellsize);
       if (true_z_dim)
@@ -326,14 +326,13 @@ void simplify(normals_parameters &normals_params,
    ///////////////////////////
    // Step 0: prepare data struct:
    ma_data madata = {};
-   madata.m = coords->size();
    madata.coords = coords; // add to the reference count
    
 
    ///////////////////////////
    // Step 1: compute normals:
    NormalCloud::Ptr normals(new NormalCloud);
-   normals->resize(madata.m);
+   normals->resize(madata.coords->size());
    madata.normals = normals; // add to the reference count
    compute_normals(normals_params, madata);
 
@@ -341,9 +340,9 @@ void simplify(normals_parameters &normals_params,
    ///////////////////////////
    // Step 2: compute ma
    PointCloud::Ptr ma_coords(new PointCloud);
-   ma_coords->resize(2*madata.m);
+   ma_coords->resize(2*madata.coords->size());
    madata.ma_coords = ma_coords; // add to the reference count
-   madata.ma_qidx.resize(2 * madata.m);
+   madata.ma_qidx.resize(2 * madata.coords->size());
    compute_masb_points(ma_params, madata);
 
    //delete madata.kdtree_coords; madata.kdtree_coords = NULL;
@@ -351,13 +350,8 @@ void simplify(normals_parameters &normals_params,
 
    ///////////////////////////
    // Step 3: Simplify
-//    madata.bbox = Box(Point(coords[0]), Point(coords[0]));
-//    for (int i = 0; i < madata.m; i++) {
-//       madata.bbox.addPoint(coords[i]);
-//    }
-
-   madata.mask.resize(madata.m);
-   madata.lfs.resize(madata.m);
+   madata.mask.resize(madata.coords->size());
+   madata.lfs.resize(madata.coords->size());
    void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata);
 
    ///////////////////////////

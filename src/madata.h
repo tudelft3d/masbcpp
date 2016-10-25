@@ -28,8 +28,6 @@ SOFTWARE.
 #include "types.h"
 
 struct ma_data {
-   unsigned int m;
-
    PointCloud::Ptr coords;
    NormalCloud::Ptr normals;
    PointCloud::Ptr ma_coords;

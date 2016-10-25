@@ -67,8 +67,8 @@ int main(int argc, char **argv) {
 
       // Perform the actual processing
       madata.ma_coords.reset(new PointCloud);
-      madata.ma_coords->resize(2 * madata.m);
-      madata.ma_qidx.resize(2 * madata.m);
+      madata.ma_coords->resize(2 * madata.coords->size());
+      madata.ma_qidx.resize(2 * madata.coords->size());
       compute_masb_points(input_parameters, madata);
 
       io_params.coords = false;

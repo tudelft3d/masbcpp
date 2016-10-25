@@ -170,7 +170,7 @@ void sb_points(ma_parameters &input_parameters, ma_data &madata, bool inner = 1)
    // outer mat should be written to second half of ma_coords/ma_qidx
    unsigned int offset = 0;
    if (inner == false)
-      offset = madata.m;
+      offset = madata.coords->size();
 
 #pragma omp parallel for
    for (int i = 0; i < madata.coords->size(); i++) {
