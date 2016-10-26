@@ -80,7 +80,7 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
 
    Vector3List ma_bisec(N);
    //madata.ma_bisec = &ma_bisec;
-   for (size_t i = 0; i < N; i++) {
+   for (int i = 0; i < N; i++) {
       if (madata.ma_qidx[i] != -1) {
          Vector3 f1 = (*madata.coords)[i%madata.coords->size()].getVector3fMap() - (*madata.ma_coords)[i].getVector3fMap();
          Vector3 f2 = (*madata.coords)[madata.ma_qidx[i]].getVector3fMap() - (*madata.ma_coords)[i].getVector3fMap();
@@ -111,16 +111,16 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
 
 #pragma omp parallel for shared(k_indices)
       for (int i = 0; i < N; i++) {
-         bisec_mask[(size_t)i] = false;
-         if (madata.ma_qidx[(size_t)i] != -1) {
-            kd_tree->nearestKSearch((*madata.ma_coords)[(size_t)i], k, k_indices, k_distances); // find closest point to c
+         bisec_mask[i] = false;
+         if (madata.ma_qidx[i] != -1) {
+            kd_tree->nearestKSearch((*madata.ma_coords)[i], k, k_indices, k_distances); // find closest point to c
 
-            float bisec_angle = std::acos(ma_bisec[k_indices[1]].dot(ma_bisec[(size_t)i]));
+            float bisec_angle = std::acos(ma_bisec[k_indices[1]].dot(ma_bisec[i]));
             if (bisec_angle < bisec_threshold)
-               bisec_mask[(size_t)i] = true;
+               bisec_mask[i] = true;
          }
       }
-      for (size_t i = 0; i < N; i++)
+      for (int i = 0; i < N; i++)
          if (bisec_mask[i])
             count++;
 
@@ -134,7 +134,7 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
    PointCloud::Ptr ma_coords_masked(new PointCloud);
    ma_coords_masked->reserve(count);
 
-   for (size_t i = 0; i < N; i++) {
+   for (int i = 0; i < N; i++) {
       if (bisec_mask[i])
          ma_coords_masked->push_back((*madata.ma_coords)[i]);
    }
@@ -162,8 +162,8 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
 
 #pragma omp parallel for shared(k_distances)
       for (int i = 0; i < madata.coords->size(); i++) {
-         kd_tree->nearestKSearch((*madata.coords)[(size_t)i], k, k_indices, k_distances); // find closest point to c
-         madata.lfs[(size_t)i] = std::sqrt(k_distances[0]);
+         kd_tree->nearestKSearch((*madata.coords)[i], k, k_indices, k_distances); // find closest point to c
+         madata.lfs[i] = std::sqrt(k_distances[0]);
       }
 #ifdef VERBOSEPRINT
       elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
@@ -247,7 +247,7 @@ void simplify(ma_data &madata,
 
    int* idx = new int[3];
    int index;
-   for (size_t i = 0; i < madata.coords->size(); i++) {
+   for (int i = 0; i < madata.coords->size(); i++) {
       idx[0] = int(((*madata.coords)[i].x - origin.x) / cellsize);
       idx[1] = int(((*madata.coords)[i].y - origin.y) / cellsize);
       if (true_z_dim)
@@ -260,7 +260,7 @@ void simplify(ma_data &madata,
          // std::unique_ptr<intList> ilist(new intList);
          grid[index] = ilist;
       }
-      (*grid[index]).push_back((int)i);
+      (*grid[index]).push_back(i);
    }
 
    delete[] resolution; resolution = NULL;
@@ -273,7 +273,7 @@ void simplify(ma_data &madata,
 
    double target_n_max = maximum_density * A;
    // parallelize?
-   for (size_t i = 0; i < ncells; i++)
+   for (int i = 0; i < ncells; i++)
       if (grid[i] != NULL) {
          size_t n = grid[i]->size();
          float sum = 0, max_z, min_z;
@@ -306,7 +306,7 @@ void simplify(ma_data &madata,
 
 
    // clear some memory in non-smart ptr way
-   for (size_t i = 0; i < ncells; i++) {
+   for (int i = 0; i < ncells; i++) {
       delete grid[i];
    }
    delete[] grid;
