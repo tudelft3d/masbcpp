@@ -109,7 +109,12 @@ ma_result sb_point(const ma_parameters &input_parameters, const Vector3 &p, cons
       }
 
       // compute radius
-      r = compute_radius(p, n, q);
+      if (q != p) {
+         // If we only have duplicate input points to match to here, our calculations will produce NAN values and
+         // we get into trouble.  If we just ignore this, we eventually jump out of this loop
+         // in a healthy way.
+         r = compute_radius(p, n, q);
+      }
 
       /*
 #ifdef VERBOSEPRINT
