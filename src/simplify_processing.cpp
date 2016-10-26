@@ -71,7 +71,7 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
    auto start_time = Clock::now();
 #endif
 
-   int N = 2 * madata.coords->size();
+   size_t N = 2 * madata.coords->size();
    if (only_inner) {
       N = madata.coords->size();
       (*madata.ma_coords).resize(N); // HACK this will destroy permanently the exterior ma_coords!
@@ -110,14 +110,14 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
       std::vector<Scalar> k_distances(k);
 
 #pragma omp parallel for shared(k_indices)
-      for (size_t i = 0; i < N; i++) {
-         bisec_mask[i] = false;
-         if (madata.ma_qidx[i] != -1) {
-            kd_tree->nearestKSearch((*madata.ma_coords)[i], k, k_indices, k_distances); // find closest point to c
+      for (int i = 0; i < N; i++) {
+         bisec_mask[(size_t)i] = false;
+         if (madata.ma_qidx[(size_t)i] != -1) {
+            kd_tree->nearestKSearch((*madata.ma_coords)[(size_t)i], k, k_indices, k_distances); // find closest point to c
 
-            float bisec_angle = std::acos(ma_bisec[k_indices[1]].dot(ma_bisec[i]));
+            float bisec_angle = std::acos(ma_bisec[k_indices[1]].dot(ma_bisec[(size_t)i]));
             if (bisec_angle < bisec_threshold)
-               bisec_mask[i] = true;
+               bisec_mask[(size_t)i] = true;
          }
       }
       for (size_t i = 0; i < N; i++)
@@ -161,9 +161,9 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
       std::vector<Scalar> k_distances(k);
 
 #pragma omp parallel for shared(k_distances)
-      for (size_t i = 0; i < madata.coords->size(); i++) {
-         kd_tree->nearestKSearch((*madata.coords)[i], k, k_indices, k_distances); // find closest point to c
-         madata.lfs[i] = std::sqrt(k_distances[0]);
+      for (int i = 0; i < madata.coords->size(); i++) {
+         kd_tree->nearestKSearch((*madata.coords)[(size_t)i], k, k_indices, k_distances); // find closest point to c
+         madata.lfs[(size_t)i] = std::sqrt(k_distances[0]);
       }
 #ifdef VERBOSEPRINT
       elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
@@ -260,7 +260,7 @@ void simplify(ma_data &madata,
          // std::unique_ptr<intList> ilist(new intList);
          grid[index] = ilist;
       }
-      (*grid[index]).push_back(i);
+      (*grid[index]).push_back((int)i);
    }
 
    delete[] resolution; resolution = NULL;

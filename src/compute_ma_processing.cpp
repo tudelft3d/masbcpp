@@ -219,32 +219,3 @@ void compute_masb_points(ma_parameters &input_parameters, ma_data &madata) {
 #endif
 }
 
-/*
-void convertNPYtoXYZ(std::string inFile, std::string outFile)
-{
-   // Read in the data:
-   cnpy::NpyArray coords_npy = cnpy::npy_load(inFile.c_str());
-   float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
-
-   unsigned int num_points = coords_npy.shape[0];
-   unsigned int dim = coords_npy.shape[1];
-
-   // Write this out to a pointcloudxyz file:
-   outFile += ".xyz";
-   std::ofstream out_pointcloudxyz(outFile);
-   if (!out_pointcloudxyz)
-      throw TCLAP::ArgParseException("invalid filepath", outFile);
-   out_pointcloudxyz << "x y z\n";
-
-   for (int i = 0; i < num_points; i++)
-   {
-      for (int j = 0; j < 3; j++)
-      {
-         if (j > 0) out_pointcloudxyz << " ";
-         out_pointcloudxyz << coords_carray[i*3 + j];
-      }
-      out_pointcloudxyz << "\n";
-   }
-   coords_npy.destruct();
-}
-*/

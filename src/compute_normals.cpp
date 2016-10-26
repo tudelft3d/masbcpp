@@ -65,6 +65,9 @@ int main(int argc, char **argv) {
       io_params.coords = false;
       io_params.normals = true;
       madata2npy(output_path, madata, io_params);
+
+      // For convenience, convert the input .npy to .xyz
+      convertNPYtoXYZ(inputArg.getValue());
    }
    catch (TCLAP::ArgException &e) { std::cerr << "Error: " << e.error() << " for " << e.argId() << std::endl; }
 
