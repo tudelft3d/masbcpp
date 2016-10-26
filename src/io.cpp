@@ -258,3 +258,38 @@ void madata2npy(std::string npy_path, ma_data &madata, io_parameters &params) {
       delete[] out_mask_carray; out_mask_carray = nullptr;
    }
 }
+
+// Just a convenience function, to call when necessary.
+void convertNPYtoXYZ(std::string input_dir_path)
+{
+   // Read in the data:
+   cnpy::NpyArray coords_npy = read_npyarray(input_dir_path + "/coords.npy");
+   float* coords_carray = reinterpret_cast<float*>(coords_npy.data);
+
+   unsigned int num_points = coords_npy.shape[0];
+   unsigned int dim = coords_npy.shape[1];
+
+   // Write this out to a pointcloudxyz file:
+   std::string outFile(input_dir_path + "/coords.xyz");
+   std::ofstream out_pointcloudxyz(outFile);
+   if (!out_pointcloudxyz)
+   {
+      std::cerr << "Invalid file path " << outFile << std::endl;
+      exit(1);
+   }
+
+   // Header
+   out_pointcloudxyz << "x y z\n";
+
+   // coords
+   for (int i = 0; i < num_points; i++)
+   {
+      for (int j = 0; j < 3; j++)
+      {
+         if (j > 0) out_pointcloudxyz << " ";
+         out_pointcloudxyz << coords_carray[i * 3 + j];
+      }
+      out_pointcloudxyz << "\n";
+   }
+   coords_npy.destruct();
+}
