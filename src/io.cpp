@@ -243,15 +243,15 @@ void madata2npy(std::string npy_path, ma_data &madata, io_parameters &params) {
       std::cout << "Writing lfs array..." << std::endl;
 
       const unsigned int shape[] = { static_cast<unsigned int>(madata.coords->size()) };
-      cnpy::npy_save(npy_path + "/lsf.npy", &madata.lfs[0], shape, 1, "w");
+      cnpy::npy_save(npy_path + "/lfs.npy", &madata.lfs[0], shape, 1, "w");
    }
 
    if (params.mask) {
       std::cout << "Writing mask array..." << std::endl;
 
-      const unsigned int shape[] = { static_cast<unsigned int>(2*madata.coords->size()) };
-      float* out_mask_carray = new float[2*madata.coords->size()];
-      for (size_t i = 0; i < 2*madata.coords->size(); i++) {
+      const unsigned int shape[] = { static_cast<unsigned int>(madata.coords->size()) };
+      bool* out_mask_carray = new bool[madata.coords->size()];
+      for (size_t i = 0; i < madata.coords->size(); i++) {
          out_mask_carray[i] = madata.mask[i];
       }
       cnpy::npy_save(npy_path + "/decimate_lfs.npy", out_mask_carray, shape, 1, "w");

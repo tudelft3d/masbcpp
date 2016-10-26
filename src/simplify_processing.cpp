@@ -80,12 +80,12 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
 
    Vector3List ma_bisec(N);
    //madata.ma_bisec = &ma_bisec;
-   for (int i = 0; i < N; i++) {
+   for (size_t i = 0; i < N; i++) {
       if (madata.ma_qidx[i] != -1) {
-         Vector3 f1_in = (*madata.coords)[i%madata.coords->size()].getVector3fMap() - (*madata.ma_coords)[i].getVector3fMap();
-         Vector3 f2_in = (*madata.coords)[madata.ma_qidx[i]].getVector3fMap() - (*madata.ma_coords)[i].getVector3fMap();
+         Vector3 f1 = (*madata.coords)[i%madata.coords->size()].getVector3fMap() - (*madata.ma_coords)[i].getVector3fMap();
+         Vector3 f2 = (*madata.coords)[madata.ma_qidx[i]].getVector3fMap() - (*madata.ma_coords)[i].getVector3fMap();
 
-         ma_bisec[i] = (f1_in + f2_in).normalized();
+         ma_bisec[i] = (f1 + f2).normalized();
       }
    }
 #ifdef VERBOSEPRINT
@@ -95,6 +95,7 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
 #endif
 
    int k = 2, count = 0;
+   std::vector<bool> bisec_mask(N);
    {
       pcl::search::KdTree<Point>::Ptr kd_tree(new pcl::search::KdTree<Point>());
       kd_tree->setInputCloud(madata.ma_coords);
@@ -109,18 +110,18 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
       std::vector<Scalar> k_distances(k);
 
 #pragma omp parallel for shared(k_indices)
-      for (int i = 0; i < N; i++) {
-         madata.mask[i] = false;
+      for (size_t i = 0; i < N; i++) {
+         bisec_mask[i] = false;
          if (madata.ma_qidx[i] != -1) {
             kd_tree->nearestKSearch((*madata.ma_coords)[i], k, k_indices, k_distances); // find closest point to c
 
             float bisec_angle = std::acos(ma_bisec[k_indices[1]].dot(ma_bisec[i]));
             if (bisec_angle < bisec_threshold)
-               madata.mask[i] = true;
+               bisec_mask[i] = true;
          }
       }
-      for (int i = 0; i < N; i++)
-         if (madata.mask[i])
+      for (size_t i = 0; i < N; i++)
+         if (bisec_mask[i])
             count++;
 
 #ifdef VERBOSEPRINT
@@ -133,8 +134,8 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
    PointCloud::Ptr ma_coords_masked(new PointCloud);
    ma_coords_masked->reserve(count);
 
-   for (int i = 0; i < N; i++) {
-      if (madata.mask[i])
+   for (size_t i = 0; i < N; i++) {
+      if (bisec_mask[i])
          ma_coords_masked->push_back((*madata.ma_coords)[i]);
    }
 #ifdef VERBOSEPRINT
@@ -160,7 +161,7 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
       std::vector<Scalar> k_distances(k);
 
 #pragma omp parallel for shared(k_distances)
-      for (int i = 0; i < madata.coords->size(); i++) {
+      for (size_t i = 0; i < madata.coords->size(); i++) {
          kd_tree->nearestKSearch((*madata.coords)[i], k, k_indices, k_distances); // find closest point to c
          madata.lfs[i] = std::sqrt(k_distances[0]);
       }
@@ -208,7 +209,15 @@ void simplify(ma_data &madata,
    int* resolution = new int[3];
 
    #ifdef VERBOSEPRINT
-   std::cout << "Grid resolution: ";
+   std::cout << "Epsilon: " << epsilon << std::endl;
+   std::cout << "Maximum density: " << maximum_density << std::endl;
+   std::cout << "True z: " << true_z_dim << std::endl;
+   std::cout << "Squared: " << squared << std::endl;
+   std::cout << "Cellsize: " << cellsize << std::endl;
+   std::cout << "Data dimensions: " << size[0] << " x " << size[1];
+   if (true_z_dim) std::cout << " x " << size[2];
+   std::cout << std::endl;
+   std::cout << "Grid dimension: ";
    #endif
 
    // x, y, z - resolution
@@ -232,13 +241,13 @@ void simplify(ma_data &madata,
       ncells *= resolution[2];
 
    intList** grid = new intList*[ncells];
-   for (int i = 0; i < ncells; i++) {
+   for (size_t i = 0; i < ncells; i++) {
       grid[i] = NULL;
    }
 
    int* idx = new int[3];
    int index;
-   for (int i = 0; i < madata.coords->size(); i++) {
+   for (size_t i = 0; i < madata.coords->size(); i++) {
       idx[0] = int(((*madata.coords)[i].x - origin.x) / cellsize);
       idx[1] = int(((*madata.coords)[i].y - origin.y) / cellsize);
       if (true_z_dim)
@@ -264,7 +273,7 @@ void simplify(ma_data &madata,
 
    double target_n_max = maximum_density * A;
    // parallelize?
-   for (int i = 0; i < ncells; i++)
+   for (size_t i = 0; i < ncells; i++)
       if (grid[i] != NULL) {
          size_t n = grid[i]->size();
          float sum = 0, max_z, min_z;
@@ -281,8 +290,8 @@ void simplify(ma_data &madata,
 
          if (squared) mean_lfs = pow(mean_lfs, 2);
          if (elevation_threshold != 0 && (max_z - min_z) > elevation_threshold)
-            // mean_lfs /= 5;
-            mean_lfs = 0.01;
+            mean_lfs /= 10;
+            // mean_lfs = 0.01;
 
          target_n = A / pow(epsilon*mean_lfs, 2);
          if(target_n_max != 0 && target_n > target_n_max) target_n = target_n_max;
@@ -297,7 +306,7 @@ void simplify(ma_data &madata,
 
 
    // clear some memory in non-smart ptr way
-   for (int i = 0; i < ncells; i++) {
+   for (size_t i = 0; i < ncells; i++) {
       delete grid[i];
    }
    delete[] grid;
@@ -321,7 +330,7 @@ void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata)
 void simplify(normals_parameters &normals_params, 
               ma_parameters &ma_params,
               simplify_parameters &simplify_params,
-              PointCloud::Ptr coords, bool *mask) // mask *must* be allocated ahead of time to be an array of size "2*coords.size()".
+              PointCloud::Ptr coords, bool *mask) // mask *must* be allocated ahead of time to be an array of size "coords.size()".
 {
    ///////////////////////////
    // Step 0: prepare data struct:
@@ -350,8 +359,8 @@ void simplify(normals_parameters &normals_params,
 
    ///////////////////////////
    // Step 3: Simplify
-   madata.mask.resize(2*madata.coords->size());
-   madata.lfs.resize(2*madata.coords->size());
+   madata.mask.resize(madata.coords->size());
+   madata.lfs.resize(madata.coords->size());
    void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata);
 
    ///////////////////////////
