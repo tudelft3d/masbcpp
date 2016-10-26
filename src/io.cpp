@@ -181,7 +181,7 @@ void madata2npy(std::string npy_path, ma_data &madata, io_parameters &params) {
    if (params.coords) {
       std::cout << "Writing coords array..." << std::endl;
 
-      const unsigned int shape[] = { madata.coords->size(), 3 };
+      const unsigned int shape[] = { static_cast<unsigned int>(madata.coords->size()), 3 };
       float* coords_carray = new float[madata.coords->size() * 3];
       for (size_t i = 0; i < madata.coords->size(); i++) {
          coords_carray[i * 3 + 0] = madata.coords->at(i).x;
@@ -195,7 +195,7 @@ void madata2npy(std::string npy_path, ma_data &madata, io_parameters &params) {
    if (params.normals) {
       std::cout << "Writing normals array..." << std::endl;
 
-      const unsigned int shape[] = { madata.coords->size(), 3 };
+      const unsigned int shape[] = { static_cast<unsigned int>(madata.coords->size()), 3 };
       float* normals_carray = new float[madata.coords->size() * 3];
       for (size_t i = 0; i < madata.coords->size(); i++) {
          normals_carray[i * 3 + 0] = madata.normals->at(i).normal_x;
@@ -209,7 +209,7 @@ void madata2npy(std::string npy_path, ma_data &madata, io_parameters &params) {
    if (params.ma_coords) {
       std::cout << "Writing ma coords arrays..." << std::endl;
 
-      const unsigned int shape[] = { madata.coords->size(), 3 };
+      const unsigned int shape[] = { static_cast<unsigned int>(madata.coords->size()), 3 };
 
       float* in_ma_coords_carray = new float[madata.coords->size() * 3];
       for (size_t i = 0; i < madata.coords->size(); i++) {
@@ -233,7 +233,7 @@ void madata2npy(std::string npy_path, ma_data &madata, io_parameters &params) {
    if (params.ma_qidx) {
       std::cout << "Writing q index arrays..." << std::endl;
 
-      const unsigned int shape[] = { madata.coords->size() };
+      const unsigned int shape[] = { static_cast<unsigned int>(madata.coords->size()) };
 
       cnpy::npy_save(npy_path + "/ma_qidx_in.npy", &madata.ma_qidx[0], shape, 1, "w");
       cnpy::npy_save(npy_path + "/ma_qidx_out.npy", &madata.ma_qidx[madata.coords->size()], shape, 1, "w");
@@ -242,14 +242,14 @@ void madata2npy(std::string npy_path, ma_data &madata, io_parameters &params) {
    if (params.lfs) {
       std::cout << "Writing lfs array..." << std::endl;
 
-      const unsigned int shape[] = { madata.coords->size() };
+      const unsigned int shape[] = { static_cast<unsigned int>(madata.coords->size()) };
       cnpy::npy_save(npy_path + "/lsf.npy", &madata.lfs[0], shape, 1, "w");
    }
 
    if (params.mask) {
       std::cout << "Writing mask array..." << std::endl;
 
-      const unsigned int shape[] = { 2*madata.coords->size() };
+      const unsigned int shape[] = { static_cast<unsigned int>(2*madata.coords->size()) };
       float* out_mask_carray = new float[2*madata.coords->size()];
       for (size_t i = 0; i < 2*madata.coords->size(); i++) {
          out_mask_carray[i] = madata.mask[i];
