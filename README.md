@@ -15,7 +15,7 @@ $ make
 Building on windows should be possible with Visual Studio.
 
 ### External dependencies
-`zlib` is currently the only dependency.
+[PCL](https://github.com/PointCloudLibrary/pcl) is currently the only dependency that is not included in this distribution (but PCL has many dependencies of its own).
 
 ###Build with OpenMP support (multithreading)
 The build system should autodetect whether your compiler supports OpenMP and build masbpp with multithreading support accordingly. To enable multithreading on Mac OS X (tested with version 10.10), do
@@ -72,9 +72,7 @@ Details on how I adapted the shrinking ball algorithm to handle noisy inputs can
 }
 ```
 
-I would like to thank the authors of the following libraries for releasing their code to the general public under permissive licenses, masbcpp ships with (parts of) these excellent libraries:
+I would like to thank the authors of the following libraries for releasing their code to the general public under permissive licenses, masbcpp ships with (parts of) these libraries:
 
 * [cnpy](https://github.com/rogersce/cnpy)
 * [tclap](http://tclap.sourceforge.net)
-* [vrui](https://github.com/KeckCAVES/Vrui)
-* [kdtree2](https://github.com/jmhodges/kdtree2)
