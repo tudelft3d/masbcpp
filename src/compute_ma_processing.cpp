@@ -64,68 +64,33 @@ ma_result sb_point(const ma_parameters &input_parameters, const Vector3 &p, cons
    // Calculate a medial ball for a given oriented point using the shrinking ball algorithm,
    // see https://3d.bk.tudelft.nl/rypeters/pdfs/16candg.pdf section 3.2 for details
    unsigned int j = 0;
-   Scalar r, r_previous = 0;
+   Scalar r = input_parameters.initial_radius, d;
    Vector3 q, c_next;
    int qidx = -1, qidx_next;
-   Point c; c.getVector3fMap() = p - n * input_parameters.initial_radius;
+   Point c; c.getVector3fMap() = p - n * r;
 
    // Results from our search
    std::vector<int> k_indices(2);
    std::vector<Scalar> k_distances(2);
 
    while (true) {
-      /*
-#ifdef VERBOSEPRINT
-      std::cout << "\nloop iteration: " << j << ", p = (" << p[0] << "," << p[1] << "," << p[2] << ", n = (" << n[0] << "," << n[1] << "," << n[2] << ") \n";
-      std::cout << "c = (" << c[0] << "," << c[1] << "," << c[2] << ")\n";
-#endif
-      */
 
       // find closest point to c
-      kd_tree->nearestKSearch(c, 2, k_indices, k_distances);
+      kd_tree->nearestKSearch(c, 1, k_indices, k_distances);
 
       qidx_next = k_indices[0];
       q = kd_tree->getInputCloud()->at(qidx_next).getVector3fMap();
-
-      /*
-#ifdef VERBOSEPRINT
-      std::cout << "q = (" << q[0] << "," << q[1] << "," << q[2] << ")\n";
-#endif
-      */
-
-      // handle case when q==p
-      if (q == p) {
-         // 1) if r_previous==SuperR, apparantly no other points on the halfspace spanned by -n => that's an infinite ball
-         if (r_previous == input_parameters.initial_radius) {
-            r = input_parameters.initial_radius;
-            c.getVector3fMap() = input_parameters.nan_for_initr ? nanPoint : p - n * r;
+      d = k_distances[0];
+      
+      // This should handle all (special) cases where we want to break the loop
+      // - normal case when ball no longer shrinks
+      // - the case where q==p
+      // - any duplicate point cases
+      if ((d >= (r*r)-delta_convergance) || (p==q))
             break;
-         }
-         // 2) otherwise just pick the second closest point
-         else {
-            qidx_next = k_indices[1];
-            q = kd_tree->getInputCloud()->at(qidx_next).getVector3fMap();
-         }
-      }
 
-      // compute radius
+      // compute new radius
       r = compute_radius(p, n, q);
-
-      /*
-#ifdef VERBOSEPRINT
-      std::cout << "r = " << r << "\n";
-#endif
-      */
-
-      // if r < 0 closest point was on the wrong side of plane with normal n => start over with SuperRadius on the right side of that plane
-      if (r < 0)
-         r = input_parameters.initial_radius;
-      // if r > SuperR, stop now because otherwise in case of planar surface point configuration, we end up in an infinite loop
-      else if (r > input_parameters.initial_radius) {
-         r = input_parameters.initial_radius;
-         c.getVector3fMap() = input_parameters.nan_for_initr ? nanPoint : p - n * r;
-         break;
-      }
 
       // compute next ball center
       c_next = p - n * r;
@@ -136,28 +101,18 @@ ma_result sb_point(const ma_parameters &input_parameters, const Vector3 &p, cons
          Scalar separation_angle = std::acos(a);
 
          if (input_parameters.denoise_preserve && (separation_angle < input_parameters.denoise_preserve && j>0 && r > (q - p).norm())) {
-            // keep previous radius:
-            r = r_previous;
-            // qidx = qidx_next;
             break;
          }
          if (input_parameters.denoise_planar && (separation_angle < input_parameters.denoise_planar && j == 0)) {
-            r = input_parameters.initial_radius;
-            c.getVector3fMap() = input_parameters.nan_for_initr ? nanPoint : p - n * r;
-            // qidx = qidx_next;
+            c.getVector3fMap() = input_parameters.nan_for_initr ? nanPoint : p - n * input_parameters.initial_radius;
             break;
          }
       }
-
-      // stop iteration if r has converged
-      if (std::abs(r_previous - r) < delta_convergance)
-         break;
 
       // stop iteration if this looks like an infinite loop:
       if (j > iteration_limit)
          break;
 
-      r_previous = r;
       c.getVector3fMap() = c_next;
       qidx = qidx_next;
       j++;
@@ -168,7 +123,7 @@ ma_result sb_point(const ma_parameters &input_parameters, const Vector3 &p, cons
 
 void sb_points(ma_parameters &input_parameters, ma_data &madata, bool inner = 1) {
    // outer mat should be written to second half of ma_coords/ma_qidx
-   unsigned int offset = 0;
+   size_t offset = 0;
    if (inner == false)
       offset = madata.coords->size();
 
