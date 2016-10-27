@@ -93,7 +93,7 @@ ma_result sb_point(const ma_parameters &input_parameters, const Vector3 &p, cons
 #endif
       */
 
-      // handle case when q==p
+      // handle case when q==p (we find our query location)
       if (q == p) {
          // 1) if r_previous==SuperR, apparantly no other points on the halfspace spanned by -n => that's an infinite ball
          if (r_previous == input_parameters.initial_radius) {
@@ -105,6 +105,31 @@ ma_result sb_point(const ma_parameters &input_parameters, const Vector3 &p, cons
          else {
             qidx_next = k_indices[1];
             q = kd_tree->getInputCloud()->at(qidx_next).getVector3fMap();
+            // Handle the case where we have duplicate points in the input point cloud
+            if (q == p) {
+               // Well, now we're in a bit of a mess, as *both* points we found were duplicates.
+               // We found the two closest points first, because we expect this to be rare.  But
+               // if we get into this rare case, we need to search for a bit more points to
+               // find a unique one. 
+
+               // Let's search for 10.  If we have more than 10 duplicates in the input, the code below will
+               // bail out of this case in a hard way, but will limp along fine.
+               // Results from our search
+               int numToTry(10);
+               std::vector<int> k_indices_again(numToTry);
+               std::vector<Scalar> k_distances_again(numToTry);
+
+               // find closest point to c
+               kd_tree->nearestKSearch(c, numToTry, k_indices_again, k_distances_again);
+
+               int chosenOne(0);
+               do 
+               {
+                  qidx_next = k_indices_again[chosenOne++];
+                  q = kd_tree->getInputCloud()->at(qidx_next).getVector3fMap();
+
+               } while ((p==q)&&(chosenOne<=numToTry));
+            }
          }
       }
 
@@ -173,7 +198,7 @@ ma_result sb_point(const ma_parameters &input_parameters, const Vector3 &p, cons
 
 void sb_points(ma_parameters &input_parameters, ma_data &madata, bool inner = 1) {
    // outer mat should be written to second half of ma_coords/ma_qidx
-   unsigned int offset = 0;
+   size_t offset = 0;
    if (inner == false)
       offset = madata.coords->size();
 
