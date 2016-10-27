@@ -86,7 +86,7 @@ ma_result sb_point(const ma_parameters &input_parameters, const Vector3 &p, cons
       // - normal case when ball no longer shrinks
       // - the case where q==p
       // - any duplicate point cases
-      if ((d >= (r*r)-delta_convergance) || (p==q))
+      if ((d >= (r-delta_convergance)*(r-delta_convergance)) || (p==q))
             break;
 
       // compute new radius
