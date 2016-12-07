@@ -361,7 +361,7 @@ void simplify(normals_parameters &normals_params,
    // Step 3: Simplify
    madata.mask.resize(madata.coords->size());
    madata.lfs.resize(madata.coords->size());
-   void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata);
+   simplify_lfs(simplify_params, madata);
 
    ///////////////////////////
    // Pass back the results in a safe way.
