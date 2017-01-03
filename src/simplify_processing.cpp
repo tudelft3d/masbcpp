@@ -267,8 +267,13 @@ void simplify(ma_data &madata,
    delete[] idx; idx = NULL;
 
    double mean_lfs, target_n, A = cellsize*cellsize;
+
+#ifdef DETERMINISTIC_RNG
+   std::mt19937 gen;
+#else
    std::random_device rd;
    std::mt19937 gen(rd());
+#endif
    std::uniform_real_distribution<float> randu(0, 1);
 
    double target_n_max = maximum_density * A;
