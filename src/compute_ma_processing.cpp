@@ -69,6 +69,10 @@ ma_result sb_point(const ma_parameters &input_parameters, const Vector3 &p, cons
    int qidx = -1, qidx_next;
    Point c; c.getVector3fMap() = p - n * r;
 
+   // We can't continue if we have bad input, we won't be able to perform nearest neighbour searches
+   if (!n.allFinite() || !p.allFinite())
+      return{ c, qidx };
+
    // Results from our search
    std::vector<int> k_indices(2);
    std::vector<Scalar> k_distances(2);
