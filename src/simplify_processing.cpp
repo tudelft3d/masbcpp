@@ -65,7 +65,7 @@ typedef std::chrono::high_resolution_clock Clock;
 
 
 
-void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true)
+bool compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true)
 {
 #ifdef VERBOSEPRINT
    auto start_time = Clock::now();
@@ -94,7 +94,7 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
    start_time = Clock::now();
 #endif
 
-   int k = 2, count = 0;
+   int count = 0;
    std::vector<bool> bisec_mask(N);
    {
       pcl::search::KdTree<Point>::Ptr kd_tree(new pcl::search::KdTree<Point>());
@@ -106,14 +106,14 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
 #endif
 
       // Results from our search
-      std::vector<int> k_indices(k);
-      std::vector<Scalar> k_distances(k);
+      std::vector<int> k_indices(2);
+      std::vector<Scalar> k_distances(2);
 
 #pragma omp parallel for shared(k_indices)
       for (int i = 0; i < N; i++) {
          bisec_mask[i] = false;
          if (madata.ma_qidx[i] != -1) {
-            kd_tree->nearestKSearch((*madata.ma_coords)[i], k, k_indices, k_distances); // find closest point to c
+            kd_tree->nearestKSearch((*madata.ma_coords)[i], 2, k_indices, k_distances); // find closest point to c
 
             float bisec_angle = std::acos(ma_bisec[k_indices[1]].dot(ma_bisec[i]));
             if (bisec_angle < bisec_threshold)
@@ -130,6 +130,11 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
       start_time = Clock::now();
 #endif
    }
+
+   // We can't produce LFS values if there are no MAT points
+   if (count == 0)
+      return false;
+
    // mask and copy pointlist ma_coords
    PointCloud::Ptr ma_coords_masked(new PointCloud);
    ma_coords_masked->reserve(count);
@@ -144,7 +149,6 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
    start_time = Clock::now();
 #endif
 
-   k = 1;
    {
       // rebuild kd-tree
       pcl::search::KdTree<Point>::Ptr kd_tree(new pcl::search::KdTree<Point>());
@@ -157,12 +161,13 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
 #endif
 
       // Results from our search
-      std::vector<int> k_indices(k);
-      std::vector<Scalar> k_distances(k);
+      std::vector<int> k_indices(1);
+      std::vector<Scalar> k_distances(1);
 
 #pragma omp parallel for shared(k_distances)
       for (int i = 0; i < madata.coords->size(); i++) {
-         kd_tree->nearestKSearch((*madata.coords)[i], k, k_indices, k_distances); // find closest point to c
+         kd_tree->nearestKSearch((*madata.coords)[i], 1, k_indices, k_distances); // find closest point to c
+
          madata.lfs[i] = std::sqrt(k_distances[0]);
       }
 #ifdef VERBOSEPRINT
@@ -172,7 +177,7 @@ void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
 #endif
    }
 
-
+   return true;
 }
 
 inline int flatindex(int ind[], int size[], bool true_z_dim) {
@@ -320,10 +325,13 @@ void simplify(ma_data &madata,
 
 void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata)
 {
-
    // compute lfs, simplify
    if (input_parameters.compute_lfs)
-      compute_lfs(madata, input_parameters.bisec_threshold, input_parameters.only_inner);
+   {
+      // If we can't compute LFS values, leave the mask as all false
+      if (!compute_lfs(madata, input_parameters.bisec_threshold, input_parameters.only_inner))
+         return;
+   }
    simplify(madata, input_parameters.cellsize, 
                     input_parameters.epsilon, 
                     input_parameters.true_z_dim, 

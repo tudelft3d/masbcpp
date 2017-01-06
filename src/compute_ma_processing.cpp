@@ -43,7 +43,7 @@ typedef std::chrono::high_resolution_clock Clock;
 
 const Scalar delta_convergance = 1E-5f;
 const unsigned int iteration_limit = 30;
-const Vector3 nanPoint(std::numeric_limits<Scalar>::quiet_NaN(), std::numeric_limits<Scalar>::quiet_NaN(), std::numeric_limits<Scalar>::quiet_NaN());
+const Point nanPoint(std::numeric_limits<Scalar>::quiet_NaN(), std::numeric_limits<Scalar>::quiet_NaN(), std::numeric_limits<Scalar>::quiet_NaN());
 
 inline Scalar compute_radius(const Vector3 &p, const Vector3 &n, const Vector3 &q) {
    // Compute radius of the ball that touches points p and q and whose center falls on the normal n from p
@@ -70,22 +70,21 @@ ma_result sb_point(const ma_parameters &input_parameters, const Vector3 &p, cons
    Point c; c.getVector3fMap() = p - n * r;
 
    // We can't continue if we have bad input, we won't be able to perform nearest neighbour searches
-   if (!n.allFinite() || !p.allFinite())
-      return{ c, qidx };
+   if (!c.getVector3fMap().allFinite())
+      return{ nanPoint, -1 };
 
    // Results from our search
-   std::vector<int> k_indices(2);
-   std::vector<Scalar> k_distances(2);
+   std::vector<int> k_indices(1);
+   std::vector<Scalar> k_distances(1);
 
    while (true) {
-
       // find closest point to c
       kd_tree->nearestKSearch(c, 1, k_indices, k_distances);
 
       qidx_next = k_indices[0];
       q = kd_tree->getInputCloud()->at(qidx_next).getVector3fMap();
       d = k_distances[0];
-      
+
       // This should handle all (special) cases where we want to break the loop
       // - normal case when ball no longer shrinks
       // - the case where q==p
@@ -93,27 +92,27 @@ ma_result sb_point(const ma_parameters &input_parameters, const Vector3 &p, cons
       if ((d >= (r-delta_convergance)*(r-delta_convergance)) || (p==q))
             break;
 
-      // compute new radius
+      // Compute next ball center
       r = compute_radius(p, n, q);
-
-      // compute next ball center
       c_next = p - n * r;
 
-      // denoising
+      if (!c_next.allFinite())
+         break;
+
+      // Denoising
       if (input_parameters.denoise_preserve || input_parameters.denoise_planar) {
          Scalar a = cos_angle(p - c_next, q - c_next);
          Scalar separation_angle = std::acos(a);
 
-         if (input_parameters.denoise_preserve && (separation_angle < input_parameters.denoise_preserve && j>0 && r > (q - p).norm())) {
+         if (j == 0 && input_parameters.denoise_planar > 0 && separation_angle < input_parameters.denoise_planar) {
             break;
          }
-         if (input_parameters.denoise_planar && (separation_angle < input_parameters.denoise_planar && j == 0)) {
-            c.getVector3fMap() = input_parameters.nan_for_initr ? nanPoint : p - n * input_parameters.initial_radius;
+         if (j > 0 && input_parameters.denoise_preserve > 0 && (separation_angle < input_parameters.denoise_preserve && r > (q - p).norm())) {
             break;
          }
       }
 
-      // stop iteration if this looks like an infinite loop:
+      // Stop iteration if this looks like an infinite loop:
       if (j > iteration_limit)
          break;
 
@@ -122,7 +121,10 @@ ma_result sb_point(const ma_parameters &input_parameters, const Vector3 &p, cons
       j++;
    }
 
-   return{ c, qidx };
+   if (j == 0 && input_parameters.nan_for_initr)
+      return{ nanPoint, -1 };
+   else
+      return{ c, qidx };
 }
 
 void sb_points(ma_parameters &input_parameters, ma_data &madata, bool inner = 1) {
