@@ -109,7 +109,7 @@ bool compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
       std::vector<int> k_indices(2);
       std::vector<Scalar> k_distances(2);
 
-#pragma omp parallel for shared(k_indices)
+#pragma omp parallel for private(k_indices, k_distances)
       for (int i = 0; i < N; i++) {
          bisec_mask[i] = false;
          if (madata.ma_qidx[i] != -1) {
@@ -164,7 +164,7 @@ bool compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
       std::vector<int> k_indices(1);
       std::vector<Scalar> k_distances(1);
 
-#pragma omp parallel for shared(k_distances)
+#pragma omp parallel for private(k_indices, k_distances)
       for (int i = 0; i < madata.coords->size(); i++) {
          kd_tree->nearestKSearch((*madata.coords)[i], 1, k_indices, k_distances); // find closest point to c
 
