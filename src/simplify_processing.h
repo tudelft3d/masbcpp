@@ -31,6 +31,7 @@ struct simplify_parameters {
    double epsilon;
    double cellsize;
    double bisec_threshold;
+   int bisec_k;
    double elevation_threshold;
    double minimum_density;
    double maximum_density;

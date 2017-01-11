@@ -44,7 +44,8 @@ int main(int argc, char **argv)
 
         TCLAP::ValueArg<double> epsilonArg("e","epsilon","Control the degree of simplification, higher values mean more simplification. Typical values are in the range [0.01,0.6].",false,0.4,"double", cmd);
         TCLAP::ValueArg<double> cellsizeArg("c","cellsize","Cellsize used during grid-based lfs simplification (in units of your dataset). Large cellsize means faster processing, but potentially more noticable jumps in point density at cell boundaries.",false,0.5,"double", cmd);
-        TCLAP::ValueArg<double> bisecArg("b","bisec","Bisector threshold used to clean the MAT points before LFS computation. With lower values more aggressive cleaning is performed which means more robustness to noise (in the MAT) but also less features will be detected. Typical range [0.1,10] (degrees).",false,1,"double", cmd);
+        TCLAP::ValueArg<double> bisecArg("b","bisec","Bisector threshold used to clean the MAT points before LFS computation. With lower values more aggressive cleaning is performed which means more robustness to noise (in the MAT) but also less features will be detected. Typical range [1,20] (degrees).",false,2,"double", cmd);
+        TCLAP::ValueArg<int> biseckArg("k","biseck","Number of neighbours used during bisector-based outlier cleaning prior to LFS computation. With higher values lead to smoother LFS but also less features will be detected. Typical range [1,5] (degrees).",false,4,"int", cmd);
         TCLAP::ValueArg<double> maxdensArg("u","upper","Upper bound point density in pts/unit^2",false,0,"double", cmd);
         TCLAP::ValueArg<double> mindensArg("l","lower","Lower bound point density in pts/unit^2",false,0,"double", cmd);
         
@@ -62,6 +63,7 @@ int main(int argc, char **argv)
         input_parameters.epsilon = epsilonArg.getValue();
         input_parameters.cellsize = cellsizeArg.getValue();
         input_parameters.bisec_threshold = (bisecArg.getValue() / 180.0) * M_PI;
+        input_parameters.bisec_k = biseckArg.getValue();
         
         input_parameters.compute_lfs = !nolfsSwitch.getValue();
         input_parameters.elevation_threshold = fake3dArg.getValue();

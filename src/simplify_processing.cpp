@@ -65,7 +65,7 @@ typedef std::chrono::high_resolution_clock Clock;
 
 
 
-bool compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true)
+bool compute_lfs(ma_data &madata, double bisec_threshold, int bisec_k, bool only_inner = true)
 {
 #ifdef VERBOSEPRINT
    auto start_time = Clock::now();
@@ -106,17 +106,22 @@ bool compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true
 #endif
 
       // Results from our search
-      std::vector<int> k_indices(2);
-      std::vector<Scalar> k_distances(2);
+      std::vector<int> k_indices(bisec_k);
+      std::vector<Scalar> k_distances(bisec_k);
 
 #pragma omp parallel for private(k_indices, k_distances)
       for (int i = 0; i < N; i++) {
          bisec_mask[i] = false;
          if (madata.ma_qidx[i] != -1) {
-            kd_tree->nearestKSearch((*madata.ma_coords)[i], 2, k_indices, k_distances); // find closest point to c
+            kd_tree->nearestKSearch((*madata.ma_coords)[i], bisec_k, k_indices, k_distances); // find closest point to c
 
-            float bisec_angle = std::acos(ma_bisec[k_indices[1]].dot(ma_bisec[i]));
-            if (bisec_angle < bisec_threshold)
+            float bisec_angle, max_bisec_angle = 0;
+            for (int j=1; j<bisec_k; j++){
+                  bisec_angle = std::acos(ma_bisec[k_indices[j]].dot(ma_bisec[i]));
+                  if (bisec_angle > max_bisec_angle)
+                        max_bisec_angle = bisec_angle;
+            }
+            if (max_bisec_angle < bisec_threshold)
                bisec_mask[i] = true;
          }
       }
@@ -333,7 +338,7 @@ void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata)
    if (input_parameters.compute_lfs)
    {
       // If we can't compute LFS values, leave the mask as all false
-      if (!compute_lfs(madata, input_parameters.bisec_threshold, input_parameters.only_inner))
+      if (!compute_lfs(madata, input_parameters.bisec_threshold, input_parameters.bisec_k, input_parameters.only_inner))
          return;
    }
    simplify(madata, input_parameters.cellsize, 
