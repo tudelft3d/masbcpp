@@ -191,6 +191,7 @@ void simplify(ma_data &madata,
              double epsilon, 
              bool true_z_dim = true, 
              double elevation_threshold = 0.0, 
+             double minimum_density = 0,
              double maximum_density = 0,
              bool squared = false) 
 {
@@ -216,6 +217,7 @@ void simplify(ma_data &madata,
    #ifdef VERBOSEPRINT
    std::cout << "Epsilon: " << epsilon << std::endl;
    std::cout << "Maximum density: " << maximum_density << std::endl;
+   std::cout << "Minimum density: " << minimum_density << std::endl;
    std::cout << "True z: " << true_z_dim << std::endl;
    std::cout << "Squared: " << squared << std::endl;
    std::cout << "Cellsize: " << cellsize << std::endl;
@@ -282,6 +284,7 @@ void simplify(ma_data &madata,
    std::uniform_real_distribution<float> randu(0, 1);
 
    double target_n_max = maximum_density * A;
+   double target_n_min = minimum_density * A;
    // parallelize?
    for (int i = 0; i < ncells; i++)
       if (grid[i] != NULL) {
@@ -305,6 +308,7 @@ void simplify(ma_data &madata,
 
          target_n = A / pow(epsilon*mean_lfs, 2);
          if(target_n_max != 0 && target_n > target_n_max) target_n = target_n_max;
+         else if(target_n_min != 0 && target_n < target_n_min) target_n = target_n_min;
          for (auto j : *grid[i])
             madata.mask[j] = randu(gen) <= target_n / n;
       }
@@ -336,6 +340,7 @@ void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata)
                     input_parameters.epsilon, 
                     input_parameters.true_z_dim, 
                     input_parameters.elevation_threshold, 
+                    input_parameters.minimum_density,
                     input_parameters.maximum_density,
                     input_parameters.squared);
 }
