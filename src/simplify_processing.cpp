@@ -278,6 +278,12 @@ void simplify(ma_data &madata,
    delete[] resolution; resolution = NULL;
    delete[] idx; idx = NULL;
 
+#ifdef VERBOSEPRINT
+   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
+   std::cout << "Populated grid in " << elapsed_time.count() << " ms" << std::endl;
+   start_time = Clock::now();
+#endif
+
    double mean_lfs, target_n, A = cellsize*cellsize;
 
 #ifdef DETERMINISTIC_RNG
@@ -318,7 +324,7 @@ void simplify(ma_data &madata,
             madata.mask[j] = randu(gen) <= target_n / n;
       }
 #ifdef VERBOSEPRINT
-   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
+   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
    std::cout << "Performed grid simplification in " << elapsed_time.count() << " ms" << std::endl;
    start_time = Clock::now();
 #endif
@@ -353,7 +359,8 @@ void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata)
 void simplify(normals_parameters &normals_params, 
               ma_parameters &ma_params,
               simplify_parameters &simplify_params,
-              PointCloud::Ptr coords, bool *mask) // mask *must* be allocated ahead of time to be an array of size "coords.size()".
+              PointCloud::Ptr coords, bool *mask,  // mask *must* be allocated ahead of time to be an array of size "coords.size()".
+              progress_callback callback)
 {
    ///////////////////////////
    // Step 0: prepare data struct:
@@ -375,7 +382,7 @@ void simplify(normals_parameters &normals_params,
    ma_coords->resize(2*madata.coords->size());
    madata.ma_coords = ma_coords; // add to the reference count
    madata.ma_qidx.resize(2 * madata.coords->size());
-   compute_masb_points(ma_params, madata);
+   compute_masb_points(ma_params, madata, callback);
 
    //delete madata.kdtree_coords; madata.kdtree_coords = NULL;
 

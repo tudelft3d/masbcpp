@@ -127,14 +127,17 @@ ma_result sb_point(const ma_parameters &input_parameters, const Vector3 &p, cons
       return{ c, qidx };
 }
 
-void sb_points(ma_parameters &input_parameters, ma_data &madata, bool inner = 1) {
+void sb_points(ma_parameters &input_parameters, ma_data &madata, bool inner, progress_callback callback) {
    // outer mat should be written to second half of ma_coords/ma_qidx
    size_t offset = 0;
    if (inner == false)
       offset = madata.coords->size();
 
-#pragma omp parallel for
-   for (int i = 0; i < madata.coords->size(); i++) {
+   size_t progress = offset;
+   size_t accum = 0;
+#pragma omp parallel for firstprivate(accum)
+   for (int i = 0; i < madata.coords->size(); i++)
+   {
       Vector3 p = (*madata.coords)[i].getVector3fMap();
       Vector3 n;
       if (inner)
@@ -146,10 +149,22 @@ void sb_points(ma_parameters &input_parameters, ma_data &madata, bool inner = 1)
 
       (*madata.ma_coords)[i + offset] = r.c;
       madata.ma_qidx[i + offset] = r.qidx;
+
+      accum++;
+      if (accum == 5000)
+      {
+#pragma omp critical
+         {
+            progress += accum;
+            if (callback)
+               callback(progress);
+         }
+         accum = 0;
+      }
    }
 }
 
-void compute_masb_points(ma_parameters &input_parameters, ma_data &madata) {
+void compute_masb_points(ma_parameters &input_parameters, ma_data &madata, progress_callback callback) {
 #ifdef VERBOSEPRINT
    auto start_time = Clock::now();
 #endif
@@ -165,7 +180,7 @@ void compute_masb_points(ma_parameters &input_parameters, ma_data &madata) {
    }
 
    // Inside processing
-   sb_points(input_parameters, madata, 1);
+   sb_points(input_parameters, madata, 1, callback);
 #ifdef VERBOSEPRINT
    auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
    std::cout << "Done shrinking interior balls, took " << elapsed_time.count() << " ms" << std::endl;
@@ -173,7 +188,7 @@ void compute_masb_points(ma_parameters &input_parameters, ma_data &madata) {
 #endif
 
    // Outside processing
-   sb_points(input_parameters, madata, 0);
+   sb_points(input_parameters, madata, 0, callback);
 #ifdef VERBOSEPRINT
    elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
    std::cout << "Done shrinking exterior balls, took " << elapsed_time.count() << " ms" << std::endl;

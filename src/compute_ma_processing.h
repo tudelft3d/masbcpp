@@ -25,6 +25,8 @@ SOFTWARE.
 
 #include "madata.h"
 
+#include <functional>
+
 struct ma_parameters {
    Scalar initial_radius;
    bool nan_for_initr;
@@ -37,6 +39,8 @@ struct ma_result {
    int qidx;
 };
 
-void compute_masb_points(ma_parameters &input_parameters, ma_data &madata);
+using progress_callback = std::function<void(size_t progress)>;
+
+void compute_masb_points(ma_parameters &input_parameters, ma_data &madata, progress_callback callback = {});
 
 #endif
