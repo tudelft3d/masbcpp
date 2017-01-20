@@ -50,6 +50,7 @@ void simplify(normals_parameters &normals_params,
               ma_parameters &ma_params, 
               simplify_parameters &simplify_params,
               PointCloud::Ptr coords,
-              bool *mask); // mask *must* be allocated ahead of time to be an array of size "coords.size()".
+              bool *mask, // mask *must* be allocated ahead of time to be an array of size "coords.size()".
+              progress_callback callback);
 
 #endif

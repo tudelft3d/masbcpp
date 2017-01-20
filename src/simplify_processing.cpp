@@ -78,6 +78,7 @@ bool compute_lfs(ma_data &madata, double bisec_threshold, int bisec_k, bool only
    }
    // compute bisector and filter .. rebuild kdtree .. compute lfs .. compute grid .. thin each cell
 
+   int count = 0;
    Vector3List ma_bisec(N);
    //madata.ma_bisec = &ma_bisec;
    for (int i = 0; i < N; i++) {
@@ -86,6 +87,7 @@ bool compute_lfs(ma_data &madata, double bisec_threshold, int bisec_k, bool only
          Vector3 f2 = (*madata.coords)[madata.ma_qidx[i]].getVector3fMap() - (*madata.ma_coords)[i].getVector3fMap();
 
          ma_bisec[i] = (f1 + f2).normalized();
+         count++;
       }
    }
 #ifdef VERBOSEPRINT
@@ -94,7 +96,11 @@ bool compute_lfs(ma_data &madata, double bisec_threshold, int bisec_k, bool only
    start_time = Clock::now();
 #endif
 
-   int count = 0;
+   // We can't produce LFS values if there are no MAT points
+   if (count == 0)
+      return false;
+
+   count = 0;
    std::vector<bool> bisec_mask(N);
    {
       pcl::search::KdTree<Point>::Ptr kd_tree(new pcl::search::KdTree<Point>());
@@ -116,18 +122,18 @@ bool compute_lfs(ma_data &madata, double bisec_threshold, int bisec_k, bool only
             kd_tree->nearestKSearch((*madata.ma_coords)[i], bisec_k, k_indices, k_distances); // find closest point to c
 
             float bisec_angle, max_bisec_angle = 0;
-            for (int j=1; j<bisec_k; j++){
+            for (int j = 1; j < k_indices.size(); j++){
                   bisec_angle = std::acos(ma_bisec[k_indices[j]].dot(ma_bisec[i]));
                   if (bisec_angle > max_bisec_angle)
                         max_bisec_angle = bisec_angle;
             }
             if (max_bisec_angle < bisec_threshold)
+            {
                bisec_mask[i] = true;
+               count++;
+            }
          }
       }
-      for (int i = 0; i < N; i++)
-         if (bisec_mask[i])
-            count++;
 
 #ifdef VERBOSEPRINT
       elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
@@ -158,7 +164,6 @@ bool compute_lfs(ma_data &madata, double bisec_threshold, int bisec_k, bool only
       // rebuild kd-tree
       pcl::search::KdTree<Point>::Ptr kd_tree(new pcl::search::KdTree<Point>());
       kd_tree->setInputCloud(ma_coords_masked);
-      // kd_tree = new kdtree2::KDTree;
 #ifdef VERBOSEPRINT
       elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
       std::cout << "Constructed cleaned kd-tree in " << elapsed_time.count() << " ms" << std::endl;
@@ -213,9 +218,6 @@ void simplify(ma_data &madata,
    if (true_z_dim)
       size[2] = maxPt.z - minPt.z;
    Point origin = minPt;
-
-   //Box::Size size = madata.bbox.getSize();
-   //Point origin = Point(madata.bbox.min);
 
    int* resolution = new int[3];
 
@@ -278,6 +280,12 @@ void simplify(ma_data &madata,
    delete[] resolution; resolution = NULL;
    delete[] idx; idx = NULL;
 
+#ifdef VERBOSEPRINT
+   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
+   std::cout << "Populated grid in " << elapsed_time.count() << " ms" << std::endl;
+   start_time = Clock::now();
+#endif
+
    double mean_lfs, target_n, A = cellsize*cellsize;
 
 #ifdef DETERMINISTIC_RNG
@@ -318,7 +326,7 @@ void simplify(ma_data &madata,
             madata.mask[j] = randu(gen) <= target_n / n;
       }
 #ifdef VERBOSEPRINT
-   auto elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
+   elapsed_time = std::chrono::duration_cast<std::chrono::milliseconds>(Clock::now() - start_time);
    std::cout << "Performed grid simplification in " << elapsed_time.count() << " ms" << std::endl;
    start_time = Clock::now();
 #endif
@@ -341,25 +349,28 @@ void simplify_lfs(simplify_parameters &input_parameters, ma_data& madata)
       if (!compute_lfs(madata, input_parameters.bisec_threshold, input_parameters.bisec_k, input_parameters.only_inner))
          return;
    }
-   simplify(madata, input_parameters.cellsize, 
-                    input_parameters.epsilon, 
-                    input_parameters.true_z_dim, 
-                    input_parameters.elevation_threshold, 
+   simplify(madata, input_parameters.cellsize,
+                    input_parameters.epsilon,
+                    input_parameters.true_z_dim,
+                    input_parameters.elevation_threshold,
                     input_parameters.minimum_density,
                     input_parameters.maximum_density,
                     input_parameters.squared);
 }
 
-void simplify(normals_parameters &normals_params, 
+void simplify(normals_parameters &normals_params,
               ma_parameters &ma_params,
               simplify_parameters &simplify_params,
-              PointCloud::Ptr coords, bool *mask) // mask *must* be allocated ahead of time to be an array of size "coords.size()".
+              PointCloud::Ptr coords, bool *mask,  // mask *must* be allocated ahead of time to be an array of size "coords.size()".
+              progress_callback callback)
 {
+   if (!coords || coords->size() == 0)
+      return;
+
    ///////////////////////////
    // Step 0: prepare data struct:
    ma_data madata = {};
    madata.coords = coords; // add to the reference count
-   
 
    ///////////////////////////
    // Step 1: compute normals:
@@ -368,17 +379,13 @@ void simplify(normals_parameters &normals_params,
    madata.normals = normals; // add to the reference count
    compute_normals(normals_params, madata);
 
-
    ///////////////////////////
    // Step 2: compute ma
    PointCloud::Ptr ma_coords(new PointCloud);
    ma_coords->resize(2*madata.coords->size());
    madata.ma_coords = ma_coords; // add to the reference count
    madata.ma_qidx.resize(2 * madata.coords->size());
-   compute_masb_points(ma_params, madata);
-
-   //delete madata.kdtree_coords; madata.kdtree_coords = NULL;
-
+   compute_masb_points(ma_params, madata, callback);
 
    ///////////////////////////
    // Step 3: Simplify
@@ -389,6 +396,5 @@ void simplify(normals_parameters &normals_params,
    ///////////////////////////
    // Pass back the results in a safe way.
    std::copy(madata.mask.begin(), madata.mask.end(), mask);
-   //memcpy(mask, &madata.mask[0], madata.mask.size() * sizeof(bool));
 }
 
