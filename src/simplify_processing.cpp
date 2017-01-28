@@ -190,7 +190,7 @@ bool compute_lfs(ma_data &madata, double bisec_threshold, int bisec_k, bool only
    return true;
 }
 
-inline int flatindex(int ind[], int size[], bool true_z_dim) {
+inline size_t flatindex(size_t ind[], size_t size[], bool true_z_dim) {
    if (!true_z_dim)
       return ind[0] + size[0] * ind[1];
    return ind[0] + size[0] * (ind[1] + ind[2] * size[1]);
@@ -219,7 +219,7 @@ void simplify(ma_data &madata,
       size[2] = maxPt.z - minPt.z;
    Point origin = minPt;
 
-   int* resolution = new int[3];
+   size_t* resolution = new size_t[3];
 
    #ifdef VERBOSEPRINT
    std::cout << "Epsilon: " << epsilon << std::endl;
@@ -235,10 +235,10 @@ void simplify(ma_data &madata,
    #endif
 
    // x, y, z - resolution
-   resolution[0] = int(size[0] / cellsize) + 1;
-   resolution[1] = int(size[1] / cellsize) + 1;
+   resolution[0] = size_t(size[0] / cellsize) + 1;
+   resolution[1] = size_t(size[1] / cellsize) + 1;
    if (true_z_dim)
-      resolution[2] = int(size[2] / cellsize) + 1;
+      resolution[2] = size_t(size[2] / cellsize) + 1;
 
    #ifdef VERBOSEPRINT
    std::cout << resolution[0] << " ";
@@ -248,7 +248,7 @@ void simplify(ma_data &madata,
    std::cout << std::endl;
    #endif
 
-   int ncells = 1;
+   size_t ncells = 1;
    ncells *= resolution[0];
    ncells *= resolution[1];
    if (true_z_dim)
@@ -259,13 +259,13 @@ void simplify(ma_data &madata,
       grid[i] = NULL;
    }
 
-   int* idx = new int[3];
-   int index;
+   size_t* idx = new size_t[3];
+   size_t index;
    for (int i = 0; i < madata.coords->size(); i++) {
-      idx[0] = int(((*madata.coords)[i].x - origin.x) / cellsize);
-      idx[1] = int(((*madata.coords)[i].y - origin.y) / cellsize);
+      idx[0] = size_t(((*madata.coords)[i].x - origin.x) / cellsize);
+      idx[1] = size_t(((*madata.coords)[i].y - origin.y) / cellsize);
       if (true_z_dim)
-         idx[2] = int(((*madata.coords)[i].z - origin.z) / cellsize);
+         idx[2] = size_t(((*madata.coords)[i].z - origin.z) / cellsize);
 
       index = flatindex(idx, resolution, true_z_dim);
 
