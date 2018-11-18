@@ -65,11 +65,11 @@ gaussElimination(
 	for(int step=0;step<numRowsParam-1;++step)
 		{
 		/* Find the column pivot: */
-		double pivot=Math::abs(matrix[step][step]);
+		double pivot=Vrui::Math::abs(matrix[step][step]);
 		int pivotRow=step;
 		for(int i=step+1;i<numRowsParam;++i)
 			{
-			double val=Math::abs(matrix[i][step]);
+			double val=Vrui::Math::abs(matrix[i][step]);
 			if(pivot<val)
 				{
 				pivot=val;
@@ -82,7 +82,7 @@ gaussElimination(
 			{
 			/* Swap rows step and pivotRow: */
 			for(int j=step;j<numColumnsParam;++j)
-				Misc::swap(matrix[step][j],matrix[pivotRow][j]);
+				Vrui::Misc::swap(matrix[step][j],matrix[pivotRow][j]);
 			}
 		
 		/* Combine all rows with the current row: */

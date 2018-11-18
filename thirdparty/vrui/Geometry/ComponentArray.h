@@ -90,29 +90,29 @@ class ComponentArray
 		{
 		Scalar result(0);
 		for(int i=0;i<dimension;++i)
-			result+=Math::sqr(components[i]);
+			result+=Vrui::Math::sqr(components[i]);
 		return result;
 		}
 	double mag(void) const // Returns the L2 norm of a component array
 		{
 		double result=0.0;
 		for(int i=0;i<dimension;++i)
-			result+=Math::sqr(double(components[i]));
-		return Math::sqrt(result);
+			result+=Vrui::Math::sqr(double(components[i]));
+		return Vrui::Math::sqrt(result);
 		}
 	Scalar abs(void) const // Returns the absolute norm of a component array
 		{
 		Scalar result(0);
 		for(int i=0;i<dimension;++i)
-			result+=Math::abs(components[i]);
+			result+=Vrui::Math::abs(components[i]);
 		return result;
 		}
 	Scalar max(void) const // Returns the maximum norm of a component array
 		{
-		Scalar result=Math::abs(components[0]);
+		Scalar result=Vrui::Math::abs(components[0]);
 		for(int i=1;i<dimension;++i)
 			{
-			Scalar val=Math::abs(components[i]);
+			Scalar val=Vrui::Math::abs(components[i]);
 			if(result<val)
 				result=val;
 			}
@@ -183,21 +183,21 @@ class ComponentArray<ScalarParam,2>
 	/* Some common operations on ComponentArrays: */
 	Scalar sqr(void) const // Returns the squared L2 norm of a component array
 		{
-		return Math::sqr(components[0])+Math::sqr(components[1]);
+		return Vrui::Math::sqr(components[0])+Vrui::Math::sqr(components[1]);
 		}
 	double mag(void) const // Returns the L2 norm of a component array
 		{
-		return Math::sqrt(Math::sqr(double(components[0]))+Math::sqr(double(components[1])));
+		return Vrui::Math::sqrt(Vrui::Math::sqr(double(components[0]))+Vrui::Math::sqr(double(components[1])));
 		}
 	Scalar abs(void) const // Returns the absolute norm of a component array
 		{
-		return Math::abs(components[0])+Math::abs(components[1]);
+		return Vrui::Math::abs(components[0])+Vrui::Math::abs(components[1]);
 		}
 	Scalar max(void) const // Returns the maximum norm of a component array
 		{
-		Scalar result=Math::abs(components[0]);
+		Scalar result=Vrui::Math::abs(components[0]);
 		Scalar val;
-		if(result<(val=Math::abs(components[1])))
+		if(result<(val=Vrui::Math::abs(components[1])))
 			result=val;
 		return result;
 		}
@@ -265,23 +265,23 @@ class ComponentArray<ScalarParam,3>
 	/* Some common operations on ComponentArrays: */
 	Scalar sqr(void) const // Returns the squared L2 norm of a component array
 		{
-		return Math::sqr(components[0])+Math::sqr(components[1])+Math::sqr(components[2]);
+		return Vrui::Math::sqr(components[0])+Vrui::Math::sqr(components[1])+Vrui::Math::sqr(components[2]);
 		}
 	double mag(void) const // Returns the L2 norm of a component array
 		{
-		return Math::sqrt(Math::sqr(double(components[0]))+Math::sqr(double(components[1]))+Math::sqr(double(components[2])));
+		return Vrui::Math::sqrt(Vrui::Math::sqr(double(components[0]))+Vrui::Math::sqr(double(components[1]))+Vrui::Math::sqr(double(components[2])));
 		}
 	Scalar abs(void) const // Returns the absolute norm of a component array
 		{
-		return Math::abs(components[0])+Math::abs(components[1])+Math::abs(components[2]);
+		return Vrui::Math::abs(components[0])+Vrui::Math::abs(components[1])+Vrui::Math::abs(components[2]);
 		}
 	Scalar max(void) const // Returns the maximum norm of a component array
 		{
-		Scalar result=Math::abs(components[0]);
+		Scalar result=Vrui::Math::abs(components[0]);
 		Scalar val;
-		if(result<(val=Math::abs(components[1])))
+		if(result<(val=Vrui::Math::abs(components[1])))
 			result=val;
-		if(result<(val=Math::abs(components[2])))
+		if(result<(val=Vrui::Math::abs(components[2])))
 			result=val;
 		return result;
 		}
@@ -348,22 +348,22 @@ class ComponentArray<ScalarParam,4>
 	/* Some common operations on ComponentArrays: */
 	Scalar sqr(void) const // Returns the squared L2 norm of a component array
 		{
-		return Math::sqr(components[0])+Math::sqr(components[1])+Math::sqr(components[2])+Math::sqr(components[3]);
+		return Vrui::Math::sqr(components[0])+Vrui::Math::sqr(components[1])+Vrui::Math::sqr(components[2])+Vrui::Math::sqr(components[3]);
 		}
 	double mag(void) const // Returns the L2 norm of a component array
 		{
-		return Math::sqrt(Math::sqr(double(components[0]))+Math::sqr(double(components[1]))+Math::sqr(double(components[2]))+Math::sqr(double(components[3])));
+		return Vrui::Math::sqrt(Vrui::Math::sqr(double(components[0]))+Vrui::Math::sqr(double(components[1]))+Vrui::Math::sqr(double(components[2]))+Vrui::Math::sqr(double(components[3])));
 		}
 	Scalar abs(void) const // Returns the absolute norm of a component array
 		{
-		return Math::abs(components[0])+Math::abs(components[1])+Math::abs(components[2])+Math::abs(components[3]);
+		return Vrui::Math::abs(components[0])+Vrui::Math::abs(components[1])+Vrui::Math::abs(components[2])+Vrui::Math::abs(components[3]);
 		}
 	Scalar max(void) const // Returns the maximum norm of a component array
 		{
-		Scalar result=Math::abs(components[0]);
+		Scalar result=Vrui::Math::abs(components[0]);
 		for(int i=1;i<dimension;++i)
 			{
-			Scalar val=Math::abs(components[i]);
+			Scalar val=Vrui::Math::abs(components[i]);
 			if(result<val)
 				result=val;
 			}
@@ -461,26 +461,26 @@ inline ScalarParam sqr(const ComponentArray<ScalarParam,dimensionParam>& ca) // 
 	{
 	ScalarParam result(0);
 	for(int i=0;i<dimensionParam;++i)
-		result+=Math::sqr(ca[i]);
+		result+=Vrui::Math::sqr(ca[i]);
 	return result;
 	}
 
 template <class ScalarParam>
 inline ScalarParam sqr(const ComponentArray<ScalarParam,2>& ca) // Ditto
 	{
-	return Math::sqr(ca[0])+Math::sqr(ca[1]);
+	return Vrui::Math::sqr(ca[0])+Vrui::Math::sqr(ca[1]);
 	}
 
 template <class ScalarParam>
 inline ScalarParam sqr(const ComponentArray<ScalarParam,3>& ca) // Ditto
 	{
-	return Math::sqr(ca[0])+Math::sqr(ca[1])+Math::sqr(ca[2]);
+	return Vrui::Math::sqr(ca[0])+Vrui::Math::sqr(ca[1])+Vrui::Math::sqr(ca[2]);
 	}
 
 template <class ScalarParam>
 inline ScalarParam sqr(const ComponentArray<ScalarParam,4>& ca) // Ditto
 	{
-	return Math::sqr(ca[0])+Math::sqr(ca[1])+Math::sqr(ca[2])+Math::sqr(ca[3]);
+	return Vrui::Math::sqr(ca[0])+Vrui::Math::sqr(ca[1])+Vrui::Math::sqr(ca[2])+Vrui::Math::sqr(ca[3]);
 	}
 
 template <class ScalarParam,int dimensionParam>
@@ -488,8 +488,8 @@ inline double mag(const ComponentArray<ScalarParam,dimensionParam>& ca) // Retur
 	{
 	double result=0.0;
 	for(int i=0;i<dimensionParam;++i)
-		result+=Math::sqr(double(ca[i]));
-	return Math::sqrt(result);
+		result+=Vrui::Math::sqr(double(ca[i]));
+	return Vrui::Math::sqrt(result);
 	}
 
 template <class ScalarParam,int dimensionParam>
@@ -497,17 +497,17 @@ inline ScalarParam abs(const ComponentArray<ScalarParam,dimensionParam>& ca) // 
 	{
 	ScalarParam result(0);
 	for(int i=0;i<dimensionParam;++i)
-		result+=Math::abs(ca[i]);
+		result+=Vrui::Math::abs(ca[i]);
 	return result;
 	}
 
 template <class ScalarParam,int dimensionParam>
 inline ScalarParam max(const ComponentArray<ScalarParam,dimensionParam>& ca) // Returns the maximum norm of a component array
 	{
-	ScalarParam result=Math::abs(ca[0]);
+	ScalarParam result=Vrui::Math::abs(ca[0]);
 	for(int i=1;i<dimensionParam;++i)
 		{
-		ScalarParam val=Math::abs(ca[i]);
+		ScalarParam val=Vrui::Math::abs(ca[i]);
 		if(result<val)
 			result=val;
 		}

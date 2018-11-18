@@ -52,13 +52,13 @@ calcEigenvector(
 	for(int step=0;step<dimensionParam-1;++step)
 		{
 		/* Find the full pivot: */
-		double pivot=Math::abs(c(step,step));
+		double pivot=Vrui::Math::abs(c(step,step));
 		int pivotRow=step;
 		int pivotCol=step;
 		for(int i=step;i<dimensionParam;++i)
 			for(int j=step;j<dimensionParam;++j)
 				{
-				double val=Math::abs(c(i,j));
+				double val=Vrui::Math::abs(c(i,j));
 				if(pivot<val)
 					{
 					pivot=val;
@@ -72,7 +72,7 @@ calcEigenvector(
 			{
 			/* Swap rows step and pivotRow: */
 			for(int j=0;j<dimensionParam;++j)
-				Misc::swap(c(step,j),c(pivotRow,j));
+				Vrui::Misc::swap(c(step,j),c(pivotRow,j));
 			}
 		
 		/* Swap current and pivot columns if necessary: */
@@ -80,8 +80,8 @@ calcEigenvector(
 			{
 			/* Swap columns step and pivotCol: */
 			for(int i=0;i<dimensionParam;++i)
-				Misc::swap(c(i,step),c(i,pivotCol));
-			Misc::swap(rowIndices[step],rowIndices[pivotCol]);
+				Vrui::Misc::swap(c(i,step),c(i,pivotCol));
+			Vrui::Misc::swap(rowIndices[step],rowIndices[pivotCol]);
 			}
 		
 		/* Combine all rows with the current row: */
@@ -127,14 +127,14 @@ PCACalculator<2>::calcEigenvalues(
 	/* Calculate the coefficients of the covariance matrix' characteristic polynomial: */
 	double mph=0.5*(cov(0,0)+cov(1,1));
 	double q=cov(0,0)*cov(1,1)-cov(0,1)*cov(1,0);
-	double det=Math::sqr(mph)-q;
+	double det=Vrui::Math::sqr(mph)-q;
 	if(det>0.0)
 		{
-		det=Math::sqrt(det);
+		det=Vrui::Math::sqrt(det);
 		eigenvalues[0]=mph-det;
 		eigenvalues[1]=mph+det;
-		if(Math::abs(eigenvalues[0])<Math::abs(eigenvalues[1]))
-			Misc::swap(eigenvalues[0],eigenvalues[1]);
+		if(Vrui::Math::abs(eigenvalues[0])<Vrui::Math::abs(eigenvalues[1]))
+			Vrui::Misc::swap(eigenvalues[0],eigenvalues[1]);
 		return 2;
 		}
 	else if(det==0.0)
@@ -170,16 +170,16 @@ PCACalculator<3>::calcEigenvalues(
 	cp[2]=-cov(0,0)*(cov(1,1)*cov(2,2)-cov(1,2)*cov(2,1))+cov(0,1)*(cov(1,0)*cov(2,2)-cov(1,2)*cov(2,0))-cov(0,2)*(cov(1,0)*cov(2,1)-cov(1,1)*cov(2,0));
 	
 	/* Find all roots of the characteristic polynomial: */
-	double q=(Math::sqr(cp[0])-3.0*cp[1])/9.0;
-	double q3=Math::sqr(q)*q;
-	double r=((2.0*Math::sqr(cp[0])-9.0*cp[1])*cp[0]+27.0*cp[2])/54.0;
-	if(Math::sqr(r)<q3)
+	double q=(Vrui::Math::sqr(cp[0])-3.0*cp[1])/9.0;
+	double q3=Vrui::Math::sqr(q)*q;
+	double r=((2.0*Vrui::Math::sqr(cp[0])-9.0*cp[1])*cp[0]+27.0*cp[2])/54.0;
+	if(Vrui::Math::sqr(r)<q3)
 		{
 		/* There are three real roots: */
-		double theta=Math::acos(r/Math::sqrt(q3));
-		eigenvalues[0]=-2.0*Math::sqrt(q)*Math::cos(theta/3.0)-cp[0]/3.0;
-		eigenvalues[1]=-2.0*Math::sqrt(q)*Math::cos((theta+2.0*Math::Constants<double>::pi)/3.0)-cp[0]/3.0;
-		eigenvalues[2]=-2.0*Math::sqrt(q)*Math::cos((theta-2.0*Math::Constants<double>::pi)/3.0)-cp[0]/3.0;
+		double theta=Vrui::Math::acos(r/Vrui::Math::sqrt(q3));
+		eigenvalues[0]=-2.0*Vrui::Math::sqrt(q)*Vrui::Math::cos(theta/3.0)-cp[0]/3.0;
+		eigenvalues[1]=-2.0*Vrui::Math::sqrt(q)*Vrui::Math::cos((theta+2.0*Vrui::Math::Constants<double>::pi)/3.0)-cp[0]/3.0;
+		eigenvalues[2]=-2.0*Vrui::Math::sqrt(q)*Vrui::Math::cos((theta-2.0*Vrui::Math::Constants<double>::pi)/3.0)-cp[0]/3.0;
 		
 		/* Use Newton iteration to clean up the roots: */
 		for(int i=0;i<3;++i)
@@ -192,19 +192,19 @@ PCACalculator<3>::calcEigenvalues(
 				}
 		
 		/* Sort the roots by descending absolute value: */
-		if(Math::abs(eigenvalues[0])<Math::abs(eigenvalues[1]))
-			Misc::swap(eigenvalues[0],eigenvalues[1]);
-		if(Math::abs(eigenvalues[1])<Math::abs(eigenvalues[2]))
-			Misc::swap(eigenvalues[1],eigenvalues[2]);
-		if(Math::abs(eigenvalues[0])<Math::abs(eigenvalues[1]))
-			Misc::swap(eigenvalues[0],eigenvalues[1]);
+		if(Vrui::Math::abs(eigenvalues[0])<Vrui::Math::abs(eigenvalues[1]))
+			Vrui::Misc::swap(eigenvalues[0],eigenvalues[1]);
+		if(Vrui::Math::abs(eigenvalues[1])<Vrui::Math::abs(eigenvalues[2]))
+			Vrui::Misc::swap(eigenvalues[1],eigenvalues[2]);
+		if(Vrui::Math::abs(eigenvalues[0])<Vrui::Math::abs(eigenvalues[1]))
+			Vrui::Misc::swap(eigenvalues[0],eigenvalues[1]);
 		
 		return 3;
 		}
 	else
 		{
 		/* There is only one real root: */
-		double a=Math::pow(Math::abs(r)+Math::sqrt(Math::sqr(r)-q3),1.0/3.0);
+		double a=Vrui::Math::pow(Vrui::Math::abs(r)+Vrui::Math::sqrt(Vrui::Math::sqr(r)-q3),1.0/3.0);
 		if(r>0.0)
 			a=-a;
 		double b=a==0.0?0.0:q/a;

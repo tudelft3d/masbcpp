@@ -196,20 +196,20 @@ inline ScalarParam sqrDist(const Point<ScalarParam,dimensionParam>& p1,const Poi
 	{
 	ScalarParam result(0);
 	for(int i=0;i<dimensionParam;++i)
-		result+=Math::sqr(p1[i]-p2[i]);
+		result+=Vrui::Math::sqr(p1[i]-p2[i]);
 	return result;
 	}
 
 template <class ScalarParam>
 inline ScalarParam sqrDist(const Point<ScalarParam,2>& p1,const Point<ScalarParam,2>& p2)
 	{
-	return Math::sqr(p1[0]-p2[0])+Math::sqr(p1[1]-p2[1]);
+	return Vrui::Math::sqr(p1[0]-p2[0])+Vrui::Math::sqr(p1[1]-p2[1]);
 	}
 
 template <class ScalarParam>
 inline ScalarParam sqrDist(const Point<ScalarParam,3>& p1,const Point<ScalarParam,3>& p2)
 	{
-	return Math::sqr(p1[0]-p2[0])+Math::sqr(p1[1]-p2[1])+Math::sqr(p1[2]-p2[2]);
+	return Vrui::Math::sqr(p1[0]-p2[0])+Vrui::Math::sqr(p1[1]-p2[1])+Vrui::Math::sqr(p1[2]-p2[2]);
 	}
 
 template <class ScalarParam,int dimensionParam>
@@ -217,20 +217,20 @@ inline double dist(const Point<ScalarParam,dimensionParam>& p1,const Point<Scala
 	{
 	double result=0.0;
 	for(int i=0;i<dimensionParam;++i)
-		result+=Math::sqr(double(p1[i])-double(p2[i]));
-	return Math::sqrt(result);
+		result+=Vrui::Math::sqr(double(p1[i])-double(p2[i]));
+	return Vrui::Math::sqrt(result);
 	}
 
 template <class ScalarParam>
 inline double dist(const Point<ScalarParam,2>& p1,const Point<ScalarParam,2>& p2)
 	{
-	return Math::sqrt(Math::sqr(double(p1[0])-double(p2[0]))+Math::sqr(double(p1[1])-double(p2[1])));
+	return Vrui::Math::sqrt(Vrui::Math::sqr(double(p1[0])-double(p2[0]))+Vrui::Math::sqr(double(p1[1])-double(p2[1])));
 	}
 
 template <class ScalarParam>
 inline double dist(const Point<ScalarParam,3>& p1,const Point<ScalarParam,3>& p2)
 	{
-	return Math::sqrt(Math::sqr(double(p1[0])-double(p2[0]))+Math::sqr(double(p1[1])-double(p2[1]))+Math::sqr(double(p1[2])-double(p2[2])));
+	return Vrui::Math::sqrt(Vrui::Math::sqr(double(p1[0])-double(p2[0]))+Vrui::Math::sqr(double(p1[1])-double(p2[1]))+Vrui::Math::sqr(double(p1[2])-double(p2[2])));
 	}
 
 template <class ScalarParam,int dimensionParam>
@@ -238,20 +238,20 @@ inline Point<ScalarParam,dimensionParam> mid(const Point<ScalarParam,dimensionPa
 	{
 	Point<ScalarParam,dimensionParam> result;
 	for(int i=0;i<dimensionParam;++i)
-		result[i]=Math::mid(p1[i],p2[i]);
+		result[i]=Vrui::Math::mid(p1[i],p2[i]);
 	return result;
 	}
 
 template <class ScalarParam>
 inline Point<ScalarParam,2> mid(const Point<ScalarParam,2>& p1,const Point<ScalarParam,2>& p2)
 	{
-	return Point<ScalarParam,2>(Math::mid(p1[0],p2[0]),Math::mid(p1[1],p2[1]));
+	return Point<ScalarParam,2>(Vrui::Math::mid(p1[0],p2[0]),Vrui::Math::mid(p1[1],p2[1]));
 	}
 
 template <class ScalarParam>
 inline Point<ScalarParam,3> mid(const Point<ScalarParam,3>& p1,const Point<ScalarParam,3>& p2)
 	{
-	return Point<ScalarParam,3>(Math::mid(p1[0],p2[0]),Math::mid(p1[1],p2[1]),Math::mid(p1[2],p2[2]));
+	return Point<ScalarParam,3>(Vrui::Math::mid(p1[0],p2[0]),Vrui::Math::mid(p1[1],p2[1]),Vrui::Math::mid(p1[2],p2[2]));
 	}
 
 template <class ScalarParam,int dimensionParam>

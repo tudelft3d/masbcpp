@@ -83,11 +83,11 @@ MatrixOperations<ScalarParam,dimensionParam,dimensionParam>::determinant(
 	for(int step=0;step<dimensionParam-1;++step)
 		{
 		/* Find the column pivot: */
-		double pivot=Math::abs(temp[step][step]);
+		double pivot=Vrui::Math::abs(temp[step][step]);
 		int pivotRow=step;
 		for(int i=step+1;i<dimensionParam;++i)
 			{
-			double val=Math::abs(temp[i][step]);
+			double val=Vrui::Math::abs(temp[i][step]);
 			if(pivot<val)
 				{
 				pivot=val;

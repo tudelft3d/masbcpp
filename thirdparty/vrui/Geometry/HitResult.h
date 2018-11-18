@@ -45,7 +45,7 @@ class HitResult // Base class for intersections between rays and general surface
 	/* Constructors and destructors: */
 	public:
 	HitResult(void) // Constructs invalid hit result
-		:hit(false),lambda(Math::Constants<Scalar>::max)
+		:hit(false),lambda(Vrui::Math::Constants<Scalar>::max)
 		{
 		}
 	HitResult(Scalar sLambda) // Constructs valid hit result

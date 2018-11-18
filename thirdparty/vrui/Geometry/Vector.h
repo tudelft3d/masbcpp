@@ -115,8 +115,8 @@ class Vector:public ComponentArray<ScalarParam,dimensionParam>
 		{
 		double norm=0.0;
 		for(int i=0;i<dimension;++i)
-			norm+=Math::sqr(double(components[i]));
-		norm=Math::sqrt(norm);
+			norm+=Vrui::Math::sqr(double(components[i]));
+		norm=Vrui::Math::sqrt(norm);
 		for(int i=0;i<dimension;++i)
 			components[i]/=norm;
 		return *this;
@@ -316,8 +316,8 @@ Vector<ScalarParam,dimensionParam> normalize(const Vector<ScalarParam,dimensionP
 	{
 	double norm=0.0;
 	for(int i=0;i<dimensionParam;++i)
-		norm+=Math::sqr(double(v[i]));
-	norm=Math::sqrt(norm);
+		norm+=Vrui::Math::sqr(double(v[i]));
+	norm=Vrui::Math::sqrt(norm);
 	Vector<ScalarParam,dimensionParam> result;
 	for(int i=0;i<dimensionParam;++i)
 		result[i]=ScalarParam(v[i]/norm);
@@ -352,10 +352,10 @@ template <class ScalarParam,int dimensionParam>
 inline int findParallelAxis(const Vector<ScalarParam,dimensionParam>& v) // Finds the index of the primary axis most parallel to the vector
 	{
 	int result=0;
-	ScalarParam maxAbsAxis=Math::abs(v[0]);
+	ScalarParam maxAbsAxis=Vrui::Math::abs(v[0]);
 	for(int i=1;i<dimensionParam;++i)
 		{
-		ScalarParam absAxis=Math::abs(v[i]);
+		ScalarParam absAxis=Vrui::Math::abs(v[i]);
 		if(maxAbsAxis<absAxis)
 			{
 			result=i;
@@ -369,10 +369,10 @@ template <class ScalarParam,int dimensionParam>
 inline int findOrthogonalAxis(const Vector<ScalarParam,dimensionParam>& v) // Finds the index of the primary axis most orthogonal to the vector
 	{
 	int result=0;
-	ScalarParam minAbsAxis=Math::abs(v[0]);
+	ScalarParam minAbsAxis=Vrui::Math::abs(v[0]);
 	for(int i=1;i<dimensionParam;++i)
 		{
-		ScalarParam absAxis=Math::abs(v[i]);
+		ScalarParam absAxis=Vrui::Math::abs(v[i]);
 		if(minAbsAxis>absAxis)
 			{
 			result=i;
@@ -396,7 +396,7 @@ inline Vector<ScalarParam,3> normal(const Vector<ScalarParam,3>& v)
 	{
 	ScalarParam t[3];
 	for(int i=0;i<3;++i)
-		t[i]=Math::abs(v[i]);
+		t[i]=Vrui::Math::abs(v[i]);
 	Vector<ScalarParam,3> result;
 	if(t[0]<t[1]&&t[0]<t[2])
 		{
