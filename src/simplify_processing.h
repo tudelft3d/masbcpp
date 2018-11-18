@@ -27,6 +27,7 @@ SOFTWARE.
 #include "compute_normals_processing.h"
 #include "compute_ma_processing.h"
 
+namespace masb {
 struct simplify_parameters {
    double epsilon;
    double cellsize;
@@ -49,5 +50,5 @@ void simplify(normals_parameters &normals_params,
               simplify_parameters &simplify_params,
               PointList &coords,
               bool *mask); // mask *must* be allocated ahead of time to be an array of size "coords.size()".
-
+}
 #endif

@@ -48,7 +48,7 @@ SOFTWARE.
 //   COMPUTE NORMALS
 //==============================
 
-
+namespace masb {
 Vector estimate_normal(Point &p, kdtree2::KDTree* kd_tree, int k)
 {
    kdtree2::KDTreeResultVector result;
@@ -97,4 +97,4 @@ void compute_normals(normals_parameters &input_parameters, ma_data &madata)
       // Free memory
       delete madata.kdtree_coords; madata.kdtree_coords = NULL;
 }
-
+}

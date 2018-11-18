@@ -48,7 +48,7 @@ SOFTWARE.
 //==============================
 //   COMPUTE MA
 //==============================
-
+namespace masb {
 const Scalar delta_convergance = 1E-5f;
 const unsigned int iteration_limit = 30;
 const Point nanPoint(std::numeric_limits<Scalar>::quiet_NaN());
@@ -235,7 +235,7 @@ void compute_masb_points(ma_parameters &input_parameters, ma_data &madata)
    // Free memory
    delete madata.kdtree_coords; madata.kdtree_coords = NULL;
 }
-
+}
 /*
 
 void convertNPYtoXYZ(std::string inFile, std::string outFile)

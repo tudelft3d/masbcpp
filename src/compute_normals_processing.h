@@ -25,12 +25,13 @@ SOFTWARE.
 
 #include "madata.h"
 
+namespace masb {
 struct normals_parameters {
    int k=10;
    bool kd_tree_reorder=true;
 };
 
 void compute_normals(normals_parameters &input_parameters, ma_data &madata);
-
+}
 
 #endif

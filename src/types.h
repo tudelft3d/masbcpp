@@ -29,6 +29,7 @@ SOFTWARE.
 #include <vrui/Geometry/Point.h>
 #include <vrui/Geometry/Box.h>
 
+namespace masb {
 typedef float Scalar; // Scalar type for 3D points
 typedef Vrui::Geometry::Point<Scalar,3> Point; // Type for 3D points
 typedef std::vector<Point> PointList; // Type for 3D points
@@ -37,5 +38,5 @@ typedef std::vector<Vector> VectorList; // Type for 3D vectors
 typedef Vrui::Geometry::Box<Scalar,3> Box; // Type for 3D Box
 
 typedef std::vector<int> intList; // Type for ints
-
+}
 #endif

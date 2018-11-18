@@ -25,6 +25,7 @@ SOFTWARE.
 
 #include "madata.h"
 
+namespace masb {
 struct ma_parameters {
    Scalar initial_radius=200;
    bool nan_for_initr=false;
@@ -39,6 +40,6 @@ struct ma_result {
 };
 
 void compute_masb_points(ma_parameters &input_parameters, ma_data &madata);
-
+}
 
 #endif

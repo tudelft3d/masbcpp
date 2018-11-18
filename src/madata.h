@@ -27,6 +27,7 @@ SOFTWARE.
 #include "types.h"
 #include <kdtree2/kdtree2.hpp>
 
+namespace masb {
 struct ma_data {
    unsigned int m;
    Box bbox;
@@ -41,5 +42,5 @@ struct ma_data {
    
    kdtree2::KDTree* kdtree_coords;
 };
-
+}
 #endif

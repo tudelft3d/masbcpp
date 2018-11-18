@@ -367,7 +367,7 @@ namespace kdtree2 {
         friend class KDTree;
         friend class KDTreeNode;
         
-        Point& qv;
+        masb::Point& qv;
         int dim;
         bool rearrange;
         unsigned int nn; // , nfound;
@@ -380,7 +380,7 @@ namespace kdtree2 {
         // constructor
         
     public:
-        SearchRecord(Point& qv_in, KDTree& tree_in,
+        SearchRecord(masb::Point& qv_in, KDTree& tree_in,
                      KDTreeResultVector& result_in) :
         qv(qv_in),
         result(result_in),
@@ -396,7 +396,7 @@ namespace kdtree2 {
     };
     
     
-    void KDTree::n_nearest_brute_force(Point& qv, int nn, KDTreeResultVector& result) {
+    void KDTree::n_nearest_brute_force(masb::Point& qv, int nn, KDTreeResultVector& result) {
         
         result.clear();
         
@@ -415,7 +415,7 @@ namespace kdtree2 {
     }
     
     
-    void KDTree::n_nearest(Point& qv, int nn, KDTreeResultVector& result) {
+    void KDTree::n_nearest(masb::Point& qv, int nn, KDTreeResultVector& result) {
         SearchRecord sr(qv,*this,result);
         // Point vdiff(dim,0.0);
         
@@ -435,7 +435,7 @@ namespace kdtree2 {
     
     void KDTree::n_nearest_around_point(int idxin, int correltime, int nn,
                                         KDTreeResultVector& result) {
-        Point qv;  //  query vector
+        masb::Point qv;  //  query vector
         
         result.clear();
         
@@ -458,7 +458,7 @@ namespace kdtree2 {
     }
     
     
-    void KDTree::r_nearest(Point& qv, float r2, KDTreeResultVector& result) {
+    void KDTree::r_nearest(masb::Point& qv, float r2, KDTreeResultVector& result) {
         // search for all within a ball of a certain radius
         SearchRecord sr(qv,*this,result);
         // Point vdiff(dim,0.0);
@@ -476,7 +476,7 @@ namespace kdtree2 {
         
     }
     
-    int KDTree::r_count(Point& qv, float r2) {
+    int KDTree::r_count(masb::Point& qv, float r2) {
         // search for all within a ball of a certain radius
         {
             KDTreeResultVector result;
@@ -496,7 +496,7 @@ namespace kdtree2 {
     
     void KDTree::r_nearest_around_point(int idxin, int correltime, float r2,
                                         KDTreeResultVector& result) {
-        Point qv;  //  query vector
+        masb::Point qv;  //  query vector
         
         result.clear();
         
@@ -522,7 +522,7 @@ namespace kdtree2 {
     
     int KDTree::r_count_around_point(int idxin, int correltime, float r2)
     {
-        Point qv;  //  query vector
+        masb::Point qv;  //  query vector
         
         
         for (int i=0; i<dim; i++) {

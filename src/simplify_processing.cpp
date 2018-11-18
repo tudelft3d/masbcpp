@@ -51,7 +51,7 @@ SOFTWARE.
 //   SIMPLIFY
 //==============================
 
-
+namespace masb {
 
 void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true)
 {
@@ -316,3 +316,4 @@ void simplify(normals_parameters &normals_params,
    delete[] madata.ma_qidx; madata.ma_qidx = NULL;
 }
 
+}
