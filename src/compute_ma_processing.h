@@ -27,11 +27,11 @@ SOFTWARE.
 
 namespace masb {
 struct ma_parameters {
-   Scalar initial_radius=200;
-   bool nan_for_initr=false;
-   double denoise_preserve=20;
-   double denoise_planar=32;
-   bool kd_tree_reorder=true;
+  Scalar initial_radius=200;
+  bool nan_for_initr=false;
+  double denoise_preserve=(M_PI/180.0)*20;
+  double denoise_planar=(M_PI/180.0)*32;
+  bool kd_tree_reorder=true;
 };
 
 struct ma_result {

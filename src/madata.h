@@ -40,7 +40,7 @@ struct ma_data {
    float *lfs;
    bool *mask;
    
-   kdtree2::KDTree* kdtree_coords;
+   kdtree2::KDTree* kdtree_coords = NULL;
 };
 }
 #endif

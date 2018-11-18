@@ -36,7 +36,6 @@ add_definitions(-DVERBOSEPRINT)
 
 # global
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${COMPILE_OPTIONS}")
-set(CMAKE_BUILD_TYPE Release)
 set_property(GLOBAL PROPERTY LINKER_LANGUAGE CXX)
 
 # include directories
