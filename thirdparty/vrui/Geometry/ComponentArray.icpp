@@ -25,6 +25,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 
 #include <Geometry/ComponentArray.h>
 
+namespace Vrui {
 namespace Geometry {
 
 /***************************************
@@ -156,4 +157,5 @@ ComponentArray<ScalarParam,4>::ComponentArray(const ComponentArray<SourceScalarP
 		components[i]=Scalar(source[i]);
 	}
 
+}
 }

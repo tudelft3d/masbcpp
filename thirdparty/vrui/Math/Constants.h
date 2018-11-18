@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #include <limits.h>
 #endif
 
+namespace Vrui {
 namespace Math {
 
 /************************************************************
@@ -273,6 +274,7 @@ class Constants<double>
 	static const Scalar pi;
 	};
 
+}
 }
 
 #endif

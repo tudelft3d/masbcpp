@@ -29,6 +29,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <Geometry/Vector.h>
 #include <Geometry/Matrix.h>
 
+namespace Vrui {
 namespace Geometry {
 
 template <int dimensionParam>
@@ -198,6 +199,7 @@ class PCACalculator<3> // Class for three-dimensional PCA
 	Vector calcEigenvector(double eigenvalue) const; // Returns the eigenvector of the covariance matrix for the given eigenvalue
 	};
 
+}
 }
 
 #endif

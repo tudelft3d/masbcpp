@@ -56,7 +56,7 @@ SOFTWARE.
 void compute_lfs(ma_data &madata, double bisec_threshold, bool only_inner = true)
 {
 #ifdef VERBOSEPRINT
-   Misc::Timer t0;
+   Vrui::Misc::Timer t0;
 #endif
 
    int N = 2 * madata.m;
@@ -164,7 +164,7 @@ void simplify(ma_data &madata,
              bool squared = false) 
 {
 #ifdef VERBOSEPRINT
-   Misc::Timer t0;
+   Vrui::Misc::Timer t0;
 #endif
 
    Box::Size size = madata.bbox.getSize();

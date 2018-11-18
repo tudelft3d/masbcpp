@@ -26,6 +26,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 
 #include <Math/Math.h>
 
+namespace Vrui {
 namespace Geometry {
 
 /********************************
@@ -513,6 +514,7 @@ inline ScalarParam max(const ComponentArray<ScalarParam,dimensionParam>& ca) // 
 	return result;
 	}
 
+}
 }
 
 #if defined(GEOMETRY_NONSTANDARD_TEMPLATES) && !defined(GEOMETRY_COMPONENTARRAY_IMPLEMENTATION)

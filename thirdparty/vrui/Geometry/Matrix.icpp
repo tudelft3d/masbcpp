@@ -28,6 +28,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <Math/Math.h>
 #include <Geometry/MatrixHelperFunctions.h>
 
+namespace Vrui {
 namespace Geometry {
 
 /*********************************
@@ -459,4 +460,5 @@ Matrix<ScalarParam,numColumnsParam,numRowsParam> transpose(const Matrix<ScalarPa
 	return result;
 	}
 
+}
 }

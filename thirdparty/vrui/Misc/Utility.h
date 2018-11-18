@@ -23,6 +23,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #ifndef MISC_UTILITY_INCLUDED
 #define MISC_UTILITY_INCLUDED
 
+namespace Vrui {
 namespace Misc {
 
 /**********************************
@@ -71,6 +72,7 @@ max(
 		return v1;
 	}
 
+}
 }
 
 #endif

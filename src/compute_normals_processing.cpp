@@ -54,7 +54,7 @@ Vector estimate_normal(Point &p, kdtree2::KDTree* kd_tree, int k)
    kdtree2::KDTreeResultVector result;
    kd_tree->n_nearest(p, k + 1, result);
 
-   Geometry::PCACalculator<3> PCACalc;
+   Vrui::Geometry::PCACalculator<3> PCACalc;
    for (int i = 0; i < k + 1; i++)
       PCACalc.accumulatePoint(kd_tree->the_data[result[i].idx]);
 
@@ -74,7 +74,7 @@ void estimate_normals(ma_data &madata, int k)
 void compute_normals(normals_parameters &input_parameters, ma_data &madata)
 {
       #ifdef VERBOSEPRINT
-      Misc::Timer t0;
+      Vrui::Misc::Timer t0;
       #endif
       
       if (madata.kdtree_coords == NULL) {

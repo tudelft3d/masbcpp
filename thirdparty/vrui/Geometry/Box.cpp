@@ -22,6 +22,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 
 #include <Geometry/Box.icpp>
 
+namespace Vrui {
 namespace Geometry {
 
 /*************************************************************
@@ -49,4 +50,5 @@ template class Box<double,3>;
 template Box<double,3> add(const Box<double,3>&,const Box<double,3>&);
 template Box<double,3> intersect(const Box<double,3>&,const Box<double,3>&);
 
+}
 }

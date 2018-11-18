@@ -57,7 +57,7 @@ const Point nanPoint(std::numeric_limits<Scalar>::quiet_NaN());
 inline Scalar compute_radius(Point &p, Vector &n, Point &q)
 {
    // this is basic goniometry
-   double d = Geometry::mag(p - q);
+   double d = Vrui::Geometry::mag(p - q);
    Scalar cos_theta = float((n * (p - q)) / d);
    return float(d / (2 * cos_theta));
 }
@@ -65,7 +65,7 @@ inline Scalar compute_radius(Point &p, Vector &n, Point &q)
 inline Scalar cos_angle(Vector p, Vector q)
 {
    // Calculate the cosine of angle between vector p and q, see http://en.wikipedia.org/wiki/Law_of_cosines#Vector_formulation
-   Scalar result = float(p*q / (Geometry::mag(p) * Geometry::mag(q)));
+   Scalar result = float(p*q / (Vrui::Geometry::mag(p) * Vrui::Geometry::mag(q)));
    if (result > 1) return 1;
    else if (result < -1) return -1;
    return result;
@@ -140,9 +140,9 @@ ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree2
       if (input_parameters.denoise_preserve || input_parameters.denoise_planar)
       {
          Scalar a = cos_angle(p - c_next, q - c_next);
-         Scalar separation_angle = Math::acos(a);
+         Scalar separation_angle = Vrui::Math::acos(a);
 
-         if (input_parameters.denoise_preserve && (separation_angle < input_parameters.denoise_preserve && j>0 && r > Geometry::mag(q - p)))
+         if (input_parameters.denoise_preserve && (separation_angle < input_parameters.denoise_preserve && j>0 && r > Vrui::Geometry::mag(q - p)))
          {
             // keep previous radius:
             r = r_previous;
@@ -159,7 +159,7 @@ ma_result sb_point(ma_parameters &input_parameters, Point &p, Vector &n, kdtree2
       }
 
       // stop iteration if r has converged
-      if (Math::abs(r_previous - r) < delta_convergance)
+      if (Vrui::Math::abs(r_previous - r) < delta_convergance)
          break;
 
       // stop iteration if this looks like an infinite loop:
@@ -203,7 +203,7 @@ void sb_points(ma_parameters &input_parameters, ma_data &madata, bool inner = 1)
 void compute_masb_points(ma_parameters &input_parameters, ma_data &madata)
 {
       #ifdef VERBOSEPRINT
-      Misc::Timer t0;
+      Vrui::Misc::Timer t0;
       #endif
       if (madata.kdtree_coords == NULL) {
             madata.kdtree_coords = new kdtree2::KDTree((*madata.coords), input_parameters.kd_tree_reorder);

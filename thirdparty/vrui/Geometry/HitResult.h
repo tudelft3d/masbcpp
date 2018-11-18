@@ -27,6 +27,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 
 #include <Math/Constants.h>
 
+namespace Vrui {
 namespace Geometry {
 
 template <class ScalarParam>
@@ -63,6 +64,7 @@ class HitResult // Base class for intersections between rays and general surface
 		}
 	};
 
+}
 }
 
 #endif

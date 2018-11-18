@@ -26,6 +26,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <Math/Math.h>
 #include <Geometry/ComponentArray.h>
 
+namespace Vrui {
 namespace Geometry {
 
 template <class ScalarParam,int dimensionParam>
@@ -418,6 +419,7 @@ inline Vector<ScalarParam,3> normal(const Vector<ScalarParam,3>& v)
 	return result;
 	}
 
+}
 }
 
 #if defined(GEOMETRY_NONSTANDARD_TEMPLATES) && !defined(GEOMETRY_VECTOR_IMPLEMENTATION)

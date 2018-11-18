@@ -23,6 +23,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 
 #include <Geometry/Matrix.icpp>
 
+namespace Vrui {
 namespace Geometry {
 
 /****************************************************************
@@ -180,4 +181,5 @@ template Matrix<double,4,4> operator/(const Matrix<double,4,4>&,double);
 template Matrix<double,4,4> operator*(const Matrix<double,4,4>&,const Matrix<double,4,4>&);
 template Matrix<double,4,4> transpose(const Matrix<double,4,4>&);
 
+}
 }

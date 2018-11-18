@@ -24,6 +24,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 
 #include <Geometry/Point.h>
 
+namespace Vrui {
 namespace Geometry {
 
 /******************************
@@ -33,4 +34,5 @@ Static elements of class Point:
 template <class ScalarParam,int dimensionParam>
 const Point<ScalarParam,dimensionParam> Point<ScalarParam,dimensionParam>::origin(ScalarParam(0));
 
+}
 }

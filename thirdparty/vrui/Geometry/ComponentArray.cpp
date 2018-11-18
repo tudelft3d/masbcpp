@@ -23,6 +23,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 
 #include <Geometry/ComponentArray.icpp>
 
+namespace Vrui {
 namespace Geometry {
 
 /************************************************************************
@@ -92,4 +93,5 @@ template ComponentArray<double,4>::ComponentArray(const ComponentArray<double,3>
 template ComponentArray<double,4>::ComponentArray(const ComponentArray<int,4>&);
 template ComponentArray<double,4>::ComponentArray(const ComponentArray<float,4>&);
 
+}
 }

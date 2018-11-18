@@ -27,6 +27,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <Math/Math.h>
 #include <Math/Constants.h>
 
+namespace Vrui {
 namespace Geometry {
 
 /****************************
@@ -343,4 +344,5 @@ intersect(
 	return result;
 	}
 
+}
 }

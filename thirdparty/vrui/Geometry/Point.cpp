@@ -22,6 +22,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 
 #include <Geometry/Point.icpp>
 
+namespace Vrui {
 namespace Geometry {
 
 /***************************************************************
@@ -40,4 +41,5 @@ template const Point<double,2> Point<double,2>::origin;
 
 template const Point<double,3> Point<double,3>::origin;
 
+}
 }

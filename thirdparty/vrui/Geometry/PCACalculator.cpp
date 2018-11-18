@@ -28,6 +28,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <Math/Math.h>
 #include <Math/Constants.h>
 
+namespace Vrui {
 namespace Geometry {
 
 namespace {
@@ -240,4 +241,5 @@ Force instantiation of all standard PCACalculator classes and functions:
 template class PCACalculator<2>;
 template class PCACalculator<3>;
 
+}
 }

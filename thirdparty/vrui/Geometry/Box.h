@@ -30,6 +30,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <Geometry/Ray.h>
 #include <Geometry/SolidHitResult.h>
 
+namespace Vrui {
 namespace Geometry {
 
 /* Forward declarations for friend functions: */
@@ -246,6 +247,7 @@ bool operator!=(const Box<ScalarParam,dimensionParam>& b1,const Box<ScalarParam,
 	return b1.min!=b2.min||b1.max!=b2.max;
 	}
 
+}
 }
 
 #if defined(GEOMETRY_NONSTANDARD_TEMPLATES) && !defined(GEOMETRY_BOX_IMPLEMENTATION)

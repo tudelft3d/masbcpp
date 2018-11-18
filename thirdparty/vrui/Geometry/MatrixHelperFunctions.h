@@ -25,6 +25,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 
 #include <Misc/Utility.h>
 
+namespace Vrui {
 namespace Geometry {
 
 /*******************************************
@@ -95,6 +96,7 @@ gaussElimination(
 		}
 	}
 
+}
 }
 
 #endif

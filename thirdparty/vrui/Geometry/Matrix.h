@@ -29,6 +29,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <Geometry/Point.h>
 // #include <Geometry/HVector.h>
 
+namespace Vrui {
 namespace Geometry {
 
 /* Helper class to specialize matrix operations: */
@@ -315,6 +316,7 @@ inline ComponentArray<ScalarParam,numColumnsParam> operator/(const ComponentArra
 	return MatrixOperations<ScalarParam,numRowsParam,numColumnsParam>::divide(ca,m.c);
 	}
 
+}
 }
 
 #if defined(GEOMETRY_NONSTANDARD_TEMPLATES) && !defined(GEOMETRY_MATRIX_IMPLEMENTATION)

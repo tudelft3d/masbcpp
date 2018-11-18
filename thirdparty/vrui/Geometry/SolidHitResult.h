@@ -26,6 +26,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 
 #include <Geometry/HitResult.h>
 
+namespace Vrui {
 namespace Geometry {
 
 template <class ScalarParam>
@@ -60,6 +61,7 @@ class SolidHitResult:public HitResult<ScalarParam> // Class to report intersecti
 		}
 	};
 
+}
 }
 
 #endif

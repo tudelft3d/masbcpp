@@ -26,6 +26,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <Geometry/Vector.h>
 #include <Geometry/Point.h>
 
+namespace Vrui {
 namespace Geometry {
 
 template <class ScalarParam,int dimensionParam>
@@ -110,6 +111,7 @@ class Ray
 		}
 	};
 
+}
 }
 
 #endif

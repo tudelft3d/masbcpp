@@ -27,6 +27,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <Geometry/ComponentArray.h>
 #include <Geometry/Vector.h>
 
+namespace Vrui {
 namespace Geometry {
 
 /* Forward declarations: */
@@ -277,6 +278,7 @@ inline Point<ScalarParam,3> affineCombination(const Point<ScalarParam,3>& p1,con
 	return Point<ScalarParam,3>(p1[0]*w1+p2[0]*w2,p1[1]*w1+p2[1]*w2,p1[2]*w1+p2[2]*w2);
 	}
 
+}
 }
 
 #if defined(GEOMETRY_NONSTANDARD_TEMPLATES) && !defined(GEOMETRY_POINT_IMPLEMENTATION)

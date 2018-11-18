@@ -24,6 +24,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 
 #include <Misc/Timer.h>
 
+namespace Vrui {
 namespace Misc {
 
 /**********************
@@ -142,4 +143,5 @@ double Timer::peekTime(void) const
 
 #endif
 
+}
 }

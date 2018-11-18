@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #define MATH_CONFIG_HAVE_FLOAT_CLASSIFICATIONS
 #endif
 
+namespace Vrui {
 namespace Math {
 
 /**********************************************
@@ -612,6 +613,7 @@ inline double pow(double base,double exponent)
 	return ::pow(base,exponent);
 	}
 
+}
 }
 
 #endif

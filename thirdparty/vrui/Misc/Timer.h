@@ -32,6 +32,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <sys/time.h>
 #endif
 
+namespace Vrui {
 namespace Misc {
 
 class Timer
@@ -80,6 +81,7 @@ class Timer
 	double peekTime(void) const; // Returns the amount of time passed since the last time elapse() was called
 	};
 
+}
 }
 
 #endif

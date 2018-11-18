@@ -22,6 +22,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 
 #include <Geometry/Vector.icpp>
 
+namespace Vrui {
 namespace Geometry {
 
 /****************************************************************
@@ -46,4 +47,5 @@ template const Vector<double,3> Vector<double,3>::zero;
 
 template const Vector<double,4> Vector<double,4>::zero;
 
+}
 }

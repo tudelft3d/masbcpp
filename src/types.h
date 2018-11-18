@@ -30,11 +30,11 @@ SOFTWARE.
 #include <vrui/Geometry/Box.h>
 
 typedef float Scalar; // Scalar type for 3D points
-typedef Geometry::Point<Scalar,3> Point; // Type for 3D points
+typedef Vrui::Geometry::Point<Scalar,3> Point; // Type for 3D points
 typedef std::vector<Point> PointList; // Type for 3D points
-typedef Geometry::Vector<Scalar,3> Vector; // Type for 3D vectors
+typedef Vrui::Geometry::Vector<Scalar,3> Vector; // Type for 3D vectors
 typedef std::vector<Vector> VectorList; // Type for 3D vectors
-typedef Geometry::Box<Scalar,3> Box; // Type for 3D Box
+typedef Vrui::Geometry::Box<Scalar,3> Box; // Type for 3D Box
 
 typedef std::vector<int> intList; // Type for ints
 
