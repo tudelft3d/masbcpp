@@ -57,7 +57,7 @@ add_executable(compute_normals src/compute_normals.cpp)
 add_executable(simplify src/simplify.cpp)
 set_target_properties(
   compute_ma compute_normals simplify thirdparty masbcpp
-  PROPERTIES C_STANDARD 11
+  PROPERTIES CXX_STANDARD 11
 )
 
 # link targets
