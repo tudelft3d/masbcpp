@@ -40,7 +40,7 @@ set(CMAKE_BUILD_TYPE Release)
 set_property(GLOBAL PROPERTY LINKER_LANGUAGE CXX)
 
 # include directories
-include_directories(${CMAKE_SOURCE_DIR}/thirdparty ${CMAKE_SOURCE_DIR}/thirdparty/vrui)
+include_directories(thirdparty thirdparty/vrui)
 
 # bundle all thirdparty stuff as a static library
 FILE(GLOB_RECURSE THIRDPARTY thirdparty/*.cpp)
