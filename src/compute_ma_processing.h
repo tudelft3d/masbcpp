@@ -26,11 +26,11 @@ SOFTWARE.
 #include "madata.h"
 
 struct ma_parameters {
-   Scalar initial_radius;
-   bool nan_for_initr;
-   double denoise_preserve;
-   double denoise_planar;
-   bool kd_tree_reorder;
+   Scalar initial_radius=200;
+   bool nan_for_initr=false;
+   double denoise_preserve=20;
+   double denoise_planar=32;
+   bool kd_tree_reorder=true;
 };
 
 struct ma_result {

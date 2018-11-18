@@ -26,8 +26,8 @@ SOFTWARE.
 #include "madata.h"
 
 struct normals_parameters {
-   int k;
-   bool kd_tree_reorder;
+   int k=10;
+   bool kd_tree_reorder=true;
 };
 
 void compute_normals(normals_parameters &input_parameters, ma_data &madata);
