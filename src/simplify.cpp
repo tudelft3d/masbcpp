@@ -32,7 +32,7 @@ SOFTWARE.
 // typedefs
 #include "simplify_processing.h"
 
-
+using namespace masb;
 
 int main(int argc, char **argv)
 {

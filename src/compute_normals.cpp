@@ -33,6 +33,8 @@ SOFTWARE.
 #include "madata.h"
 #include "compute_normals_processing.h"
 
+using namespace masb;
+
 int main(int argc, char **argv)
 {
     // parse command line arguments

@@ -33,6 +33,8 @@ SOFTWARE.
 #include "types.h"
 #include "compute_ma_processing.h"
 
+using namespace masb;
+
 int main(int argc, char **argv)
 {
     // parse command line arguments
