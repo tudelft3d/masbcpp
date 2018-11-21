@@ -56,8 +56,8 @@ int main(int argc, char **argv)
         ma_parameters input_parameters;
 
         input_parameters.initial_radius = float(initial_radiusArg.getValue());
-        input_parameters.denoise_preserve = (M_PI/180.0) * denoise_preserveArg.getValue();
-        input_parameters.denoise_planar = (M_PI/180.0) * denoise_planarArg.getValue();
+        input_parameters.denoise_preserve = (PI/180.0) * denoise_preserveArg.getValue();
+        input_parameters.denoise_planar = (PI/180.0) * denoise_planarArg.getValue();
         
         input_parameters.nan_for_initr = nan_for_initrSwitch.getValue();
         input_parameters.kd_tree_reorder = reorder_kdtreeSwitch.getValue();
