@@ -29,6 +29,8 @@ SOFTWARE.
 #include <vrui/Geometry/Point.h>
 #include <vrui/Geometry/Box.h>
 
+static const double PI = 3.14159265358979323846264338327950288;
+
 namespace masb {
 typedef float Scalar; // Scalar type for 3D points
 typedef Vrui::Geometry::Point<Scalar,3> Point; // Type for 3D points

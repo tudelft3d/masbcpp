@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 
         input_parameters.epsilon = epsilonArg.getValue();
         input_parameters.cellsize = cellsizeArg.getValue();
-        input_parameters.bisec_threshold = (bisecArg.getValue() / 180.0) * M_PI;
+        input_parameters.bisec_threshold = (bisecArg.getValue() / 180.0) * PI;
         
         input_parameters.compute_lfs = !nolfsSwitch.getValue();
         input_parameters.elevation_threshold = fake3dArg.getValue();
