@@ -42,7 +42,7 @@ set_property(GLOBAL PROPERTY LINKER_LANGUAGE CXX)
 include_directories(thirdparty thirdparty/vrui)
 
 # bundle all thirdparty stuff as a static library
-FILE(GLOB_RECURSE THIRDPARTY thirdparty/*.cpp)
+FILE(GLOB_RECURSE THIRDPARTY thirdparty/kdtree2/*.cpp thirdparty/vrui/*.cpp)
 add_library(thirdparty STATIC ${THIRDPARTY})
 
 set(LINK_LIBS ${LINK_LIBS} thirdparty)
@@ -51,9 +51,10 @@ set(LINK_LIBS ${LINK_LIBS} thirdparty)
 add_library(masbcpp STATIC src/compute_ma_processing.cpp src/compute_normals_processing.cpp src/simplify_processing.cpp)
 
 # set excutables
-add_executable(compute_ma src/compute_ma.cpp)
-add_executable(compute_normals src/compute_normals.cpp)
-add_executable(simplify src/simplify.cpp)
+FILE(GLOB_RECURSE CNPY thirdparty/cnpy/*.cpp)
+add_executable(compute_ma src/compute_ma.cpp ${CNPY})
+add_executable(compute_normals src/compute_normals.cpp ${CNPY})
+add_executable(simplify src/simplify.cpp ${CNPY})
 set_target_properties(
   compute_ma compute_normals simplify thirdparty masbcpp
   PROPERTIES CXX_STANDARD 11
