@@ -32,7 +32,7 @@ endif()
 endif()
 
 # enable verbose printing by default
-add_definitions(-DVERBOSEPRINT)
+# add_definitions(-DVERBOSEPRINT)
 
 # global
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${COMPILE_OPTIONS}")
@@ -49,6 +49,7 @@ set(LINK_LIBS ${LINK_LIBS} thirdparty)
 
 # build a library from the masbpcpp processing functions
 add_library(masbcpp STATIC src/compute_ma_processing.cpp src/compute_normals_processing.cpp src/simplify_processing.cpp)
+target_link_libraries(masbcpp ${LINK_LIBS})
 
 # set excutables
 FILE(GLOB_RECURSE CNPY thirdparty/cnpy/*.cpp)
@@ -61,7 +62,7 @@ set_target_properties(
 )
 
 # link targets
-target_link_libraries(masbcpp ${LINK_LIBS})
+
 
 target_link_libraries(compute_ma masbcpp)
 target_link_libraries(compute_normals masbcpp)
