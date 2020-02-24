@@ -44,12 +44,14 @@ include_directories(thirdparty thirdparty/vrui)
 # bundle all thirdparty stuff as a static library
 FILE(GLOB_RECURSE THIRDPARTY thirdparty/kdtree2/*.cpp thirdparty/vrui/*.cpp)
 add_library(thirdparty STATIC ${THIRDPARTY})
-
+set_property(TARGET thirdparty PROPERTY POSITION_INDEPENDENT_CODE ON)
 set(LINK_LIBS ${LINK_LIBS} thirdparty)
 
 # build a library from the masbpcpp processing functions
 add_library(masbcpp STATIC src/compute_ma_processing.cpp src/compute_normals_processing.cpp src/simplify_processing.cpp)
 target_link_libraries(masbcpp ${LINK_LIBS})
+set_property(TARGET masbcpp PROPERTY POSITION_INDEPENDENT_CODE ON)
+
 
 # set excutables
 FILE(GLOB_RECURSE CNPY thirdparty/cnpy/*.cpp)
