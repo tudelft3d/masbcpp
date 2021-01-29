@@ -49,7 +49,7 @@ int main(int argc, char **argv)
         TCLAP::ValueArg<double> maxdensArg("m","max","Upper bound point density in pts/unit^2",false,1,"double", cmd);
         
         TCLAP::ValueArg<double> fake3dArg("f","fake3d","Use 2D grid instead of 3D grid, intended for 2.5D datasets (eg. buildings without points only on the roof and not on the walls). In addition this mode will try to detect elevation jumps in the dataset (eg. where there should be a wall) and still try to preserve points around those areas, the value for this parameter is the threshold elevation difference (in units of your dataset) within one gridcell that will be used for the elevation jump detection function.",false,0.5,"double", cmd);
-        TCLAP::SwitchArg innerSwitch("i","inner","Compute LFS using only interior MAT points.", cmd, false);
+//        TCLAP::SwitchArg innerSwitch("i","inner","Compute LFS using only interior MAT points.", cmd, false);
         TCLAP::SwitchArg squaredSwitch("s","squared","Use squared LFS during simplification.", cmd, false);
         TCLAP::SwitchArg nolfsSwitch("d","no-lfs","Don't recompute lfs.'", cmd, false);
         
@@ -67,7 +67,7 @@ int main(int argc, char **argv)
         input_parameters.elevation_threshold = fake3dArg.getValue();
         input_parameters.maximum_density = maxdensArg.getValue();
         input_parameters.dimension = 3;
-        input_parameters.only_inner = innerSwitch.getValue();
+        input_parameters.only_inner = true; //innerSwitch.getValue();
         input_parameters.squared = squaredSwitch.getValue();
         if( fake3dArg.isSet() )
            input_parameters.dimension = 2;
